@@ -175,6 +175,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\cheeki.jpg" />
+    <Image Include="src\crab-body.png" />
+    <Image Include="src\crab-leg.png" />
     <Image Include="src\sand.jpg" />
   </ItemGroup>
   <ItemGroup>

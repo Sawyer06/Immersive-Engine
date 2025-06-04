@@ -45,6 +45,27 @@ GLuint indices[] =
 	0, 1, 2
 };
 
+GLfloat body[] =
+{
+	-0.5f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f,
+	-0.5f, 0.5f, 0.0f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+	0.5f, 0.0f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+	0.5f, 0.5f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+};
+GLfloat arm[] =
+{
+	-0.25f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f,
+	-0.25f, 0.5f, 0.0f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+	0.25f, 0.0f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+	0.25f, 0.5f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+};
+
+GLuint rectangle[] =
+{
+	0, 1, 3,
+	3, 2, 0
+};
+
 Engine::Math::Vector3 move;
  
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -52,13 +73,6 @@ void processInput(GLFWwindow* window);
 
 int main()
 {
-	try {
-		std::cout << "Current Working Directory: " << std::filesystem::current_path() << std::endl;
-	}
-	catch (const std::filesystem::filesystem_error& e) {
-		std::cout << "Error getting current path: " << e.what() << std::endl;
-	}
-
     glfwInit();
     
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -88,29 +102,53 @@ int main()
 	
 	/// Bind and unbind VAO, VBO, and EBO for initialization and packaging of VBO in VAO.
 	
-    Present objA(verticesA, sizeof(verticesA), indices, sizeof(indices));
-    Present objB(verticesB, sizeof(verticesB), indices, sizeof(indices));
+    //Present objA(verticesA, sizeof(verticesA), indices, sizeof(indices));
+    //Present objB(verticesB, sizeof(verticesB), indices, sizeof(indices));
 
-    objA.setTexture("sand.jpg", GL_RGB);
+    //objA.setTexture("sand.jpg", GL_RGB);
     //objA.space.translate(Engine::Math::Vector3(0, 0, 1));
     //std::cout << "pos: " << objA.space.position.toString();
     //objA.space.translate(Engine::Math::Vector3(1, 0, 0));
-    std::cout << objA.toString();
+    //std::cout << objA.toString();
 
-    objA.space.dialate(0.5f);
+	Present crabBod(body, sizeof(body), rectangle, sizeof(rectangle));
+	crabBod.setTexture("crab-body.png", GL_RGBA);
+
+	Present crabArmA(arm, sizeof(arm), rectangle, sizeof(rectangle));
+	crabArmA.setTexture("crab-leg.png", GL_RGBA);
+	Present crabArmB(arm, sizeof(arm), rectangle, sizeof(rectangle));
+	crabArmB.setTexture("crab-leg1.png", GL_RGBA);
+	
+	crabArmA.space.dialate(0.5f);
+	crabArmA.space.translate(Engine::Math::Vector2(-0.25f, 0.03f));
+
+	crabArmB.space.dialate(0.5f);
+	crabArmB.space.translate(Engine::Math::Vector2(0.25f, 0.03f));
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window); // Get inputs.
 
 		// Rendering
-		glClearColor(0.0f, 1.0f, 0.7f, 1.0f); // In decimal RGBA
+		glClearColor(1.0f, 1.0f, 1.0f, 0.0f); // Window background in decimal RGBA
 		glClear(GL_COLOR_BUFFER_BIT);
 		
         shaderProgram.Activate();
         
-        objA.space.updateTransforms(shaderProgram);
-        objA.draw(shaderProgram);
+        //objA.space.updateTransforms(shaderProgram);
+        //objA.draw(shaderProgram);
+		
+		crabBod.space.updateTransforms(shaderProgram);
+		crabBod.draw(shaderProgram);
         
+		crabArmA.space.rotate(0.1f);
+		crabArmA.space.updateTransforms(shaderProgram);
+		crabArmA.draw(shaderProgram);
+
+		crabArmB.space.rotate(0.1f);
+		crabArmB.space.updateTransforms(shaderProgram);
+		crabArmB.draw(shaderProgram);
+
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
