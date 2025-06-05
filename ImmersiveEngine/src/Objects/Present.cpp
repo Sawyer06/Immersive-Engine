@@ -127,9 +127,9 @@ void Present::Space::updateTransforms(Shader shaderProgram)
 
     m_matrix = glm::translate(m_matrix, glm::vec3(position.x, position.y, position.z));
     
-    m_matrix = glm::rotate(m_matrix, glm::radians(orientation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-    m_matrix = glm::rotate(m_matrix, glm::radians(orientation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_matrix = glm::rotate(m_matrix, glm::radians(orientation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    m_matrix = glm::rotate(m_matrix, -glm::radians(orientation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    m_matrix = glm::rotate(m_matrix, -glm::radians(orientation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_matrix = glm::rotate(m_matrix, -glm::radians(orientation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
     m_matrix = glm::scale(m_matrix, glm::vec3(scale.x, scale.y, scale.z));
 

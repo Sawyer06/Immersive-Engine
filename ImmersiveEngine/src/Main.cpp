@@ -141,11 +141,20 @@ int main()
 		crabBod.space.updateTransforms(shaderProgram);
 		crabBod.draw(shaderProgram);
         
-		crabArmA.space.rotate(0.1f);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			crabArmA.space.rotate(0.1f);
+			crabArmB.space.rotate(0.1f);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			crabArmA.space.rotate(-0.1f);
+			crabArmB.space.rotate(-0.1f);
+		}
+
 		crabArmA.space.updateTransforms(shaderProgram);
 		crabArmA.draw(shaderProgram);
 
-		crabArmB.space.rotate(0.1f);
 		crabArmB.space.updateTransforms(shaderProgram);
 		crabArmB.draw(shaderProgram);
 
@@ -170,22 +179,5 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) // On escape key.
 	{
 		glfwSetWindowShouldClose(window, true);
-	}
-	
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-	{
-		move.y += 0.001f;
-	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-	{
-		move.y -= 0.001f;
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-	{
-		move.x += 0.001f;
-	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-	{
-		move.x -= 0.001f;
 	}
 }
