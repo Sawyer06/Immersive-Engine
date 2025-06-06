@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Math\Math.cpp" />
     <ClCompile Include="src\Math\Vector2.cpp" />
     <ClCompile Include="src\Math\Vector3.cpp" />
     <ClCompile Include="src\Objects\Present.cpp" />
@@ -164,6 +165,7 @@
     <ClCompile Include="src\Rendering\VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Math\Math.h" />
     <ClInclude Include="src\Math\Vector2.h" />
     <ClInclude Include="src\Math\Vector3.h" />
     <ClInclude Include="src\Objects\Present.h" />

@@ -12,6 +12,7 @@
 #include"../Rendering/VBO.h"
 #include"../Rendering/EBO.h"
 #include"../Rendering/Texture.h"
+#include"../Math/Math.h"
 #include"../Math/Vector2.h"
 #include"../Math/Vector3.h"
 
@@ -27,6 +28,7 @@ class Present
                 
                 Engine::Math::Vector3 position;
                 Engine::Math::Vector3 orientation;
+                Engine::Math::Vector3 pivotOffset;
                 Engine::Math::Vector3 scale;
 
                 void updateTransforms(Shader shaderProgram);

@@ -72,6 +72,9 @@
     <ClCompile Include="src\Math\Vector3.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="src\Math\Math.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">
@@ -96,6 +99,9 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\Math\Vector3.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Math.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
