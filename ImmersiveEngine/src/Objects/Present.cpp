@@ -96,6 +96,16 @@ void Present::setTexture(const char* filePath, GLenum format)
     m_texture = new Texture(filePath, GL_TEXTURE_2D, GL_TEXTURE0, format, GL_UNSIGNED_BYTE);
 }
 
+/// AABB collision detection.
+bool Present::isCollidingWith(const Present& obj)
+{
+    bool collisionX = space.position.x + space.scale.x > obj.space.position.x &&
+        obj.space.position.x + obj.space.scale.x > space.position.x;
+    bool collisionY = space.position.y + space.scale.y > obj.space.position.y &&
+        obj.space.position.y + obj.space.scale.y > space.position.y;
+    return collisionX && collisionY;
+}
+
 /// Memory management. Delete all used objects.
 void Present::dump()
 {

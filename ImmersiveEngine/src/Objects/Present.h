@@ -59,12 +59,14 @@ class Present
         unsigned int id;
 
         std::string name;
-        
+        bool enabled = true;
+
         Space space;
 
         void reInitialize(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
         void draw(Shader& shaderProgram);
         void setTexture(const char* filePath, GLenum format);
+        bool isCollidingWith(const Present& obj);
 
         void dump();
 

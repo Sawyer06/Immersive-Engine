@@ -45,6 +45,13 @@ GLuint indices[] =
 	0, 1, 2
 };
 
+GLfloat coconut[] =
+{
+	-0.25f, 0.5f, 0.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f,
+	-0.25f, 1.0f, 0.0f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
+	0.25f, 0.5f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
+	0.25f, 1.0f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
+};
 GLfloat body[] =
 {
 	-0.5f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f,
@@ -67,9 +74,15 @@ GLuint rectangle[] =
 };
 
 Engine::Math::Vector3 move;
+
+float waitTime = 0;
+std::list<Present> coconuts;
+int score = 0;
  
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
+void dropWait();
+void spawnCoconut();
 
 int main()
 {
@@ -130,6 +143,9 @@ int main()
 	crabArmB.space.translate(Engine::Math::Vector2(0.25f, -0.6f));
 	crabArmB.space.updateTransforms(shaderProgram);
 
+	srand(time(0));
+	dropWait();
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window); // Get inputs.
@@ -142,7 +158,29 @@ int main()
 
         //objA.space.updateTransforms(shaderProgram);
         //objA.draw(shaderProgram);
-		
+		if (waitTime > 0)
+		{
+			waitTime -= 0.001f;
+		}
+		else
+		{
+			spawnCoconut();
+		}
+
+		for (Present& c : coconuts)
+		{
+			if (!c.enabled) continue;
+			c.space.translate(Engine::Math::Vector2(0, -0.0005f));
+			c.space.updateTransforms(shaderProgram);
+			c.draw(shaderProgram);
+			if (crabArmA.isCollidingWith(c) || crabArmB.isCollidingWith(c))
+			{
+				score++;
+				c.enabled = false;
+				std::cout << "Score: " << score << std::endl;
+			}
+		}
+
 		crabBod.space.updateTransforms(shaderProgram);
 		crabBod.draw(shaderProgram);
         
@@ -150,11 +188,15 @@ int main()
 		{
 			crabArmA.space.rotate(-0.1f);
 			crabArmB.space.rotate(-0.1f);
+			crabArmA.space.position.x = -0.25f;
+			crabArmB.space.position.x = 0.27f;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && crabArmA.space.orientation.z < 35)
 		{
 			crabArmA.space.rotate(0.1f);
 			crabArmB.space.rotate(0.1f);
+			crabArmA.space.position.x = -0.27f;
+			crabArmB.space.position.x = 0.25f;
 		}
 
 		crabArmA.space.updateTransforms(shaderProgram);
@@ -166,12 +208,41 @@ int main()
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
+	coconuts.clear();
 
 	shaderProgram.Delete();
 	
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0;
+}
+
+void dropWait()
+{
+	std::cout << "Waiting!";
+	
+	waitTime = 2 + rand() % 10;
+}
+
+void spawnCoconut()
+{
+	std::cout << "Spawning!";
+	coconuts.emplace_back(coconut, sizeof(coconut), rectangle, sizeof(rectangle));
+	
+	Present& newCoconut = coconuts.back();
+	//newCoconut.setTexture("sand.jpg", GL_RGBA);
+	newCoconut.space.dialate(0.15f);
+	newCoconut.space.translate(Engine::Math::Vector2(0, 0.5f));
+	int side = rand() % 2;
+	if (side == 0)
+	{
+		newCoconut.space.translate(Engine::Math::Vector2(-0.44f, 0));
+	}
+	else
+	{
+		newCoconut.space.translate(Engine::Math::Vector2(0.5f, 0));
+	}
+	dropWait();
 }
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
