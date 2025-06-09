@@ -37,6 +37,12 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{7a20b9a8-7418-42b4-82b3-5ed60445c3d6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Components">
+      <UniqueIdentifier>{2281721c-6950-4d8b-a8e5-d8779d8a087e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{2fb1b6d3-c786-4efd-924d-1763156c7773}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -75,6 +81,9 @@
     <ClCompile Include="src\Math\Math.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="src\Components\Mesh.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">
@@ -103,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="src\Math\Math.h">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\Mesh.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

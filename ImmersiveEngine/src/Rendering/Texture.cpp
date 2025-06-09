@@ -1,15 +1,31 @@
 #include"Texture.h"
 
-Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType)
+Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum pixelType)
 {
 	type = texType;
 
 	int widthImg, heightImg, numColCh;
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
-	if (!bytes) 
+	if (!bytes)
 	{
-		std::cerr << "Failed to load texture: " << image << std::endl;
+		std::cerr << "IMAGE_LOAD_ERROR failed to load texture: " << image << std::endl;
+		return;
+	}
+	GLenum format;
+	if (numColCh == 4) // Image includes alpha channel.
+	{
+		format = GL_RGBA;
+	}
+	else if (numColCh == 3) // Image does not include alpha channel.
+	{
+		format = GL_RGB;
+	}
+	else // Image type is unsupported.
+	{
+		std::cerr << "IMAGE_LOAD_ERROR unsupported number of color channels: " << numColCh << std::endl;
+		stbi_image_free(bytes);
+		return;
 	}
 
 	glGenTextures(1, &ID);

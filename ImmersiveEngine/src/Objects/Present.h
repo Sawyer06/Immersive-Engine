@@ -12,6 +12,7 @@
 #include"../Rendering/VBO.h"
 #include"../Rendering/EBO.h"
 #include"../Rendering/Texture.h"
+#include"../Components/Mesh.h"
 #include"../Math/Math.h"
 #include"../Math/Vector2.h"
 #include"../Math/Vector3.h"
@@ -45,14 +46,16 @@ class Present
 
                 std::string toString();
         };
-        VAO m_VAO;
-        VBO m_VBO;
-        EBO m_EBO;
-        Texture* m_texture;
-        int m_indexCount;
+        //VAO m_VAO;
+        //VBO m_VBO;
+        //EBO m_EBO;
+        //Texture* m_texture;
+        //int m_indexCount;
 	public:
-        Present();
-        Present(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
+        //Present();
+        Present(std::string name, Mesh* mesh);
+        //Present(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
+        Present(Present& other); // Clone constructor
         ~Present();
 
         static unsigned int nextId;
@@ -62,13 +65,16 @@ class Present
         bool enabled = true;
 
         Space space;
+        Mesh* mesh;
 
-        void reInitialize(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
-        void draw(Shader& shaderProgram);
-        void setTexture(const char* filePath, GLenum format);
+        //void reInitialize(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
+        //void draw(Shader& shaderProgram);
+        //void setTexture(const char* filePath, GLenum format);
+        //void setTexture(Texture* texture);
+        std::unique_ptr<Present> clone() const;
         bool isCollidingWith(const Present& obj);
 
-        void dump();
+        //void dump();
 
         std::string toString();
 };

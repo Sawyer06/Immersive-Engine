@@ -6,16 +6,30 @@ GLuint u_transformLoc;
 
 unsigned int Present::nextId = 0;
 
-Present::Present() :
+/*Present::Present() :
     m_VBO(nullptr, 0), m_EBO(nullptr, 0),
     m_texture(nullptr), m_indexCount(0),
     name("Object"), space()
 {
     id = nextId;
     nextId++;
+}*/
+
+Present::Present(std::string name, Mesh* mesh) :
+   name(name), mesh(mesh)
+{
+    id = nextId;
+    nextId++;
 }
 
-Present::Present(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize) :
+Present::Present(Present& other) : 
+    name(other.name), mesh(other.mesh) 
+{
+    id = nextId;
+    nextId++;
+}
+
+/*Present::Present(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize) :
     m_VBO(vertices, verticesSize), m_EBO(indices, indicesSize),
     m_texture(nullptr), m_indexCount(indicesSize / sizeof(GLuint)),
     name("Object"), space()
@@ -32,15 +46,15 @@ Present::Present(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GL
 
     m_VAO.Unbind();
     m_VBO.Unbind();
-}
+}*/
 
 Present::~Present()
 {
-    dump();
+    //dump();
 }
 
 /// Reinitialize object mesh as if it was just created.
-void Present::reInitialize(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize)
+/*void Present::reInitialize(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize)
 {
     m_VBO = VBO(vertices, verticesSize);
     m_EBO = EBO(indices, indicesSize);
@@ -58,13 +72,11 @@ void Present::reInitialize(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* i
     m_VAO.Unbind();
     m_VBO.Unbind();
     m_EBO.Unbind();
-}
+}*/
 
 /// Draw the object to the screen.
-void Present::draw(Shader& shaderProgram)
+/*void Present::draw(Shader& shaderProgram)
 {
-    //glm::mat4 matrix = glm::mat4(1.0f);
-    //shaderProgram.setMat4("transform", space.matrix);
     shaderProgram.setFloat("scale", 1.0f);
     if (m_texture)
     {
@@ -83,35 +95,51 @@ void Present::draw(Shader& shaderProgram)
     {
         m_texture->Unbind();
     }
-}
+}*/
 
 /// Set image texture on mesh.
-void Present::setTexture(const char* filePath, GLenum format)
+/*void Present::setTexture(const char* filePath, GLenum format)
 {
     if (m_texture) // Texture already applied, replace it.
     {
         m_texture->Delete();
         m_texture = nullptr;
     }
-    m_texture = new Texture(filePath, GL_TEXTURE_2D, GL_TEXTURE0, format, GL_UNSIGNED_BYTE);
-}
+    //m_texture = new Texture(filePath, GL_TEXTURE_2D, GL_TEXTURE0, format, GL_UNSIGNED_BYTE);
+}*/
+
+/// Set image texture on mesh.
+/*void Present::setTexture(Texture* texture)
+{
+    if (m_texture) // Texture already applied, replace it.
+    {
+        m_texture->Delete();
+        m_texture = nullptr;
+    }
+    m_texture = texture;
+}*/
+
+/*std::unique_ptr<Present> Present::clone() const
+{
+    return std::make_unique<Present>(*this);
+}*/
 
 /// AABB collision detection.
 bool Present::isCollidingWith(const Present& obj)
 {
-    bool collisionX = space.position.x + space.scale.x > obj.space.position.x &&
-        obj.space.position.x + obj.space.scale.x > space.position.x;
-    bool collisionY = space.position.y + space.scale.y > obj.space.position.y &&
-        obj.space.position.y + obj.space.scale.y > space.position.y;
+    bool collisionX = space.position.x + space.scale.x / 2 > obj.space.position.x &&
+        obj.space.position.x + obj.space.scale.x / 2 > space.position.x;
+    bool collisionY = space.position.y + space.scale.y / 2 > obj.space.position.y &&
+        obj.space.position.y + obj.space.scale.y / 2 > space.position.y;
     return collisionX && collisionY;
 }
 
 /// Memory management. Delete all used objects.
-void Present::dump()
+/*void Present::dump()
 {
     m_VAO.Delete();
     m_VBO.Delete();
-    m_EBO.Delete();
+    //m_EBO.Delete();
     if (m_texture)
     {
         m_texture->Delete();
@@ -119,7 +147,7 @@ void Present::dump()
         m_texture = nullptr;
     };
     std::cout << "Object " << id << " destroyed successfully\n";
-}
+}*/
 
 std::string Present::toString()
 {

@@ -9,9 +9,9 @@
 class Texture
 {
 	public:
-		GLuint ID;
+		GLuint ID = 0;
 		GLenum type;
-		Texture(const char* image, GLenum texType, GLenum slot, GLenum format, GLenum pixelType);
+		Texture(const char* image, GLenum texType, GLenum slot, GLenum pixelType);
 
 		void texUnit(Shader& shader, const char* uniform, GLuint unit);
 

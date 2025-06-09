@@ -95,7 +95,7 @@ GLint Shader::getUniformLocation(const std::string& name)
     GLint location = glGetUniformLocation(ID, name.c_str()); // Get the uniform location if not already cached.
     if (location == -1) // If the name passed does not exist as a uniform.
     {
-        std::cerr << "SHADER_UNIFORM_ERROR with name '" << name << "' not found.";
+        std::cerr << "SHADER_UNIFORM_ERROR name '" << name << "' not found.";
     }
     m_uniformLocationCache[name] = location; // Create the new uniform item in cache.
     return location;
