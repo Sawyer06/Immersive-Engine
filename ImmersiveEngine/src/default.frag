@@ -11,7 +11,16 @@ uniform bool textured;
 void main()
 {
 	if (textured)
-		FragColor = texture(tex0, texCoord);
+	{
+		vec4 textureColor = texture(tex0, texCoord);
+		if (textureColor.a < 0.1) // Do not render transparent pixels.
+		{
+            discard;
+		}
+        FragColor = textureColor;
+	}
 	else
+	{
 		FragColor = vec4(color, 1.0f);
+	}
 }

@@ -1,4 +1,5 @@
 #include<iostream>
+#include<memory>
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<stb/stb_image.h>
@@ -74,10 +75,10 @@ GLuint rectangle[] =
 	3, 2, 0
 };
 
-Engine::Math::Vector3 move;
+//Engine::Math::Vector3 move;
 
 float waitTime = 0;
-std::list<Present> coconuts;
+std::list<std::unique_ptr<Present>> coconuts;
 int score = 0;
  
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -93,7 +94,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 800, "HelloWorld", NULL, NULL); // Create window.
+	GLFWwindow* window = glfwCreateWindow(800, 800, "Coconut Catch", NULL, NULL); // Create window.
 	// Error check if window isn't created.
 	if (window == NULL)
 	{
@@ -111,6 +112,8 @@ int main()
 		return -1;
 	}
 	gladLoadGL();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Shader shaderProgram("default.vert", "default.frag");
 	
@@ -125,22 +128,22 @@ int main()
     //objA.space.translate(Engine::Math::Vector3(1, 0, 0));
     //std::cout << objA.toString();
 
-	Texture bodTexture("crab-body.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture armTextureA("crab-leg.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture armTextureB("crab-leg1.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture coconutTexture("coconut.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* bodTexture = new Texture("crab-body.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* armTextureA = new Texture("crab-leg.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* armTextureB = new Texture("crab-leg1.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* coconutTexture = new Texture("coconut.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
-	Mesh* crabMesh = new Mesh(body, sizeof(body), rectangle, sizeof(rectangle));
+	auto crabMesh = std::make_shared<Mesh>(body, sizeof(body), rectangle, sizeof(rectangle));
 	Present crabBod("crab_0", crabMesh);
 	crabBod.space.translate(Engine::Math::Vector3(0, -1, 0));
-	crabBod.mesh->setTexture(&bodTexture);
+	crabBod.mesh->setTexture(bodTexture);
 	
-	Mesh* crabArmMeshA = new Mesh(arm, sizeof(arm), rectangle, sizeof(rectangle));
+	auto crabArmMeshA = std::make_shared<Mesh>(arm, sizeof(arm), rectangle, sizeof(rectangle));
 	Present crabArmA("crab_1", crabArmMeshA);
-	crabArmA.mesh->setTexture(&armTextureA);
-	Mesh* crabArmMeshB = new Mesh(arm, sizeof(arm), rectangle, sizeof(rectangle));
+	crabArmA.mesh->setTexture(armTextureA);
+	auto crabArmMeshB = std::make_shared<Mesh>(arm, sizeof(arm), rectangle, sizeof(rectangle));
 	Present crabArmB("crab_2", crabArmMeshB);
-	crabArmB.mesh->setTexture(&armTextureB);
+	crabArmB.mesh->setTexture(armTextureB);
 	
 	crabArmA.space.pivotOffset = Engine::Math::Vector3(0.125f, -0.25f, 0);
 	crabArmA.space.dialate(0.5f);
@@ -152,9 +155,9 @@ int main()
 	crabArmB.space.translate(Engine::Math::Vector2(0.25f, -0.6f));
 	crabArmB.space.updateTransforms(shaderProgram);
 
-	Mesh* coconutMesh = new Mesh(coconut, sizeof(coconut), rectangle, sizeof(rectangle));
+	auto coconutMesh = std::make_shared<Mesh>(coconut, sizeof(coconut), rectangle, sizeof(rectangle));
 	Present coconutObj("coconut", coconutMesh);
-	coconutObj.mesh->setTexture(&coconutTexture);
+	coconutObj.mesh->setTexture(coconutTexture);
 
 	srand(time(0));
 	dropWait();
@@ -182,27 +185,27 @@ int main()
 
 		coconuts.erase( // Destroy objects that are not enabled anymore.
 			std::remove_if(coconuts.begin(), coconuts.end(),
-				[](const Present& c) {
-					return !c.enabled;
+				[](const std::unique_ptr<Present>& c) {
+					return !c->enabled;
 				}),
 			coconuts.end()
 		);
 
-		for (Present& c : coconuts)
+		for (const auto& c : coconuts)
 		{
-			if (!c.enabled) continue; // Do not draw objects not enabled.
-			c.space.translate(Engine::Math::Vector2(0, -0.0005f)); // Constantly fall.
-			c.space.updateTransforms(shaderProgram);
-			c.mesh->draw(shaderProgram);
-			if (crabArmA.isCollidingWith(c) || crabArmB.isCollidingWith(c)) // If the object collides with an arm.
+			if (!c->enabled) continue; // Do not draw objects not enabled.
+			c->space.translate(Engine::Math::Vector2(0, -0.0005f)); // Constantly fall.
+			c->space.updateTransforms(shaderProgram);
+			c->mesh->draw(shaderProgram);
+			if (crabArmA.isCollidingWith(*c) || crabArmB.isCollidingWith(*c)) // If the object collides with an arm.
 			{
 				score++;
-				c.enabled = false;
+				c->enabled = false;
 				std::cout << "Score: " << score << std::endl;
 			}
-			else if (c.space.position.y < -2) // Disable objects out of range.
+			else if (c->space.position.y < -2) // Disable objects out of range.
 			{
-				c.enabled = false;
+				c->enabled = false;
 			}
 		}
 
@@ -235,11 +238,6 @@ int main()
 	}
 	coconuts.clear();
 
-	delete crabMesh;
-	delete crabArmMeshA;
-	delete crabArmMeshB;
-	delete coconutMesh;
-
 	shaderProgram.Delete();
 	
 	glfwDestroyWindow(window);
@@ -257,20 +255,20 @@ void dropWait()
 void spawnCoconut(Present coconutObj)
 {
 	//std::cout << "Spawning!";
-	Present coconut = coconutObj;
-	coconuts.emplace_back(coconut);
+	auto coconut = std::make_unique<Present>(coconutObj);
 
-	coconut.space.dialate(0.15f);
-	coconut.space.translate(Engine::Math::Vector3(0, 0.5f, 0));
+	coconut->space.dialate(0.15f);
+	coconut->space.translate(Engine::Math::Vector3(0, 0.5f, 0));
 	int side = rand() % 2;
 	if (side == 0)
 	{
-		coconut.space.translate(Engine::Math::Vector2(-0.33f, 0));
+		coconut->space.translate(Engine::Math::Vector2(-0.33f, 0));
 	}
 	else
 	{
-		coconut.space.translate(Engine::Math::Vector2(0.5f, 0));
+		coconut->space.translate(Engine::Math::Vector2(0.5f, 0));
 	}
+	coconuts.push_back(std::move(coconut));
 	dropWait();
 }
 

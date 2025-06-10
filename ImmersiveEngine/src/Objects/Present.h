@@ -53,9 +53,9 @@ class Present
         //int m_indexCount;
 	public:
         //Present();
-        Present(std::string name, Mesh* mesh);
+        Present(const std::string& name, std::shared_ptr<Mesh> mesh);
         //Present(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
-        Present(Present& other); // Clone constructor
+        Present(const Present& other); // Clone constructor
         ~Present();
 
         static unsigned int nextId;
@@ -65,7 +65,7 @@ class Present
         bool enabled = true;
 
         Space space;
-        Mesh* mesh;
+        std::shared_ptr<Mesh> mesh;
 
         //void reInitialize(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
         //void draw(Shader& shaderProgram);

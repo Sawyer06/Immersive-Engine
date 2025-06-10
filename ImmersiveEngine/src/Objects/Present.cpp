@@ -15,14 +15,14 @@ unsigned int Present::nextId = 0;
     nextId++;
 }*/
 
-Present::Present(std::string name, Mesh* mesh) :
+Present::Present(const std::string& name, std::shared_ptr<Mesh> mesh) :
    name(name), mesh(mesh)
 {
     id = nextId;
     nextId++;
 }
 
-Present::Present(Present& other) : 
+Present::Present(const Present& other) : 
     name(other.name), mesh(other.mesh) 
 {
     id = nextId;
@@ -119,10 +119,10 @@ Present::~Present()
     m_texture = texture;
 }*/
 
-/*std::unique_ptr<Present> Present::clone() const
+std::unique_ptr<Present> Present::clone() const
 {
     return std::make_unique<Present>(*this);
-}*/
+}
 
 /// AABB collision detection.
 bool Present::isCollidingWith(const Present& obj)
