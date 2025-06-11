@@ -10,10 +10,8 @@
 
 #include"Rendering/Texture.h"
 #include"Rendering/shaderClass.h"
-#include"Rendering/VAO.h"
-#include"Rendering/VBO.h"
-#include"Rendering/EBO.h"
 #include"Objects/Present.h"
+#include"Objects/Camera.h"
 #include"Math/Vector2.h"
 #include"Math/Vector3.h"
 #include"Objects/Present.h"
@@ -26,25 +24,22 @@ GLfloat verticesA[] =
 {
 	// Vertex position, Color,              Image Offset 
 	// x       y  z     R     G     B       x     y 
-	0.0f, -0.5f, 0.0f,	1.0f, 0.3f, 0.0f,	0.0f, 0.0f,
-	//-0.0f, 0.5f, 0.0f,	0.5f, 1.0f, 0.2f,	0.0f, 1.0f,
-	0.5f, 0.5f,	0.0f,	0.0f, 0.2f, 1.0f,   0.5f, 1.0f,
-	1.0f, -0.5f, 0.0f,	1.0f, 0.0f, 1.0f,	1.0f, 0.0f,
-};
-GLfloat verticesB[] =
-{
-	// Vertex position, Color,              Image Offset 
-	// x       y  z     R     G     B       x     y 
-	-0.5f, 0.5f, 0.0f,	0.0f, 0.5f, 1.0f,	0.0f, 0.0f,
-	//-0.0f, 0.5f, 0.0f,	0.5f, 1.0f, 0.2f,	0.0f, 1.0f,
-	0.0f, -0.5f, 0.0f,	1.0f, 0.0f, 0.0f,   0.5f, 1.0f,
-	0.5f, 0.5f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f,
+	-0.5f, 0.0f, 0.5f,	1.0f, 0.3f, 1.0f,	0.0f, 0.0f,
+	-0.5f, 0.0f, -0.5f,	0.5f, 1.0f, 0.2f,	5.0f, 0.0f,
+	0.5f, 0.0f,	-0.5f,	0.3f, 0.2f, 1.0f,   0.0f, 0.0f,
+	0.5f, 0.0f, 0.5f,	0.0f, 0.7f, 1.0f,	5.0f, 0.0f,
+	0.0f, 0.8f, 0.0f,	0.8f, 0.0f, 1.0f,	2.5f, 5.0f
 };
 
 /// The order of rendering for vertices.
 GLuint indices[] =
 {
-	0, 1, 2
+	0, 1, 2,
+	0, 2, 3,
+	0, 1, 4,
+	1, 2, 4,
+	2, 3, 4,
+	3, 0, 4
 };
 
 GLfloat coconut[] =
@@ -75,8 +70,6 @@ GLuint rectangle[] =
 	3, 2, 0
 };
 
-//Engine::Math::Vector3 move;
-
 float waitTime = 0;
 std::list<std::unique_ptr<Present>> coconuts;
 int score = 0;
@@ -94,7 +87,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 800, "Coconut Catch", NULL, NULL); // Create window.
+	GLFWwindow* window = glfwCreateWindow(800, 800, "HelloWorld", NULL, NULL); // Create window.
 	// Error check if window isn't created.
 	if (window == NULL)
 	{
@@ -113,20 +106,10 @@ int main()
 	}
 	gladLoadGL();
 	glEnable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Shader shaderProgram("default.vert", "default.frag");
-	
-	/// Bind and unbind VAO, VBO, and EBO for initialization and packaging of VBO in VAO.
-	
-    //Present objA(verticesA, sizeof(verticesA), indices, sizeof(indices));
-    //Present objB(verticesB, sizeof(verticesB), indices, sizeof(indices));
-
-    //objA.setTexture("sand.jpg", GL_RGB);
-    //objA.space.translate(Engine::Math::Vector3(0, 0, 1));
-    //std::cout << "pos: " << objA.space.position.toString();
-    //objA.space.translate(Engine::Math::Vector3(1, 0, 0));
-    //std::cout << objA.toString();
 
 	Texture* bodTexture = new Texture("crab-body.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	Texture* armTextureA = new Texture("crab-leg.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
@@ -135,7 +118,7 @@ int main()
 
 	auto crabMesh = std::make_shared<Mesh>(body, sizeof(body), rectangle, sizeof(rectangle));
 	Present crabBod("crab_0", crabMesh);
-	crabBod.space.translate(Engine::Math::Vector3(0, -1, 0));
+	crabBod.space.translate(Engine::Math::Vector3(0, -1, -0.01f));
 	crabBod.mesh->setTexture(bodTexture);
 	
 	auto crabArmMeshA = std::make_shared<Mesh>(arm, sizeof(arm), rectangle, sizeof(rectangle));
@@ -159,28 +142,38 @@ int main()
 	Present coconutObj("coconut", coconutMesh);
 	coconutObj.mesh->setTexture(coconutTexture);
 
+	Camera cam;
+	auto pyramidMesh = std::make_shared<Mesh>(verticesA, sizeof(verticesA), indices, sizeof(indices));
+	Present pyramid("Pyramid", pyramidMesh);
+	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	pyramid.mesh->setTexture(sand);
+
 	srand(time(0));
 	dropWait();
 
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window); // Get inputs.
+		cam.updateViewProjection(shaderProgram, (float)800 / 800);
 
 		// Rendering
-		glClearColor(1.0f, 1.0f, 1.0f, 0.0f); // Window background in decimal RGBA
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.5f, 1.0f, 1.0f, 0.0f); // Window background in decimal RGBA
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
         shaderProgram.Activate();
 
-        //objA.space.updateTransforms(shaderProgram);
-        //objA.draw(shaderProgram);
+		pyramid.space.rotate(Engine::Math::Vector3(0, 0.01f, 0));
+		
+		pyramid.space.updateTransforms(shaderProgram);
+		pyramid.mesh->draw(shaderProgram);
+
 		if (waitTime > 0)
 		{
 			waitTime -= 0.003f;
 		}
 		else
 		{
-			spawnCoconut(coconutObj);
+			//spawnCoconut(coconutObj);
 		}
 
 		coconuts.erase( // Destroy objects that are not enabled anymore.
@@ -210,7 +203,7 @@ int main()
 		}
 
 		crabBod.space.updateTransforms(shaderProgram);
-		crabBod.mesh->draw(shaderProgram);
+		//crabBod.mesh->draw(shaderProgram);
         
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && crabArmA.space.orientation.z > -35) // Right
 		{
@@ -228,10 +221,10 @@ int main()
 		}
 
 		crabArmA.space.updateTransforms(shaderProgram);
-		crabArmA.mesh->draw(shaderProgram);
+		//crabArmA.mesh->draw(shaderProgram);
 
 		crabArmB.space.updateTransforms(shaderProgram);
-		crabArmB.mesh->draw(shaderProgram);
+		//crabArmB.mesh->draw(shaderProgram);
 
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.

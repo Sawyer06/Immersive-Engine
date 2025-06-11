@@ -163,6 +163,7 @@
     <ClCompile Include="src\Math\Math.cpp" />
     <ClCompile Include="src\Math\Vector2.cpp" />
     <ClCompile Include="src\Math\Vector3.cpp" />
+    <ClCompile Include="src\Objects\Camera.cpp" />
     <ClCompile Include="src\Objects\Present.cpp" />
     <ClCompile Include="src\Rendering\EBO.cpp" />
     <ClCompile Include="src\Rendering\shaderClass.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="src\Math\Math.h" />
     <ClInclude Include="src\Math\Vector2.h" />
     <ClInclude Include="src\Math\Vector3.h" />
+    <ClInclude Include="src\Objects\Camera.h" />
     <ClInclude Include="src\Objects\Present.h" />
     <ClInclude Include="src\Rendering\EBO.h" />
     <ClInclude Include="src\Rendering\shaderClass.h" />

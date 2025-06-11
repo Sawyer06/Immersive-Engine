@@ -32,7 +32,7 @@ class Present
                 Engine::Math::Vector3 pivotOffset;
                 Engine::Math::Vector3 scale;
 
-                void updateTransforms(Shader shaderProgram);
+                void updateTransforms(Shader& shaderProgram);
 
                 void translate(Engine::Math::Vector3 deltaPos);
                 void translate(Engine::Math::Vector2 deltaPos);
@@ -46,15 +46,9 @@ class Present
 
                 std::string toString();
         };
-        //VAO m_VAO;
-        //VBO m_VBO;
-        //EBO m_EBO;
-        //Texture* m_texture;
-        //int m_indexCount;
 	public:
-        //Present();
+        Present();
         Present(const std::string& name, std::shared_ptr<Mesh> mesh);
-        //Present(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
         Present(const Present& other); // Clone constructor
         ~Present();
 
@@ -67,10 +61,6 @@ class Present
         Space space;
         std::shared_ptr<Mesh> mesh;
 
-        //void reInitialize(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
-        //void draw(Shader& shaderProgram);
-        //void setTexture(const char* filePath, GLenum format);
-        //void setTexture(Texture* texture);
         std::unique_ptr<Present> clone() const;
         bool isCollidingWith(const Present& obj);
 
