@@ -3,7 +3,7 @@
 
 #include<string>
 
-namespace Engine::Math
+namespace ImmersiveEngine::Math
 {
 	class Vector2
 	{

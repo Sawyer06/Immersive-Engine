@@ -4,7 +4,7 @@
 #include"Vector3.h"
 #include"Vector2.h"
 
-namespace Engine::Math
+namespace ImmersiveEngine::Math
 {
 	float coterminal(float angle);
 	Vector3 coterminal(Vector3 angle);

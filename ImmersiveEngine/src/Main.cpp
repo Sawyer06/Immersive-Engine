@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <filesystem>
+#include <list>
 
 #include"Rendering/Texture.h"
 #include"Rendering/shaderClass.h"
@@ -15,7 +16,7 @@
 #include"Math/Vector2.h"
 #include"Math/Vector3.h"
 #include"Objects/Present.h"
-#include"Components/Mesh.h"
+#include"Rendering/Mesh.h"
 
 /// Decimal RGB = RGB / 255
 
@@ -41,48 +42,14 @@ GLuint indices[] =
 	2, 3, 4,
 	3, 0, 4
 };
-
-GLfloat coconut[] =
-{
-	-0.25f, 0.5f, 0.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-	-0.25f, 1.0f, 0.0f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-	0.25f, 0.5f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-	0.25f, 1.0f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-};
-GLfloat body[] =
-{
-	-0.5f, 0.0f, 0.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-	-0.5f, 0.5f, 0.0f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-	0.5f, 0.0f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-	0.5f, 0.5f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-};
-GLfloat arm[] =
-{
-	-0.25f, -0.5f, 0.0f,	0.0f, 0.0f, 0.0f,	0.0f, 0.0f,
-	-0.25f, 0.0f, 0.0f,	0.0f, 0.0f,	0.0f,	0.0f, 1.0f,
-	0.25f, -0.5f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 0.0f,
-	0.25f, 0.0f, 0.0f,	0.0f, 0.0f,	0.0f,	1.0f, 1.0f,
-};
-
-GLuint rectangle[] =
-{
-	0, 1, 3,
-	3, 2, 0
-};
-
-float waitTime = 0;
-std::list<std::unique_ptr<Present>> coconuts;
-int score = 0;
  
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void dropWait();
-void spawnCoconut(Present coconutObj);
 
 int main()
 {
     glfwInit();
-    
+	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -96,7 +63,7 @@ int main()
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback); // Calls method when window is resized.
 
 	// Error check for GLAD.
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -111,50 +78,17 @@ int main()
 
 	Shader shaderProgram("default.vert", "default.frag");
 
-	Texture* bodTexture = new Texture("crab-body.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* armTextureA = new Texture("crab-leg.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* armTextureB = new Texture("crab-leg1.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* coconutTexture = new Texture("coconut.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-
-	auto crabMesh = std::make_shared<Mesh>(body, sizeof(body), rectangle, sizeof(rectangle));
-	Present crabBod("crab_0", crabMesh);
-	crabBod.space.translate(Engine::Math::Vector3(0, -1, -0.01f));
-	crabBod.mesh->setTexture(bodTexture);
+	ImmersiveEngine::cbs::Camera cam;
 	
-	auto crabArmMeshA = std::make_shared<Mesh>(arm, sizeof(arm), rectangle, sizeof(rectangle));
-	Present crabArmA("crab_1", crabArmMeshA);
-	crabArmA.mesh->setTexture(armTextureA);
-	auto crabArmMeshB = std::make_shared<Mesh>(arm, sizeof(arm), rectangle, sizeof(rectangle));
-	Present crabArmB("crab_2", crabArmMeshB);
-	crabArmB.mesh->setTexture(armTextureB);
-	
-	crabArmA.space.pivotOffset = Engine::Math::Vector3(0.125f, -0.25f, 0);
-	crabArmA.space.dialate(0.5f);
-	crabArmA.space.translate(Engine::Math::Vector2(-0.25f, -0.6f));
-	crabArmA.space.updateTransforms(shaderProgram);
-
-	crabArmB.space.pivotOffset = Engine::Math::Vector3(-0.125f, -0.25f, 0);
-	crabArmB.space.dialate(0.5f);
-	crabArmB.space.translate(Engine::Math::Vector2(0.25f, -0.6f));
-	crabArmB.space.updateTransforms(shaderProgram);
-
-	auto coconutMesh = std::make_shared<Mesh>(coconut, sizeof(coconut), rectangle, sizeof(rectangle));
-	Present coconutObj("coconut", coconutMesh);
-	coconutObj.mesh->setTexture(coconutTexture);
-
-	Camera cam;
 	auto pyramidMesh = std::make_shared<Mesh>(verticesA, sizeof(verticesA), indices, sizeof(indices));
-	Present pyramid("Pyramid", pyramidMesh);
+	ImmersiveEngine::cbs::Present pyramid("Pyramid", pyramidMesh);
 	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	pyramid.mesh->setTexture(sand);
-
-	srand(time(0));
-	dropWait();
 
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window); // Get inputs.
-		cam.updateViewProjection(shaderProgram, (float)800 / 800);
+		cam.refreshViewProjection(shaderProgram, (float)800 / 800);
 
 		// Rendering
 		glClearColor(0.5f, 1.0f, 1.0f, 0.0f); // Window background in decimal RGBA
@@ -162,75 +96,14 @@ int main()
 		
         shaderProgram.Activate();
 
-		pyramid.space.rotate(Engine::Math::Vector3(0, 0.01f, 0));
+		pyramid.space.rotate(ImmersiveEngine::Math::Vector3(0, 0.01f, 0));
 		
-		pyramid.space.updateTransforms(shaderProgram);
+		pyramid.space.refreshTransforms(shaderProgram);
 		pyramid.mesh->draw(shaderProgram);
-
-		if (waitTime > 0)
-		{
-			waitTime -= 0.003f;
-		}
-		else
-		{
-			//spawnCoconut(coconutObj);
-		}
-
-		coconuts.erase( // Destroy objects that are not enabled anymore.
-			std::remove_if(coconuts.begin(), coconuts.end(),
-				[](const std::unique_ptr<Present>& c) {
-					return !c->enabled;
-				}),
-			coconuts.end()
-		);
-
-		for (const auto& c : coconuts)
-		{
-			if (!c->enabled) continue; // Do not draw objects not enabled.
-			c->space.translate(Engine::Math::Vector2(0, -0.0005f)); // Constantly fall.
-			c->space.updateTransforms(shaderProgram);
-			c->mesh->draw(shaderProgram);
-			if (crabArmA.isCollidingWith(*c) || crabArmB.isCollidingWith(*c)) // If the object collides with an arm.
-			{
-				score++;
-				c->enabled = false;
-				std::cout << "Score: " << score << std::endl;
-			}
-			else if (c->space.position.y < -2) // Disable objects out of range.
-			{
-				c->enabled = false;
-			}
-		}
-
-		crabBod.space.updateTransforms(shaderProgram);
-		//crabBod.mesh->draw(shaderProgram);
-        
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && crabArmA.space.orientation.z > -35) // Right
-		{
-			crabArmA.space.rotate(-0.1f);
-			crabArmB.space.rotate(-0.1f);
-			crabArmA.space.position.x = -0.25f;
-			crabArmB.space.position.x = 0.27f;
-		}
-		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && crabArmA.space.orientation.z < 35) // Left
-		{
-			crabArmA.space.rotate(0.1f);
-			crabArmB.space.rotate(0.1f);
-			crabArmA.space.position.x = -0.27f;
-			crabArmB.space.position.x = 0.25f;
-		}
-
-		crabArmA.space.updateTransforms(shaderProgram);
-		//crabArmA.mesh->draw(shaderProgram);
-
-		crabArmB.space.updateTransforms(shaderProgram);
-		//crabArmB.mesh->draw(shaderProgram);
 
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
-	coconuts.clear();
-
 	shaderProgram.Delete();
 	
 	glfwDestroyWindow(window);
@@ -238,33 +111,7 @@ int main()
 	return 0;
 }
 
-void dropWait()
-{
-	//std::cout << "Waiting!";
-	
-	waitTime = 3 + rand() % 10;
-}
-
-void spawnCoconut(Present coconutObj)
-{
-	//std::cout << "Spawning!";
-	auto coconut = std::make_unique<Present>(coconutObj);
-
-	coconut->space.dialate(0.15f);
-	coconut->space.translate(Engine::Math::Vector3(0, 0.5f, 0));
-	int side = rand() % 2;
-	if (side == 0)
-	{
-		coconut->space.translate(Engine::Math::Vector2(-0.33f, 0));
-	}
-	else
-	{
-		coconut->space.translate(Engine::Math::Vector2(0.5f, 0));
-	}
-	coconuts.push_back(std::move(coconut));
-	dropWait();
-}
-
+/// Stretch frame contents on window resize.
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);

@@ -1,6 +1,6 @@
 #include"Math.h"
 
-namespace Engine::Math
+namespace ImmersiveEngine::Math
 {
 	float Math::coterminal(float angle)
 	{

@@ -3,20 +3,23 @@
 
 #include"Present.h"
 
-class Camera : Present
+namespace ImmersiveEngine::cbs
 {
-	private:
-		glm::mat4 m_view;
-		glm::mat4 m_proj;
-	public:
-		Camera();
-		~Camera();
+	class Camera : Present
+	{
+		private:
+			glm::mat4 m_view;
+			glm::mat4 m_proj;
+		public:
+			Camera();
+			~Camera() = default;
 
-		float fov;
-		float nearPlane;
-		float farPlane;
-		Engine::Math::Vector3 view;
+			float fov;
+			float nearPlane;
+			float farPlane;
+			ImmersiveEngine::Math::Vector3 view;
 
-		void updateViewProjection(Shader& shaderProgram, const float aspectRatio);
-};
+			void refreshViewProjection(Shader& shaderProgram, const float aspectRatio);
+	};
+}
 #endif

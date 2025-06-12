@@ -23,7 +23,7 @@ Mesh::~Mesh()
 /// Draw the object to the screen.
 void Mesh::draw(Shader& shaderProgram)
 {
-    shaderProgram.setFloat("scale", 1.0f);
+    //shaderProgram.setFloat("scale", 1.0f);
     if (m_texture)
     {
         shaderProgram.setInt("tex0", 0);

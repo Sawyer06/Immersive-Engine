@@ -1,71 +1,64 @@
 #ifndef PRESENT_CLASS_H
 #define PRESENT_CLASS_H
 
-#include<string>
 #include<glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include"Object.h"
 #include "../Rendering/shaderClass.h"
-#include"../Rendering/VAO.h"
-#include"../Rendering/VBO.h"
-#include"../Rendering/EBO.h"
-#include"../Rendering/Texture.h"
-#include"../Components/Mesh.h"
+#include"../Rendering/Mesh.h"
 #include"../Math/Math.h"
 #include"../Math/Vector2.h"
 #include"../Math/Vector3.h"
 
-class Present
+namespace ImmersiveEngine::cbs
 {
-    private:
-        class Space
-        {
-            private:
-                glm::mat4 m_matrix;
-            public:
-                Space();
-                
-                Engine::Math::Vector3 position;
-                Engine::Math::Vector3 orientation;
-                Engine::Math::Vector3 pivotOffset;
-                Engine::Math::Vector3 scale;
+    class Present : Object
+    {
+        private:
+            class Space
+            {
+                private:
+                    glm::mat4 m_matrix;
+                public:
+                    Space();
 
-                void updateTransforms(Shader& shaderProgram);
+                    ImmersiveEngine::Math::Vector3 position;
+                    ImmersiveEngine::Math::Vector3 orientation;
+                    ImmersiveEngine::Math::Vector3 pivotOffset;
+                    ImmersiveEngine::Math::Vector3 scale;
+                    ImmersiveEngine::Math::Vector3 up;
 
-                void translate(Engine::Math::Vector3 deltaPos);
-                void translate(Engine::Math::Vector2 deltaPos);
-                
-                void rotate(Engine::Math::Vector3 deltaAngle);
-                void rotate(float deltaAngle);
-                
-                void dialate(float scaleFactor);
-                void dialate(Engine::Math::Vector3 scaleFactor);
-                void dialate(Engine::Math::Vector2 scaleFactor);
+                    void refreshTransforms(Shader& shaderProgram);
 
-                std::string toString();
-        };
-	public:
-        Present();
-        Present(const std::string& name, std::shared_ptr<Mesh> mesh);
-        Present(const Present& other); // Clone constructor
-        ~Present();
+                    void translate(ImmersiveEngine::Math::Vector3 deltaPos);
+                    void translate(ImmersiveEngine::Math::Vector2 deltaPos);
 
-        static unsigned int nextId;
-        unsigned int id;
+                    void rotate(ImmersiveEngine::Math::Vector3 deltaAngle);
+                    void rotate(float deltaAngle);
 
-        std::string name;
-        bool enabled = true;
+                    void dialate(float scaleFactor);
+                    void dialate(ImmersiveEngine::Math::Vector3 scaleFactor);
+                    void dialate(ImmersiveEngine::Math::Vector2 scaleFactor);
 
-        Space space;
-        std::shared_ptr<Mesh> mesh;
+                    std::string toString();
+            };
+        public:
+            Present();
+            Present(const std::string& name, std::shared_ptr<Mesh> mesh);
+            Present(const Present& other); // Clone constructor
+            ~Present();
 
-        std::unique_ptr<Present> clone() const;
-        bool isCollidingWith(const Present& obj);
+            Space space;
+            std::shared_ptr<Mesh> mesh;
 
-        //void dump();
+            std::unique_ptr<Present> clone() const;
+            bool isCollidingWith(const Present& obj);
 
-        std::string toString();
-};
+            //void dump();
+            std::string toString() override;
+    };
+}
 #endif
