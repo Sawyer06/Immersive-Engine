@@ -17,6 +17,7 @@
 #include"Math/Vector3.h"
 #include"Objects/Present.h"
 #include"Rendering/Mesh.h"
+#include"Components/Light.h"
 
 /// Decimal RGB = RGB / 255
 
@@ -78,26 +79,29 @@ int main()
 
 	Shader shaderProgram("default.vert", "default.frag");
 
-	ImmersiveEngine::cbs::Camera cam;
-	
+	auto cam = std::make_shared<ImmersiveEngine::cbs::Present>();;
+	cam->addComponent<ImmersiveEngine::cbs::Camera>(cam);
+	ImmersiveEngine::cbs::Camera* camComp = cam->getComponent<ImmersiveEngine::cbs::Camera>();
+
 	auto pyramidMesh = std::make_shared<Mesh>(verticesA, sizeof(verticesA), indices, sizeof(indices));
 	ImmersiveEngine::cbs::Present pyramid("Pyramid", pyramidMesh);
 	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	pyramid.mesh->setTexture(sand);
+	cam->space.position = ImmersiveEngine::Math::Vector3(0, 0, 2);
 
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window); // Get inputs.
-		cam.refreshViewProjection(shaderProgram, (float)800 / 800);
+		camComp->refreshViewProjection(shaderProgram, (float)800 / 800);
 
 		// Rendering
 		glClearColor(0.5f, 1.0f, 1.0f, 0.0f); // Window background in decimal RGBA
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
         shaderProgram.Activate();
-
 		pyramid.space.rotate(ImmersiveEngine::Math::Vector3(0, 0.01f, 0));
-		
+		//cam->space.rotate(ImmersiveEngine::Math::Vector3(0.0001f, 0, 0));
+
 		pyramid.space.refreshTransforms(shaderProgram);
 		pyramid.mesh->draw(shaderProgram);
 

@@ -5,19 +5,18 @@
 
 namespace ImmersiveEngine::cbs
 {
-	class Camera : Present
+	class Camera : public Component
 	{
 		private:
 			glm::mat4 m_view;
 			glm::mat4 m_proj;
 		public:
-			Camera();
+			Camera(const std::shared_ptr<Present> obj);
 			~Camera() = default;
 
 			float fov;
 			float nearPlane;
 			float farPlane;
-			ImmersiveEngine::Math::Vector3 view;
 
 			void refreshViewProjection(Shader& shaderProgram, const float aspectRatio);
 	};

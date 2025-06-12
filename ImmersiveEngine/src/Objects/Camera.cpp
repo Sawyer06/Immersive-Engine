@@ -2,10 +2,12 @@
 
 namespace ImmersiveEngine::cbs
 {
-	Camera::Camera() :
-		fov(60.0f), nearPlane(0.1f), farPlane(100.0f),
-		view(ImmersiveEngine::Math::Vector3(0, 0, -2.0f)),
-		m_view(glm::mat4(1.0f)), m_proj(glm::mat4(1.0f)) {
+	Camera::Camera(const std::shared_ptr<Present> obj) :
+		Component(obj), fov(60.0f), nearPlane(0.1f), farPlane(100.0f),
+		m_view(glm::mat4(1.0f)), m_proj(glm::mat4(1.0f)) 
+	{
+		auto owner = Component::getOwner();
+		owner->space.orientation = ImmersiveEngine::Math::Vector3(0, 0, -1);
 	}
 
 	/// Update the view and projection matrices of the camera.
@@ -13,10 +15,11 @@ namespace ImmersiveEngine::cbs
 	{
 		m_view = glm::mat4(1.0f);
 		m_proj = glm::mat4(1.0f);
-
-		glm::vec3 pos(space.position.x, space.position.y, space.position.z);
-		glm::vec3 rot(space.orientation.x, space.orientation.y, space.orientation.z);
-		glm::vec3 up(space.up.x, space.up.y, space.up.z);
+		
+		auto owner = Component::getOwner();
+		glm::vec3 pos(owner->space.position.x, owner->space.position.y, owner->space.position.z);
+		glm::vec3 rot(glm::radians(owner->space.orientation.x), glm::radians(owner->space.orientation.y), glm::radians(owner->space.orientation.z));
+		glm::vec3 up(owner->space.up.x, owner->space.up.y, owner->space.up.z);
 		m_view = glm::lookAt(pos, pos + rot, up); // Position of the world.
 		m_proj = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
 

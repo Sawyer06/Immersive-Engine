@@ -3,6 +3,7 @@
 
 #include<sstream>
 #include<string>
+#include<list>
 
 #include"../Components/Component.h"
 
@@ -10,8 +11,6 @@ namespace ImmersiveEngine::cbs
 {
     class Object
     {
-        private:
-            //std::unordered_map<Component, unsigned int> m_components;
         public:
             Object(std::string name);
             ~Object() = default;
@@ -21,8 +20,7 @@ namespace ImmersiveEngine::cbs
 
             std::string name;
             bool enabled = true;
-            
-            void addComponent(const Component comp, unsigned int order);
+
             virtual std::string toString();
     };
 }

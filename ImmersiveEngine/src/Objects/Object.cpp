@@ -10,11 +10,6 @@ namespace ImmersiveEngine::cbs
         nextId++;
     }
 
-    void Object::addComponent(const Component comp, unsigned int order)
-    {
-        
-    }
-
     std::string Object::toString()
     {
         std::ostringstream oss;
