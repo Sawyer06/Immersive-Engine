@@ -1,0 +1,72 @@
+#include"Space.h"
+
+namespace ImmersiveEngine::cbs
+{
+    Space::Space() : Component(),
+        position(0, 0, 0), orientation(0, 0, 0), pivotOffset(0, 0, 0),
+        scale(1, 1, 1), up(0, 1, 0), m_matrix(glm::mat4(1.0f)) { }
+
+    /// Update the position, orientation, and scale of object based on its corresponding values.
+    void Space::refreshTransforms(Shader& shaderProgram)
+    {
+        m_matrix = glm::mat4(1.0f);
+
+        m_matrix = glm::translate(m_matrix, glm::vec3(position.x, position.y, position.z)); // Move x, y, z
+
+        m_matrix = glm::translate(m_matrix, glm::vec3(pivotOffset.x, pivotOffset.y, pivotOffset.z)); // Apply rotation offset
+
+        m_matrix = glm::rotate(m_matrix, glm::radians(orientation.x), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate x
+        m_matrix = glm::rotate(m_matrix, glm::radians(orientation.y), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate y
+        m_matrix = glm::rotate(m_matrix, glm::radians(orientation.z), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotate z
+
+        m_matrix = glm::translate(m_matrix, -glm::vec3(pivotOffset.x, pivotOffset.y, pivotOffset.z)); // Revert rotation offset
+
+        m_matrix = glm::scale(m_matrix, glm::vec3(scale.x, scale.y, scale.z)); // Scale x, y, z
+
+        shaderProgram.setMat4("transform", m_matrix);
+    }
+
+    void Space::translate(ImmersiveEngine::Math::Vector3 deltaPos)
+    {
+        position += deltaPos;
+    }
+    void Space::translate(ImmersiveEngine::Math::Vector2 deltaPos)
+    {
+        ImmersiveEngine::Math::Vector3 pos(deltaPos.x, deltaPos.y, 0);
+        translate(pos);
+    }
+
+    void Space::rotate(ImmersiveEngine::Math::Vector3 deltaAngle)
+    {
+        orientation += deltaAngle;
+        //orientation = Engine::Math::coterminal(orientation);
+    }
+    void Space::rotate(float deltaAngle)
+    {
+        ImmersiveEngine::Math::Vector3 angle(0, 0, deltaAngle);
+        rotate(angle);
+    }
+
+    void Space::dialate(float scaleFactor)
+    {
+        scale *= scaleFactor;
+    }
+    void Space::dialate(ImmersiveEngine::Math::Vector3 scaleFactor)
+    {
+        scale.x *= scaleFactor.x;
+        scale.y *= scaleFactor.y;
+        scale.z *= scaleFactor.z;
+    }
+    void Space::dialate(ImmersiveEngine::Math::Vector2 scaleFactor)
+    {
+        ImmersiveEngine::Math::Vector3 scale(scaleFactor.x, scaleFactor.y, 0);
+        dialate(scale);
+    }
+
+    std::string Space::toString()
+    {
+        std::ostringstream oss;
+        oss << "\nposition: " << position.toString() << "\norientation: "/* << orientation.toString() << */ "\nscale: " << scale.toString();
+        return oss.str();
+    }
+}

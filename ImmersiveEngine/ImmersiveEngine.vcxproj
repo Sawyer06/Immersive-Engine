@@ -158,13 +158,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
+    <ClCompile Include="src\Components\Camera.cpp" />
     <ClCompile Include="src\Components\Component.cpp" />
-    <ClCompile Include="src\Components\Light.cpp" />
+    <ClCompile Include="src\Components\Space.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Math\Math.cpp" />
     <ClCompile Include="src\Math\Vector2.cpp" />
     <ClCompile Include="src\Math\Vector3.cpp" />
-    <ClCompile Include="src\Objects\Camera.cpp" />
     <ClCompile Include="src\Objects\Object.cpp" />
     <ClCompile Include="src\Objects\Present.cpp" />
     <ClCompile Include="src\Rendering\EBO.cpp" />
@@ -176,12 +176,12 @@
     <ClCompile Include="src\Rendering\VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Components\Camera.h" />
     <ClInclude Include="src\Components\Component.h" />
-    <ClInclude Include="src\Components\Light.h" />
+    <ClInclude Include="src\Components\Space.h" />
     <ClInclude Include="src\Math\Math.h" />
     <ClInclude Include="src\Math\Vector2.h" />
     <ClInclude Include="src\Math\Vector3.h" />
-    <ClInclude Include="src\Objects\Camera.h" />
     <ClInclude Include="src\Objects\Object.h" />
     <ClInclude Include="src\Objects\Present.h" />
     <ClInclude Include="src\Rendering\EBO.h" />

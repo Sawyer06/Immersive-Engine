@@ -81,9 +81,6 @@
     <ClCompile Include="src\Math\Math.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\Objects\Camera.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="src\Rendering\Mesh.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
@@ -93,7 +90,10 @@
     <ClCompile Include="src\Objects\Object.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\Light.cpp">
+    <ClCompile Include="src\Components\Camera.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\Space.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,9 +125,6 @@
     <ClInclude Include="src\Math\Math.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\Objects\Camera.h">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="src\Rendering\Mesh.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
@@ -137,7 +134,10 @@
     <ClInclude Include="src\Objects\Object.h">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\Light.h">
+    <ClInclude Include="src\Components\Camera.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\Space.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>

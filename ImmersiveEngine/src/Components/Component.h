@@ -8,20 +8,19 @@
 namespace ImmersiveEngine::cbs
 {
 	class Object;
-	class Present;
 
 	class Component
 	{
 		private:
-			std::weak_ptr<Present> m_owner;
+			Object* m_owner;
 		protected:
-			std::shared_ptr<Present> getOwner() const;
-			void transferOwnership(const std::shared_ptr<Present> newObj);
+			Object* getOwner() const;
 		public:
 			Component();
-			Component(const std::shared_ptr<Present> obj);
+			Component(Object& obj);
 			~Component() = default;
 
+			void transferOwnership(Object& obj);
 			bool enabled = true;
 
 			virtual void onStart() { }

@@ -1,7 +1,8 @@
 #ifndef CAMERA_CLASS_H
 #define CAMERA_CLASS_H
 
-#include"Present.h"
+#include"../Objects/Present.h"
+#include"../Components/Space.h"
 
 namespace ImmersiveEngine::cbs
 {
@@ -10,8 +11,10 @@ namespace ImmersiveEngine::cbs
 		private:
 			glm::mat4 m_view;
 			glm::mat4 m_proj;
+
+			Space* m_ownerSpace;
 		public:
-			Camera(const std::shared_ptr<Present> obj);
+			Camera();
 			~Camera() = default;
 
 			float fov;

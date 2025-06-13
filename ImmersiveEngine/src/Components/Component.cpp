@@ -3,25 +3,25 @@
 namespace ImmersiveEngine::cbs
 {
 	Component::Component() :
-		m_owner(std::weak_ptr<Present>()) { }
+		m_owner(nullptr) { }
 
-	Component::Component(const std::shared_ptr<Present> obj) :
-		m_owner(obj) { }
+	Component::Component(Object& obj) :
+		m_owner(&obj) { }
 
 	/// Retrieve the owner of the component for access to it.
-	std::shared_ptr<Present> Component::getOwner() const
+	Object* Component::getOwner() const
 	{
-		auto obj = m_owner.lock();
+		/*auto obj = m_owner.lock();
 		if (!obj) // Owner has abandonded this component.
 		{
 			std::cerr << "NULL_REFERENCE_ERROR component has no owner.";
-		}
-		return obj;
+		}*/
+		return m_owner;
 	}
 
 	/// Change ownership of a component.
-	void Component::transferOwnership(const std::shared_ptr<Present> newObj)
+	void Component::transferOwnership(Object& newObj)
 	{
-		m_owner = newObj;
+		m_owner = &newObj;
 	}
 }
