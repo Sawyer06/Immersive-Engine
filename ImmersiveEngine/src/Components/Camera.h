@@ -2,7 +2,7 @@
 #define CAMERA_CLASS_H
 
 #include"../Objects/Present.h"
-#include"../Components/Space.h"
+#include"Space.h"
 
 namespace ImmersiveEngine::cbs
 {

@@ -13,6 +13,7 @@
 #include"Rendering/shaderClass.h"
 #include"Objects/Present.h"
 #include"Components/Camera.h"
+#include"Components/Light.h"
 #include"Math/Vector2.h"
 #include"Math/Vector3.h"
 #include"Objects/Present.h"
@@ -90,7 +91,14 @@ int main()
 	ImmersiveEngine::cbs::Present pyramid("Pyramid", pyramidMesh);
 	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	pyramid.mesh->setTexture(sand);
-	std::cout << pyramid.space->toString();
+	
+	ImmersiveEngine::cbs::Present lightA;
+	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
+	ImmersiveEngine::cbs::Light* lightComp = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 0, 0));
+
+	float speed = 0.1f;
+	ImmersiveEngine::Math::Vector3 dir;
+	ImmersiveEngine::Math::Vector3 color(255, 0, 0);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -105,7 +113,27 @@ int main()
 		pyramid.space->rotate(ImmersiveEngine::Math::Vector3(0, 0.01f, 0));
 		//if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) cam->space.rotate(ImmersiveEngine::Math::Vector3(0.001f, 0, 0)); gimble locks
 		//if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) cam->space.rotate(ImmersiveEngine::Math::Vector3(-0.001f, 0, 0));
+		
+		dir.y = color.x > 0 && color.z < 255 ? speed : -speed;
+		dir.x = color.z > 0 && color.y < 255 ? speed : -speed;
+		dir.z = color.y > 0 && color.x < 255  ? speed : -speed;
 
+		if (color.x > 255) color.x = 255;
+		if (color.x < 0) color.x = 0;
+		if (color.y > 255) color.y = 255;
+		if (color.y < 0) color.y = 0;
+		if (color.z > 255) color.z = 255;
+		if (color.z < 0) color.z = 0;
+
+		std::cout << color.toString() << "\n";
+
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			color += dir;
+		}
+		lightComp->color = color;
+
+		lightComp->refreshLight(shaderProgram, spaceComp->position);
 
 		pyramid.space->refreshTransforms(shaderProgram);
 		pyramid.mesh->draw(shaderProgram);

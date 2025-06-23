@@ -160,6 +160,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="src\Components\Camera.cpp" />
     <ClCompile Include="src\Components\Component.cpp" />
+    <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Components\Space.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Math\Math.cpp" />
@@ -178,6 +179,7 @@
   <ItemGroup>
     <ClInclude Include="src\Components\Camera.h" />
     <ClInclude Include="src\Components\Component.h" />
+    <ClInclude Include="src\Components\Light.h" />
     <ClInclude Include="src\Components\Space.h" />
     <ClInclude Include="src\Math\Math.h" />
     <ClInclude Include="src\Math\Vector2.h" />
