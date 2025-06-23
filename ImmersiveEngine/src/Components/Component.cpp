@@ -5,8 +5,7 @@ namespace ImmersiveEngine::cbs
 	Component::Component() :
 		m_owner(nullptr) { }
 
-	Component::Component(Object& obj) :
-		m_owner(&obj) { }
+	Component::Component(Object* obj) : m_owner(obj) { }
 
 	/// Retrieve the owner of the component for access to it.
 	Object* Component::getOwner() const
@@ -19,9 +18,10 @@ namespace ImmersiveEngine::cbs
 		return m_owner;
 	}
 
-	/// Change ownership of a component.
-	void Component::transferOwnership(Object& newObj)
+	std::string Component::toString()
 	{
-		m_owner = &newObj;
+		std::ostringstream oss;
+		oss << typeid(*this).name() << " has " << dependencies.size() << " dependencies.\n";
+		return oss.str();
 	}
 }

@@ -27,17 +27,12 @@ namespace ImmersiveEngine::cbs
 
     void Present::initialize()
     {
-        //addComponent<Space>();
+        space = addComponent<Space>();
     }
 
     std::unique_ptr<Present> Present::clone() const
     {
         return std::make_unique<Present>(*this);
-    }
-
-    Space* Present::space()
-    {
-        return m_space ? m_space : nullptr;
     }
 
     /// AABB collision detection.

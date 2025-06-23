@@ -15,14 +15,14 @@
 
 namespace ImmersiveEngine::cbs
 {
-    class Object;
+    //class Object;
 
     class Space : public Component
     {
         private:
             glm::mat4 m_matrix;
         public:
-            Space();
+            Space(Object* obj);
 
             ImmersiveEngine::Math::Vector3 position;
             ImmersiveEngine::Math::Vector3 orientation;
@@ -42,7 +42,7 @@ namespace ImmersiveEngine::cbs
             void dialate(ImmersiveEngine::Math::Vector3 scaleFactor);
             void dialate(ImmersiveEngine::Math::Vector2 scaleFactor);
 
-            std::string toString();
+            std::string toString() override;
     };
 }
 #endif

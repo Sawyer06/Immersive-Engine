@@ -2,10 +2,13 @@
 
 namespace ImmersiveEngine::cbs
 {
-	Camera::Camera() :
-		Component(), fov(60.0f), nearPlane(0.1f), farPlane(100.0f),
+	std::vector<std::type_index> Component::dependencies = { typeid(Space) };
+
+	Camera::Camera(Object* obj) :
+		Component(obj), fov(60.0f), nearPlane(0.1f), farPlane(100.0f),
 		m_view(glm::mat4(1.0f)), m_proj(glm::mat4(1.0f)) 
 	{
+		
 		auto owner = Component::getOwner();
 		if (!m_ownerSpace)
 		{
@@ -29,5 +32,12 @@ namespace ImmersiveEngine::cbs
 
 		shaderProgram.setMat4("view", m_view);
 		shaderProgram.setMat4("proj", m_proj);
+	}
+
+	std::string Camera::toString()
+	{
+		std::ostringstream oss;
+		oss << Component::toString();
+		return oss.str();
 	}
 }

@@ -4,6 +4,8 @@
 #include<sstream>
 #include<string>
 #include<iostream>
+#include <typeindex>
+#include <vector>
 
 namespace ImmersiveEngine::cbs
 {
@@ -16,12 +18,15 @@ namespace ImmersiveEngine::cbs
 		protected:
 			Object* getOwner() const;
 		public:
+			Component(Object* obj);
 			Component();
-			Component(Object& obj);
 			~Component() = default;
 
-			void transferOwnership(Object& obj);
 			bool enabled = true;
+
+			static std::vector<std::type_index> dependencies;
+
+			virtual std::string toString();
 
 			virtual void onStart() { }
 			virtual void onUpdate() { }

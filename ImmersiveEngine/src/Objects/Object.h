@@ -3,7 +3,8 @@
 
 #include<sstream>
 #include<string>
-#include<list>
+#include<vector>
+#include <typeindex>
 
 #include"../Components/Component.h"
 #include"../Components/Space.h"
@@ -13,7 +14,9 @@ namespace ImmersiveEngine::cbs
     class Object
     {   
         private:
-            std::list<std::unique_ptr<Component>> m_components;
+            std::vector<std::unique_ptr<Component>> m_components;
+            
+            bool hasDependencies(std::vector<std::type_index> dependencies);
         public:
             Object(std::string name);
             ~Object() = default;
@@ -24,6 +27,8 @@ namespace ImmersiveEngine::cbs
             std::string name;
             bool enabled = true;
 
+            virtual void initialize() = 0;
+
             virtual std::string toString();
 
             /// Add a specific component to the object.
@@ -31,13 +36,17 @@ namespace ImmersiveEngine::cbs
             {
                 if (getComponent<T>()) // Component already added.
                 {
-                    //std::cerr << "DUPLICATE_OPERATION_ERROR component '" << typeid(T).name() << "' already added to this object.\n";
+                    std::cerr << "DUPLICATE_OPERATION_ERROR component '" << typeid(T).name() << "' cannot be added to '" << name << "': already added to this object.\n";
                     return nullptr;
                 }
-                auto newComponent = std::make_unique<T>(std::forward<Args>(args)...);
-                newComponent->transferOwnership(*this);
-                T* componentPtr = newComponent.get();
-                m_components.emplace_back(std::move(newComponent));
+                else if (!hasDependencies(T::dependencies)) // The object the component has been added to did not have all required components.
+                {
+                    std::cerr << "MISORDERED_OPERATION_ERROR component '" << typeid(T).name() << "' cannot be added to '" << name << "': object does not have all required components.\n";
+                    return nullptr;
+                }
+                auto newComponent = std::make_unique<T>(this, std::forward<Args>(args)...); // Object has unique ownership over component.
+                T* componentPtr = newComponent.get(); // Convert to raw pointer.
+                m_components.emplace_back(std::move(newComponent)); // Add to components list.
                 return componentPtr;
             }
 

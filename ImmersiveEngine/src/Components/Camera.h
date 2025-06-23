@@ -14,7 +14,7 @@ namespace ImmersiveEngine::cbs
 
 			Space* m_ownerSpace;
 		public:
-			Camera();
+			Camera(Object* obj);
 			~Camera() = default;
 
 			float fov;
@@ -22,6 +22,8 @@ namespace ImmersiveEngine::cbs
 			float farPlane;
 
 			void refreshViewProjection(Shader& shaderProgram, const float aspectRatio);
+
+			std::string toString() override;
 	};
 }
 #endif

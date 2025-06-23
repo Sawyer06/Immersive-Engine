@@ -2,7 +2,7 @@
 
 namespace ImmersiveEngine::cbs
 {
-    Space::Space() : Component(),
+    Space::Space(Object* obj) : Component(obj),
         position(0, 0, 0), orientation(0, 0, 0), pivotOffset(0, 0, 0),
         scale(1, 1, 1), up(0, 1, 0), m_matrix(glm::mat4(1.0f)) { }
 
@@ -66,7 +66,7 @@ namespace ImmersiveEngine::cbs
     std::string Space::toString()
     {
         std::ostringstream oss;
-        oss << "\nposition: " << position.toString() << "\norientation: "/* << orientation.toString() << */ "\nscale: " << scale.toString();
+        oss << Component::toString() << "\tposition: " << position.toString() << "\n\torientation: " << orientation.toString() << "\n\tscale: " << scale.toString() << "\n";
         return oss.str();
     }
 }
