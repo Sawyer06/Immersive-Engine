@@ -7,9 +7,10 @@ Mesh::Mesh(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeip
     m_VAO.Bind();
     m_EBO.Bind();
     /// Assign buffer objects to layout locations in the VAO (buffer object, layout index, number of elements).
-    m_VAO.LinkAttrib(m_VBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0); // Vertex positions
-    m_VAO.LinkAttrib(m_VBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float))); // Vertex color (decimal RGB)
-    m_VAO.LinkAttrib(m_VBO, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float))); // Texture offset coordinates
+    m_VAO.LinkAttrib(m_VBO, 0, 3, GL_FLOAT, 11 * sizeof(float), (void*)0); // Vertex positions
+    m_VAO.LinkAttrib(m_VBO, 1, 3, GL_FLOAT, 11 * sizeof(float), (void*)(3 * sizeof(float))); // Vertex color (decimal RGB)
+    m_VAO.LinkAttrib(m_VBO, 2, 2, GL_FLOAT, 11 * sizeof(float), (void*)(6 * sizeof(float))); // Texture offset coordinates
+    m_VAO.LinkAttrib(m_VBO, 3, 3, GL_FLOAT, 11 * sizeof(float), (void*)(8 * sizeof(float))); // Normal direction
 
     m_VAO.Unbind();
     m_VBO.Unbind();

@@ -32,6 +32,7 @@ namespace ImmersiveEngine::cbs
 
 		shaderProgram.setMat4("view", m_view);
 		shaderProgram.setMat4("proj", m_proj);
+		shaderProgram.setVec3("camPos", glm::vec3(m_ownerSpace->position.x, m_ownerSpace->position.y, m_ownerSpace->position.z));
 	}
 
 	std::string Camera::toString()

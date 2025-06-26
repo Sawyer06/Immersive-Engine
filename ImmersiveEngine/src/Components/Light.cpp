@@ -9,7 +9,7 @@ namespace ImmersiveEngine::cbs
 
 	void Light::refreshLight(Shader& shaderProgram, const ImmersiveEngine::Math::Vector3 position)
 	{
-		shaderProgram.setVec4("lightColor", glm::vec4(color.x / 255, color.y / 255, color.z / 255, 1.0f));
+		shaderProgram.setVec3("lightColor", glm::vec3(color.x / 255.0f, color.y / 255.0f, color.z / 255.0f));
 		shaderProgram.setVec3("lightPos", glm::vec3(position.x, position.y, position.z));
 	}
 }

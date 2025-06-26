@@ -25,13 +25,28 @@
 /// Position and decimal RGB color of all vertices.
 GLfloat verticesA[] =
 {
-	// Vertex position, Color,              Image Offset 
-	// x       y  z     R     G     B       x     y 
-	-0.5f, 0.0f, 0.5f,	1.0f, 0.3f, 1.0f,	0.0f, 0.0f,
-	-0.5f, 0.0f, -0.5f,	0.5f, 1.0f, 0.2f,	5.0f, 0.0f,
-	0.5f, 0.0f,	-0.5f,	0.3f, 0.2f, 1.0f,   0.0f, 0.0f,
-	0.5f, 0.0f, 0.5f,	0.0f, 0.7f, 1.0f,	5.0f, 0.0f,
-	0.0f, 0.8f, 0.0f,	0.8f, 0.0f, 1.0f,	2.5f, 5.0f
+	// Vertex position,		Color,					 Image Offset	  Normal direction
+	// x       y  z			R     G     B			 x     y		  x     y      z
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f,
+	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 5.0f,      0.0f, -1.0f, 0.0f,
+	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 5.0f,      0.0f, -1.0f, 0.0f,
+	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, -1.0f, 0.0f,
+
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,     -0.8f, 0.5f,  0.0f,
+	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,     -0.8f, 0.5f,  0.0f, 
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,     -0.8f, 0.5f,  0.0f, 
+
+	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f, -0.8f, 
+	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.0f, 0.5f, -0.8f, 
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f, -0.8f, 
+
+	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, 
+	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, 
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, 
+
+	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, 
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, 
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  
 };
 
 /// The order of rendering for vertices.
@@ -39,10 +54,10 @@ GLuint indices[] =
 {
 	0, 1, 2,
 	0, 2, 3,
-	0, 1, 4,
-	1, 2, 4,
-	2, 3, 4,
-	3, 0, 4
+	4, 6, 5,
+	7, 9, 8,
+	10, 12, 11,
+	13, 15, 14
 };
  
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -95,6 +110,8 @@ int main()
 	ImmersiveEngine::cbs::Present lightA;
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
 	ImmersiveEngine::cbs::Light* lightComp = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 0, 0));
+	lightA.space->position.y += 2;
+	lightA.space->position.x += 1;
 
 	float speed = 0.1f;
 	ImmersiveEngine::Math::Vector3 dir;
@@ -124,8 +141,6 @@ int main()
 		if (color.y < 0) color.y = 0;
 		if (color.z > 255) color.z = 255;
 		if (color.z < 0) color.z = 0;
-
-		std::cout << color.toString() << "\n";
 
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		{

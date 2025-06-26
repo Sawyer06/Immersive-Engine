@@ -87,7 +87,7 @@ void Shader::setVec3(const std::string& name, glm::vec3 value)
 
 void Shader::setVec4(const std::string& name, glm::vec4 value)
 {
-	glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w);
+	glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.a);
 }
 
 void Shader::setMat4(const std::string& name, const glm::mat4 value)
