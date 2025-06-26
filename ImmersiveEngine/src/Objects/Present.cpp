@@ -63,7 +63,7 @@ namespace ImmersiveEngine::cbs
     std::string Present::toString()
     {
         std::ostringstream oss;
-        oss << Object::toString() << "---" << std::endl;
+        oss << Object::toString() << space->toString();
         return oss.str();
     }
 

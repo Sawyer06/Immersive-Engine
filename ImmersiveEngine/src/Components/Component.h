@@ -7,6 +7,8 @@
 #include <typeindex>
 #include <vector>
 
+#define MISORDERED_ERROR std::cerr << "MISORDERED_OPERATION_ERROR component '" << typeid(this).name() << "' cannot be added. Object does not have all required components.\n"
+
 namespace ImmersiveEngine::cbs
 {
 	class Object;
@@ -23,8 +25,6 @@ namespace ImmersiveEngine::cbs
 			~Component() = default;
 
 			bool enabled = true;
-
-			static std::vector<std::type_index> dependencies;
 
 			virtual std::string toString();
 

@@ -21,7 +21,7 @@ namespace ImmersiveEngine::cbs
 	std::string Component::toString()
 	{
 		std::ostringstream oss;
-		oss << typeid(*this).name() << " has " << dependencies.size() << " dependencies.\n";
+		oss << typeid(*this).name() << "\n";
 		return oss.str();
 	}
 }

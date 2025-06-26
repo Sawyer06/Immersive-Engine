@@ -192,6 +192,7 @@
     <ClInclude Include="src\Rendering\Texture.h" />
     <ClInclude Include="src\Rendering\VAO.h" />
     <ClInclude Include="src\Rendering\VBO.h" />
+    <ClInclude Include="src\Settings.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\cheeki.jpg" />

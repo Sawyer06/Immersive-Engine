@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <list>
 
+#include"Settings.h"
 #include"Rendering/Texture.h"
 #include"Rendering/shaderClass.h"
 #include"Objects/Present.h"
@@ -71,7 +72,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(800, 800, "HelloWorld", NULL, NULL); // Create window.
+	GLFWwindow* window = glfwCreateWindow(ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenWidth, "HelloWorld", NULL, NULL); // Create window.
 	// Error check if window isn't created.
 	if (window == NULL)
 	{
@@ -95,11 +96,12 @@ int main()
 
 	Shader shaderProgram("default.vert", "default.frag");
 
+	//ImmersiveEngine::Settings::g_ambientLightColor = ImmersiveEngine::Math::Vector3(255, 0, 0);
+
 	ImmersiveEngine::cbs::Present cam;
-	cam.addComponent<ImmersiveEngine::cbs::Camera>();
-	ImmersiveEngine::cbs::Camera* camComp = cam.getComponent<ImmersiveEngine::cbs::Camera>();
-	std::cout << camComp->toString();
-	cam.space->position = ImmersiveEngine::Math::Vector3(0, 0, 2);
+	ImmersiveEngine::cbs::Camera* camComp = cam.addComponent<ImmersiveEngine::cbs::Camera>();
+	cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, -0.3f, 2);
+	cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, 0.5f, 0));
 
 	auto pyramidMesh = std::make_shared<Mesh>(verticesA, sizeof(verticesA), indices, sizeof(indices));
 	//auto pyramid = std::make_shared<ImmersiveEngine::cbs::Present>("Pyramid", pyramidMesh);
@@ -109,9 +111,13 @@ int main()
 	
 	ImmersiveEngine::cbs::Present lightA;
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
-	ImmersiveEngine::cbs::Light* lightComp = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 0, 0));
-	lightA.space->position.y += 2;
+	ImmersiveEngine::cbs::Light* lightComp = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 0, 0), 1.0f);
+	lightA.space->position.y += -0.2f;
 	lightA.space->position.x += 1;
+	lightComp->specular.color = ImmersiveEngine::Math::Vector3(0,0, 255);
+	//lightComp->diffuse.color = ImmersiveEngine::Math::Vector3(200, 255, 0);
+	//lightComp->specular.intensity = 1.0f;
+	lightComp->diffuse.intensity = 1.2f;
 
 	float speed = 0.1f;
 	ImmersiveEngine::Math::Vector3 dir;
@@ -120,14 +126,34 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window); // Get inputs.
-		camComp->refreshViewProjection(shaderProgram, (float)800 / 800);
+		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenLength / ImmersiveEngine::Settings::g_screenWidth);
 
 		// Rendering
-		glClearColor(0.5f, 1.0f, 1.0f, 0.0f); // Window background in decimal RGBA
+		glClearColor(0.0f, 0.4f, 0.8f, 0.0f); // Window background in decimal RGBA
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
         shaderProgram.Activate();
-		pyramid.space->rotate(ImmersiveEngine::Math::Vector3(0, 0.01f, 0));
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		{
+			pyramid.space->rotate(ImmersiveEngine::Math::Vector3(0, 0.01f, 0));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			lightA.space->translate(ImmersiveEngine::Math::Vector3(0, 0.001f, 0));
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			lightA.space->translate(ImmersiveEngine::Math::Vector3(0, -0.001f, 0));
+		}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			lightA.space->translate(ImmersiveEngine::Math::Vector3(-0.001f, 0, 0));
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			lightA.space->translate(ImmersiveEngine::Math::Vector3(0.001f, 0, 0));
+		}
 		//if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) cam->space.rotate(ImmersiveEngine::Math::Vector3(0.001f, 0, 0)); gimble locks
 		//if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) cam->space.rotate(ImmersiveEngine::Math::Vector3(-0.001f, 0, 0));
 		
@@ -146,7 +172,8 @@ int main()
 		{
 			color += dir;
 		}
-		lightComp->color = color;
+		lightComp->diffuse.color = color;
+		lightComp->mainColor = color;
 
 		lightComp->refreshLight(shaderProgram, spaceComp->position);
 

@@ -39,11 +39,11 @@ namespace ImmersiveEngine::cbs
                     std::cerr << "DUPLICATE_OPERATION_ERROR component '" << typeid(T).name() << "' cannot be added to '" << name << "': already added to this object.\n";
                     return nullptr;
                 }
-                else if (!hasDependencies(T::dependencies)) // The object the component has been added to did not have all required components.
+                /*else if (!hasDependencies(T::dependencies)) // The object the component has been added to did not have all required components.
                 {
                     std::cerr << "MISORDERED_OPERATION_ERROR component '" << typeid(T).name() << "' cannot be added to '" << name << "': object does not have all required components.\n";
                     return nullptr;
-                }
+                }*/
                 auto newComponent = std::make_unique<T>(this, std::forward<Args>(args)...); // Object has unique ownership over component.
                 T* componentPtr = newComponent.get(); // Convert to raw pointer.
                 m_components.emplace_back(std::move(newComponent)); // Add to components list.
@@ -63,6 +63,23 @@ namespace ImmersiveEngine::cbs
 
                 //std::cerr << "NULL_REFERENCE_ERROR getting a '" << typeid(T).name() << "' component that does not exist.\n";
                 return nullptr; // No component of the type was found.
+            }
+
+            /// Remove a specified component.
+            template<typename T> void removeComponent()
+            {
+                for (auto i = m_components.begin(); i != m_components.end(); )
+                {
+                    if (dynamic_cast<T*>(i->get()))
+                    {
+                        std::cout << "'" << typeid(T).name() << "' is being removed.\n";
+                        i = m_components.erase(i);
+                    }
+                    else
+                    {
+                        ++i;
+                    }
+                }
             }
     };
 }

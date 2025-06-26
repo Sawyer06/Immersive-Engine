@@ -11,34 +11,39 @@ in vec3 worldPos;
 uniform sampler2D tex0;
 uniform bool textured;
 
-uniform vec3 lightColor;
-uniform vec3 lightPos;
 uniform vec3 camPos;
 
-struct Strength
+uniform vec3 lightColor;
+uniform vec3 lightPos;
+
+struct LightProperty
 {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+	vec3 color;
+	vec3 intensity;
 };
   
-uniform Strength strength;
+uniform LightProperty ambient;
+uniform LightProperty diffuse;
+uniform LightProperty specular;
+
+uniform float shininess;
 
 void main()
 {
-	float ambient = 0.1f;
-
 	vec3 norm = normalize(normal);
 	vec3 lightDir = normalize(lightPos - worldPos);
-
-	float diffuse = max(dot(norm, lightDir), 0.0f);
-	float specularLight = 1.0f;
 	vec3 viewDir = normalize(camPos - worldPos);
 	vec3 reflectionDir = reflect(-lightDir, norm);
-	float specAmount = pow(max(dot(viewDir, reflectionDir), 0.0f), 8);
-	float specular = specAmount * specularLight;
 
-	float phong = (ambient + diffuse + specular);
+	vec3 amb = ambient.color * ambient.intensity;
+
+	float diffAmount = max(dot(norm, lightDir), 0.0f);
+	vec3 diff = diffuse.color * diffuse.intensity * diffAmount * lightColor;
+	
+	float specAmount = pow(max(dot(viewDir, reflectionDir), 0.0f), shininess);
+	vec3 spec = specular.color * specular.intensity * specAmount * lightColor;
+
+	vec3 phong = (amb + diff + spec);
 
 	if (textured)
 	{
@@ -47,11 +52,10 @@ void main()
 		{
             discard;
 		}
-        FragColor = vec4(phong * textureColor.rgb * lightColor, textureColor.a);
+        FragColor = vec4(phong * textureColor.rgb, textureColor.a);
 	}
 	else
 	{
-		FragColor = vec4(color * phong * lightColor, 1.0f);
-		FragColor.a = 1.0f;
+		FragColor = vec4(color * phong, 1.0f);
 	}
 }
