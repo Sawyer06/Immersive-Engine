@@ -16,7 +16,7 @@ namespace ImmersiveEngine::cbs
         private:
             std::vector<std::unique_ptr<Component>> m_components;
             
-            bool hasDependencies(std::vector<std::type_index> dependencies);
+            //bool hasDependencies(std::vector<std::type_index> dependencies);
         public:
             Object(std::string name);
             ~Object() = default;
@@ -70,7 +70,7 @@ namespace ImmersiveEngine::cbs
             {
                 for (auto i = m_components.begin(); i != m_components.end(); )
                 {
-                    if (dynamic_cast<T*>(i->get()))
+                    if (dynamic_cast<T*>(i->get())) // Attempts to cast the component to the type that is being looked for.
                     {
                         std::cout << "'" << typeid(T).name() << "' is being removed.\n";
                         i = m_components.erase(i);

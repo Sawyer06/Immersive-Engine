@@ -1,7 +1,7 @@
 #version 330 core
 out vec4 FragColor;
 
-in vec3 color; // Get color from default.vert
+in vec3 color;
 
 in vec2 texCoord;
 
@@ -15,6 +15,11 @@ uniform vec3 camPos;
 
 uniform vec3 lightColor;
 uniform vec3 lightPos;
+
+// Light attenuation
+uniform float constant;
+uniform float linear;
+uniform float quadratic;
 
 struct LightProperty
 {
@@ -35,14 +40,17 @@ void main()
 	vec3 viewDir = normalize(camPos - worldPos);
 	vec3 reflectionDir = reflect(-lightDir, norm);
 
-	vec3 amb = ambient.color * ambient.intensity;
+	float distance = length(lightPos - worldPos);
+	float attenuationFactor = 1.0f / (constant + linear * distance * quadratic * (distance * distance)); // Light attenuation formula.
+
+	vec3 amb = ambient.color * ambient.intensity * attenuationFactor;;
 
 	float diffAmount = max(dot(norm, lightDir), 0.0f);
-	vec3 diff = diffuse.color * diffuse.intensity * diffAmount * lightColor;
+	vec3 diff = diffuse.color * diffuse.intensity * diffAmount * lightColor * attenuationFactor;;
 	
 	float specAmount = pow(max(dot(viewDir, reflectionDir), 0.0f), shininess);
-	vec3 spec = specular.color * specular.intensity * specAmount * lightColor;
-
+	vec3 spec = specular.color * specular.intensity * specAmount * lightColor * attenuationFactor;
+	
 	vec3 phong = (amb + diff + spec);
 
 	if (textured)

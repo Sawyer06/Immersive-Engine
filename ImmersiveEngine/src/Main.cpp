@@ -60,6 +60,20 @@ GLuint indices[] =
 	10, 12, 11,
 	13, 15, 14
 };
+
+GLfloat planeVertices[] =
+{
+	-1.0f, -1.0f, 1.0f,		1.0f, 1.0f, 1.0f,		0, 0,	0, 1.0f, 0,
+	1.0f, -1.0f, 1.0f,		1.0f, 1.0f, 1.0f,		0, 0,	0, 1.0f, 0,
+	-1.0f, -1.0f, -1.0f,	1.0f, 1.0f, 1.0f,		0, 0,	0, 1.0f, 0,
+	1.0f, -1.0f, -1.0f,		1.0f, 1.0f, 1.0f,		0, 0,	0, 1.0f, 0
+};
+
+GLuint planeIndices[] =
+{
+	0, 1, 2,
+	3, 1, 2
+};
  
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -100,24 +114,36 @@ int main()
 
 	ImmersiveEngine::cbs::Present cam;
 	ImmersiveEngine::cbs::Camera* camComp = cam.addComponent<ImmersiveEngine::cbs::Camera>();
-	cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, -0.3f, 2);
-	cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, 0.5f, 0));
+	cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
+	cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, -0.5f, 0));
 
 	auto pyramidMesh = std::make_shared<Mesh>(verticesA, sizeof(verticesA), indices, sizeof(indices));
 	//auto pyramid = std::make_shared<ImmersiveEngine::cbs::Present>("Pyramid", pyramidMesh);
 	ImmersiveEngine::cbs::Present pyramid("Pyramid", pyramidMesh);
 	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	pyramid.mesh->setTexture(sand);
+
+	auto planeMesh = std::make_shared<Mesh>(planeVertices, sizeof(planeVertices), planeIndices, sizeof(planeIndices));
+	ImmersiveEngine::cbs::Present plane("Plane", planeMesh);
+	plane.space->dialate(5.0f);
+	plane.space->translate(ImmersiveEngine::Math::Vector3(-1.0f, 4.0f, -1.0f));
+
+	ImmersiveEngine::cbs::Present wall("Wall", planeMesh);
+	wall.space->dialate(5.0f);
+	wall.space->translate(ImmersiveEngine::Math::Vector3(-6.0f, 1.0f, -2.0f));
+	wall.space->rotate(ImmersiveEngine::Math::Vector3(0, 0, 90.0f));
 	
-	ImmersiveEngine::cbs::Present lightA;
+	ImmersiveEngine::cbs::Present lightA("Light", pyramidMesh);
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
-	ImmersiveEngine::cbs::Light* lightComp = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 0, 0), 1.0f);
+	ImmersiveEngine::cbs::Light* lightComp = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(250, 248, 223), 1.0f);
 	lightA.space->position.y += -0.2f;
 	lightA.space->position.x += 1;
-	lightComp->specular.color = ImmersiveEngine::Math::Vector3(0,0, 255);
+	lightA.space->position.z += 1;
+	lightA.space->dialate(0.02f);
+	//lightComp->specular.color = ImmersiveEngine::Math::Vector3(0, 0, 0);
 	//lightComp->diffuse.color = ImmersiveEngine::Math::Vector3(200, 255, 0);
 	//lightComp->specular.intensity = 1.0f;
-	lightComp->diffuse.intensity = 1.2f;
+	lightComp->diffuse.intensity = 0.6f;
 
 	float speed = 0.1f;
 	ImmersiveEngine::Math::Vector3 dir;
@@ -127,9 +153,8 @@ int main()
 	{
 		processInput(window); // Get inputs.
 		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenLength / ImmersiveEngine::Settings::g_screenWidth);
-
-		// Rendering
-		glClearColor(0.0f, 0.4f, 0.8f, 0.0f); // Window background in decimal RGBA
+		
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Window background in decimal RGBA
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
         shaderProgram.Activate();
@@ -148,11 +173,22 @@ int main()
 		}
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		{
-			lightA.space->translate(ImmersiveEngine::Math::Vector3(-0.001f, 0, 0));
+			lightA.space->translate(ImmersiveEngine::Math::Vector3(0, 0, 0.001f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		{
-			lightA.space->translate(ImmersiveEngine::Math::Vector3(0.001f, 0, 0));
+			lightA.space->translate(ImmersiveEngine::Math::Vector3(0, 0, -0.001f));
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			cam.space->translate(ImmersiveEngine::Math::Vector3(0,0, -0.002f));
+			cam.space->rotate(ImmersiveEngine::Math::Vector3(0, 0, 0.001f));
+		}
+		else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			cam.space->translate(ImmersiveEngine::Math::Vector3(0, 0, 0.002f));
+			cam.space->rotate(ImmersiveEngine::Math::Vector3(0, 0, -0.001f));
 		}
 		//if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) cam->space.rotate(ImmersiveEngine::Math::Vector3(0.001f, 0, 0)); gimble locks
 		//if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) cam->space.rotate(ImmersiveEngine::Math::Vector3(-0.001f, 0, 0));
@@ -172,13 +208,21 @@ int main()
 		{
 			color += dir;
 		}
-		lightComp->diffuse.color = color;
-		lightComp->mainColor = color;
+		//lightComp->diffuse.color = color;
+		//lightComp->mainColor = color;
 
 		lightComp->refreshLight(shaderProgram, spaceComp->position);
+		lightA.space->refreshTransforms(shaderProgram);
+		lightA.mesh->draw(shaderProgram);
 
 		pyramid.space->refreshTransforms(shaderProgram);
 		pyramid.mesh->draw(shaderProgram);
+
+		plane.space->refreshTransforms(shaderProgram);
+		plane.mesh->draw(shaderProgram);
+
+		wall.space->refreshTransforms(shaderProgram);
+		wall.mesh->draw(shaderProgram);
 
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.

@@ -4,18 +4,23 @@ namespace ImmersiveEngine::cbs
 {
 	Light::Light(Object* obj) :
 		Component(obj), mainColor(ImmersiveEngine::Math::Vector3(255, 255, 255)), intensity(1.0f),
-		ambient(mainColor, 0.2f), diffuse(mainColor, 1.0f), specular(mainColor, 0.4f)
+		ambient(mainColor, 0.2f), diffuse(mainColor, 1.0f), specular(mainColor, 0.3f)
 	{ }
 	Light::Light(Object* obj, const ImmersiveEngine::Math::Vector3 mainColor, const float intensity) : 
 		Component(obj), mainColor(mainColor), intensity(intensity),
-		ambient(mainColor, 0.2f), diffuse(mainColor, 1.0f), specular(mainColor, 0.4f)
+		ambient(mainColor, 0.2f), diffuse(mainColor, 1.0f), specular(mainColor, 0.3f)
 	{ }
 
+	/// Update lighting vales on the shader.
 	void Light::refreshLight(Shader& shaderProgram, const ImmersiveEngine::Math::Vector3 position)
 	{
 		shaderProgram.setVec3("lightColor", glm::vec3(mainColor.x / 255.0f, mainColor.y / 255.0f, mainColor.z / 255.0f));
 		shaderProgram.setVec3("lightPos", glm::vec3(position.x, position.y, position.z));
 		shaderProgram.setFloat("shininess", shininess);
+
+		shaderProgram.setFloat("constant", 1.0f);
+		shaderProgram.setFloat("linear", 2.0f);
+		shaderProgram.setFloat("quadratic", 0.6f);
 
 		// Ambient light
 		if (useGlobalLight)

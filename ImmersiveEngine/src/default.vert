@@ -18,8 +18,8 @@ uniform mat4 proj;
 
 void main()
 {
-    worldPos = vec3(transform * vec4(aPos, 1.0f));
-    normal = mat3(transpose(inverse(transform))) * aNormal;
+    worldPos = vec3(transform * vec4(aPos, 1.0f)); // Calculate the world space of the vertex.
+    normal = mat3(transpose(inverse(transform))) * aNormal; // Preserves the normal directions of the normals through object scaling (inverse) and rotation (transpose).
 
     gl_Position = proj * view * vec4(worldPos, 1.0f);
     //gl_Position = transform * vec4(aPos, 1.0) * scale;

@@ -11,7 +11,7 @@ namespace ImmersiveEngine::cbs
         nextId++;
     }
 
-    /// Check if the current object contains the required subset for the one being added (ex. camera component requires a space component).
+    /*/// Check if the current object contains the required subset for the one being added (ex. camera component requires a space component).
     bool Object::hasDependencies(std::vector<std::type_index> dependencies)
     {
         for (const auto& comp : m_components)
@@ -31,7 +31,7 @@ namespace ImmersiveEngine::cbs
             }
         }
         return true;
-    }
+    }*/
 
     std::string Object::toString()
     {
