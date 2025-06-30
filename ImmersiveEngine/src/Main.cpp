@@ -24,7 +24,7 @@
 /// Decimal RGB = RGB / 255
 
 /// Position and decimal RGB color of all vertices.
-GLfloat verticesA[] =
+/*GLfloat verticesA[] =
 {
 	// Vertex position,		Color,					 Image Offset	  Normal direction
 	// x       y  z			R     G     B			 x     y		  x     y      z
@@ -73,8 +73,22 @@ GLuint planeIndices[] =
 {
 	0, 1, 2,
 	3, 1, 2
+};*/
+
+std::vector<Vertex> planeVertices =
+{
+	Vertex{ImmersiveEngine::Math::Vector3(-1.0f, -1.0f, 1.0f), ImmersiveEngine::Math::Vector3(0,1,0), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 1.0f), ImmersiveEngine::Math::Vector2(0,0)},
+	Vertex{ImmersiveEngine::Math::Vector3(1.0f, -1.0f, 1.0f), ImmersiveEngine::Math::Vector3(0,1,0), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 1.0f), ImmersiveEngine::Math::Vector2(0,0)},
+	Vertex{ImmersiveEngine::Math::Vector3(-1.0f, -1.0f, -1.0f), ImmersiveEngine::Math::Vector3(0,1,0), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 1.0f), ImmersiveEngine::Math::Vector2(0,0)},
+	Vertex{ImmersiveEngine::Math::Vector3(1.0f, -1.0f, -1.0f), ImmersiveEngine::Math::Vector3(0,1,0), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 1.0f), ImmersiveEngine::Math::Vector2(0,0)}
 };
- 
+
+std::vector<GLuint> planeIndices =
+{
+	0, 1, 2,
+	3, 1, 2
+};
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
@@ -114,36 +128,47 @@ int main()
 
 	ImmersiveEngine::cbs::Present cam;
 	ImmersiveEngine::cbs::Camera* camComp = cam.addComponent<ImmersiveEngine::cbs::Camera>();
-	cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
-	cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, -0.5f, 0));
+	cam.space->position = ImmersiveEngine::Math::Vector3(0, 0, 2);
+	//cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
+	//cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, -0.5f, 0));
 
-	auto pyramidMesh = std::make_shared<Mesh>(verticesA, sizeof(verticesA), indices, sizeof(indices));
-	//auto pyramid = std::make_shared<ImmersiveEngine::cbs::Present>("Pyramid", pyramidMesh);
-	ImmersiveEngine::cbs::Present pyramid("Pyramid", pyramidMesh);
-	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	pyramid.mesh->setTexture(sand);
-
-	auto planeMesh = std::make_shared<Mesh>(planeVertices, sizeof(planeVertices), planeIndices, sizeof(planeIndices));
+	auto planeMesh = std::make_shared<Mesh>(planeVertices, planeIndices);
 	ImmersiveEngine::cbs::Present plane("Plane", planeMesh);
 	plane.space->dialate(5.0f);
 	plane.space->translate(ImmersiveEngine::Math::Vector3(-1.0f, 4.0f, -1.0f));
 
+	auto squareMesh = std::make_shared<Mesh>(Mesh::generateSquare(1));
+
+	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+
+	/*auto pyramidMesh = std::make_shared<Mesh>(verticesA, sizeof(verticesA), indices, sizeof(indices));
+	//auto pyramid = std::make_shared<ImmersiveEngine::cbs::Present>("Pyramid", pyramidMesh);
+	ImmersiveEngine::cbs::Present pyramid("Pyramid", pyramidMesh);
+	pyramid.mesh->setTexture(sand);
+
 	ImmersiveEngine::cbs::Present wall("Wall", planeMesh);
 	wall.space->dialate(5.0f);
 	wall.space->translate(ImmersiveEngine::Math::Vector3(-6.0f, 1.0f, -2.0f));
-	wall.space->rotate(ImmersiveEngine::Math::Vector3(0, 0, 90.0f));
-	
-	ImmersiveEngine::cbs::Present lightA("Light", pyramidMesh);
+	wall.space->rotate(ImmersiveEngine::Math::Vector3(0, 0, 90.0f));*/
+
+	ImmersiveEngine::cbs::Present lightA;
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
-	ImmersiveEngine::cbs::Light* lightComp = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(250, 248, 223), 1.0f);
+	ImmersiveEngine::cbs::Light* lightComp = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightA.space->position.y += -0.2f;
 	lightA.space->position.x += 1;
 	lightA.space->position.z += 1;
-	lightA.space->dialate(0.02f);
+	lightA.space->rotate((ImmersiveEngine::Math::Vector3(90,0,0)));
+
+	ImmersiveEngine::cbs::Present square("Square", squareMesh);
+	square.mesh->setTexture(sand);
+	square.space->dialate(5);
+	square.space->translate(ImmersiveEngine::Math::Vector3(-1.0f, 5.0f, -1.0f));
+	square.space->rotate(ImmersiveEngine::Math::Vector3(90, 0, 0));
+	//lightA.space->dialate(0.02f);
 	//lightComp->specular.color = ImmersiveEngine::Math::Vector3(0, 0, 0);
 	//lightComp->diffuse.color = ImmersiveEngine::Math::Vector3(200, 255, 0);
 	//lightComp->specular.intensity = 1.0f;
-	lightComp->diffuse.intensity = 0.6f;
+	//lightComp->diffuse.intensity = 0.6f;
 
 	float speed = 0.1f;
 	ImmersiveEngine::Math::Vector3 dir;
@@ -160,7 +185,7 @@ int main()
         shaderProgram.Activate();
 		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
 		{
-			pyramid.space->rotate(ImmersiveEngine::Math::Vector3(0, 0.01f, 0));
+			//pyramid.space->rotate(ImmersiveEngine::Math::Vector3(0, 0.01f, 0));
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -213,20 +238,24 @@ int main()
 
 		lightComp->refreshLight(shaderProgram, spaceComp->position);
 		lightA.space->refreshTransforms(shaderProgram);
-		lightA.mesh->draw(shaderProgram);
+		//lightA.mesh->draw(shaderProgram);
 
-		pyramid.space->refreshTransforms(shaderProgram);
-		pyramid.mesh->draw(shaderProgram);
+		//pyramid.space->refreshTransforms(shaderProgram);
+		//pyramid.mesh->draw(shaderProgram);
 
 		plane.space->refreshTransforms(shaderProgram);
 		plane.mesh->draw(shaderProgram);
 
-		wall.space->refreshTransforms(shaderProgram);
-		wall.mesh->draw(shaderProgram);
+		square.space->refreshTransforms(shaderProgram);
+		square.mesh->draw(shaderProgram);
+
+		//wall.space->refreshTransforms(shaderProgram);
+		//wall.mesh->draw(shaderProgram);
 
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
+	//sand->Delete();
 	shaderProgram.Delete();
 	
 	glfwDestroyWindow(window);

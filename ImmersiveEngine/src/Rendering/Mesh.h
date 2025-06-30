@@ -15,17 +15,26 @@
 class Mesh
 {
 	private:
+		std::vector<Vertex> m_vertices;
+		std::vector<GLuint> m_indices;
+		Texture* m_texture;
+		
 		VAO m_VAO;
 		VBO m_VBO;
 		EBO m_EBO;
-		Texture* m_texture;
-		int m_indexCount;
+
+		void buildMesh();
 	public:
-		Mesh(GLfloat* vertices, GLsizeiptr verticesSize, GLuint* indices, GLsizeiptr indicesSize);
+		Mesh(std::vector<Vertex>& vertices, std::vector <GLuint>& indices);
 		~Mesh();
 
 		void draw(Shader& shaderProgram);
 		void setTexture(Texture* texture);
+
+		static Mesh generateSquare(float length);
+		static Mesh generateCircle(float radius, uint32_t segments);
+		static Mesh generatePlane(float length, float width);
+		static Mesh generateCube(float length);
 
 		void dump();
 };

@@ -19,8 +19,8 @@ namespace ImmersiveEngine::cbs
 		shaderProgram.setFloat("shininess", shininess);
 
 		shaderProgram.setFloat("constant", 1.0f);
-		shaderProgram.setFloat("linear", 2.0f);
-		shaderProgram.setFloat("quadratic", 0.6f);
+		shaderProgram.setFloat("linear", 1.0f);
+		shaderProgram.setFloat("quadratic", 0.01f);
 
 		// Ambient light
 		if (useGlobalLight)
