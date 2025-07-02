@@ -11,6 +11,7 @@
 #include"../Rendering/VBO.h"
 #include"../Rendering/EBO.h"
 #include"../Rendering/Texture.h"
+#include"../Math/Math.h"
 
 class Mesh
 {
@@ -20,13 +21,13 @@ class Mesh
 		Texture* m_texture;
 		
 		VAO m_VAO;
-		VBO m_VBO;
-		EBO m_EBO;
-
-		void buildMesh();
 	public:
 		Mesh(std::vector<Vertex>& vertices, std::vector <GLuint>& indices);
+		Mesh(const Mesh& mesh);
 		~Mesh();
+
+		void buildMesh();
+		Vertex& getVertexAtIndex(const uint32_t index);
 
 		void draw(Shader& shaderProgram);
 		void setTexture(Texture* texture);
@@ -35,6 +36,7 @@ class Mesh
 		static Mesh generateCircle(float radius, uint32_t segments);
 		static Mesh generatePlane(float length, float width);
 		static Mesh generateCube(float length);
+		static Mesh generateSquarePyramid(float length, float height);
 
 		void dump();
 };

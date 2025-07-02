@@ -137,7 +137,7 @@ int main()
 	plane.space->dialate(5.0f);
 	plane.space->translate(ImmersiveEngine::Math::Vector3(-1.0f, 4.0f, -1.0f));
 
-	auto squareMesh = std::make_shared<Mesh>(Mesh::generateSquare(1));
+	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateCircle(1, 10));
 
 	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
@@ -159,12 +159,11 @@ int main()
 	lightA.space->position.z += 1;
 	lightA.space->rotate((ImmersiveEngine::Math::Vector3(90,0,0)));
 
-	ImmersiveEngine::cbs::Present square("Square", squareMesh);
-	square.mesh->setTexture(sand);
-	square.space->dialate(5);
-	square.space->translate(ImmersiveEngine::Math::Vector3(-1.0f, 5.0f, -1.0f));
-	square.space->rotate(ImmersiveEngine::Math::Vector3(90, 0, 0));
-	//lightA.space->dialate(0.02f);
+	ImmersiveEngine::cbs::Present primitive("Prim", primitiveMesh);
+	primitive.mesh->setTexture(sand);
+	primitive.space->dialate(1.0f);
+	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -1.0f, -2.0f));
+	//square.space->rotate(ImmersiveEngine::Math::Vector3(0, 0, 90));
 	//lightComp->specular.color = ImmersiveEngine::Math::Vector3(0, 0, 0);
 	//lightComp->diffuse.color = ImmersiveEngine::Math::Vector3(200, 255, 0);
 	//lightComp->specular.intensity = 1.0f;
@@ -173,6 +172,7 @@ int main()
 	float speed = 0.1f;
 	ImmersiveEngine::Math::Vector3 dir;
 	ImmersiveEngine::Math::Vector3 color(255, 0, 0);
+	
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -240,14 +240,15 @@ int main()
 		lightA.space->refreshTransforms(shaderProgram);
 		//lightA.mesh->draw(shaderProgram);
 
+		primitive.space->rotate(ImmersiveEngine::Math::Vector3(0, 0.01f, 0));
 		//pyramid.space->refreshTransforms(shaderProgram);
 		//pyramid.mesh->draw(shaderProgram);
 
 		plane.space->refreshTransforms(shaderProgram);
-		plane.mesh->draw(shaderProgram);
+		//plane.mesh->draw(shaderProgram);
 
-		square.space->refreshTransforms(shaderProgram);
-		square.mesh->draw(shaderProgram);
+		primitive.space->refreshTransforms(shaderProgram);
+		primitive.mesh->draw(shaderProgram);
 
 		//wall.space->refreshTransforms(shaderProgram);
 		//wall.mesh->draw(shaderProgram);
