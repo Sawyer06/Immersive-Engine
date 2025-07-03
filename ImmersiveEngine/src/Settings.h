@@ -11,5 +11,7 @@ namespace ImmersiveEngine::Settings
 	
 	inline ImmersiveEngine::Math::Vector3 g_ambientLightColor(255, 255, 255);
 	inline float g_ambientLightIntensity = 0.3f;
+
+	inline bool g_showWireframe = false;
 }
 #endif

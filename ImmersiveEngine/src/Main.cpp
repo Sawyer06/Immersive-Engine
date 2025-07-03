@@ -137,7 +137,7 @@ int main()
 	plane.space->dialate(5.0f);
 	plane.space->translate(ImmersiveEngine::Math::Vector3(-1.0f, 4.0f, -1.0f));
 
-	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateCircle(1, 10));
+	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateCube(1));
 
 	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
@@ -162,7 +162,7 @@ int main()
 	ImmersiveEngine::cbs::Present primitive("Prim", primitiveMesh);
 	primitive.mesh->setTexture(sand);
 	primitive.space->dialate(1.0f);
-	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -1.0f, -2.0f));
+	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -2.0f));
 	//square.space->rotate(ImmersiveEngine::Math::Vector3(0, 0, 90));
 	//lightComp->specular.color = ImmersiveEngine::Math::Vector3(0, 0, 0);
 	//lightComp->diffuse.color = ImmersiveEngine::Math::Vector3(200, 255, 0);
@@ -240,7 +240,7 @@ int main()
 		lightA.space->refreshTransforms(shaderProgram);
 		//lightA.mesh->draw(shaderProgram);
 
-		primitive.space->rotate(ImmersiveEngine::Math::Vector3(0, 0.01f, 0));
+		primitive.space->rotate(ImmersiveEngine::Math::Vector3(0.01f, 0.01f, 0));
 		//pyramid.space->refreshTransforms(shaderProgram);
 		//pyramid.mesh->draw(shaderProgram);
 

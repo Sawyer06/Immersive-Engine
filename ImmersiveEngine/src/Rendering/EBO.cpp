@@ -11,6 +11,11 @@ EBO::EBO(std::vector<GLuint>& indices)
 
 }
 
+EBO::~EBO()
+{
+	Delete();
+}
+
 void EBO::Bind()
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);

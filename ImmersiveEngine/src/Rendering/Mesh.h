@@ -12,6 +12,7 @@
 #include"../Rendering/EBO.h"
 #include"../Rendering/Texture.h"
 #include"../Math/Math.h"
+#include"../Settings.h"
 
 class Mesh
 {

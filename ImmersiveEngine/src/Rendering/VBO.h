@@ -20,6 +20,7 @@ class VBO
 		GLuint ID;
         
 		VBO(std::vector<Vertex>& vertices);
+		~VBO();
         
 		void Bind();
 		void Unbind();
