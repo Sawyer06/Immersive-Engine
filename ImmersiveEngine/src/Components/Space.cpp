@@ -3,7 +3,7 @@
 namespace ImmersiveEngine::cbs
 {
     Space::Space(Object* obj) : Component(obj),
-        position(0, 0, 0), orientation(0, 0, 0), pivotOffset(0, 0, 0),
+        position(0, 0, 0), orientation(ImmersiveEngine::Math::Quaternion::identity),
         scale(1, 1, 1), up(0, 1, 0), m_matrix(glm::mat4(1.0f)) { }
 
     /// Update the position, orientation, and scale of object based on its corresponding values.
@@ -13,13 +13,13 @@ namespace ImmersiveEngine::cbs
 
         m_matrix = glm::translate(m_matrix, glm::vec3(position.x, position.y, position.z)); // Move x, y, z
 
-        m_matrix = glm::translate(m_matrix, glm::vec3(pivotOffset.x, pivotOffset.y, pivotOffset.z)); // Apply rotation offset
+        m_matrix *= glm::mat4_cast(glm::quat(orientation.w, orientation.x, orientation.y, orientation.z));
 
+        /*
         m_matrix = glm::rotate(m_matrix, glm::radians(orientation.x), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate x
         m_matrix = glm::rotate(m_matrix, glm::radians(orientation.y), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate y
         m_matrix = glm::rotate(m_matrix, glm::radians(orientation.z), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotate z
-
-        m_matrix = glm::translate(m_matrix, -glm::vec3(pivotOffset.x, pivotOffset.y, pivotOffset.z)); // Revert rotation offset
+        */
 
         m_matrix = glm::scale(m_matrix, glm::vec3(scale.x, scale.y, scale.z)); // Scale x, y, z
 
@@ -36,15 +36,25 @@ namespace ImmersiveEngine::cbs
         translate(pos);
     }
 
-    void Space::rotate(ImmersiveEngine::Math::Vector3 deltaAngle)
+    /// NONCOMMUTATIVE : ORDER OF OPERATIONS MATTER
+    void Space::rotate(float angle, ImmersiveEngine::Math::Vector3 axis)
     {
-        orientation += deltaAngle;
-        //orientation = Engine::Math::coterminal(orientation);
+        float angleRadians = glm::radians(angle);
+        ImmersiveEngine::Math::Quaternion deltaQ = ImmersiveEngine::Math::Quaternion::angleAxis(angleRadians, axis);
+        
+        orientation = deltaQ * orientation; // Local space.
+
+        orientation.normalize();
     }
-    void Space::rotate(float deltaAngle)
+
+    void Space::rotateGlobal(float angle, ImmersiveEngine::Math::Vector3 axis)
     {
-        ImmersiveEngine::Math::Vector3 angle(0, 0, deltaAngle);
-        rotate(angle);
+        float angleRadians = glm::radians(angle);
+        ImmersiveEngine::Math::Quaternion deltaQ = ImmersiveEngine::Math::Quaternion::angleAxis(angleRadians, axis);
+
+        orientation = orientation * deltaQ; // World space.
+
+        orientation.normalize();
     }
 
     void Space::dialate(float scaleFactor)

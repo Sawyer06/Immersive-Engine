@@ -99,6 +99,9 @@
     <ClCompile Include="src\Components\Light.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+    <ClCompile Include="src\Math\Quaternion.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">
@@ -148,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="src\Settings.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Quaternion.h">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

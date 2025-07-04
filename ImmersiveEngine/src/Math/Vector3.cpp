@@ -1,12 +1,27 @@
 #include"Vector3.h"
 
-#include<sstream>
-
 namespace ImmersiveEngine::Math
 {
+    Vector3 Vector3::zero(0, 0, 0);
+    Vector3 Vector3::up(0, 1, 0);
+    Vector3 Vector3::forward(0, 0, 1);
+    Vector3 Vector3::right(1, 0, 0);
+
     Vector3::Vector3() : x(0), y(0), z(0) {};
 
     Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {};
+
+    /// Normalize between [-1, 1] v / ||v||
+    void Vector3::normalize()
+    {
+        float magnitude = std::sqrt(x*x + y*y + z*z);
+        if (magnitude > 0.0f)
+        {
+            x = x / magnitude;
+            y = y / magnitude;
+            z = z / magnitude;
+        }
+    }
 
     /// Comparison Operations
     bool Vector3::operator==(Vector3 const& b) // Equal to
@@ -73,10 +88,5 @@ namespace ImmersiveEngine::Math
         std::ostringstream oss;
         oss << "(" << x << ", " << y << ", " << z << ")";
         return oss.str();
-    }
-
-    Vector3 Vector3::zero()
-    {
-        return Vector3(0, 0, 0);
     }
 }

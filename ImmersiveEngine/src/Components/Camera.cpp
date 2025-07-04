@@ -13,7 +13,7 @@ namespace ImmersiveEngine::cbs
 			MISORDERED_ERROR;
 			return;
 		}
-		m_ownerSpace->orientation = ImmersiveEngine::Math::Vector3(0, 0, -1);
+		m_ownerSpace->orientation = ImmersiveEngine::Math::Quaternion(0, 0, 0, -1);
 	}
 
 	/// Update the view and projection matrices of the camera.

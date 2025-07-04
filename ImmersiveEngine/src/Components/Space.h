@@ -12,6 +12,7 @@
 #include"../Math/Math.h"
 #include"../Math/Vector2.h"
 #include"../Math/Vector3.h"
+#include"../Math/Quaternion.h"
 
 namespace ImmersiveEngine::cbs
 {
@@ -25,8 +26,7 @@ namespace ImmersiveEngine::cbs
             Space(Object* obj);
 
             ImmersiveEngine::Math::Vector3 position;
-            ImmersiveEngine::Math::Vector3 orientation;
-            ImmersiveEngine::Math::Vector3 pivotOffset;
+            ImmersiveEngine::Math::Quaternion orientation;
             ImmersiveEngine::Math::Vector3 scale;
             ImmersiveEngine::Math::Vector3 up;
 
@@ -35,8 +35,8 @@ namespace ImmersiveEngine::cbs
             void translate(ImmersiveEngine::Math::Vector3 deltaPos);
             void translate(ImmersiveEngine::Math::Vector2 deltaPos);
 
-            void rotate(ImmersiveEngine::Math::Vector3 deltaAngle);
-            void rotate(float deltaAngle);
+            void rotate(float angle, ImmersiveEngine::Math::Vector3 axis);
+            void rotateGlobal(float angle, ImmersiveEngine::Math::Vector3 axis);
 
             void dialate(float scaleFactor);
             void dialate(ImmersiveEngine::Math::Vector3 scaleFactor);

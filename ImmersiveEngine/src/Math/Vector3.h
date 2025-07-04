@@ -2,6 +2,8 @@
 #define VECTOR3_CLASS_H
 
 #include<string>
+#include<sstream>
+#include<cmath>
 
 namespace ImmersiveEngine::Math
 {
@@ -12,6 +14,8 @@ namespace ImmersiveEngine::Math
             Vector3(float x, float y, float z);
 			
             float x, y, z;
+
+            void normalize();
 
             bool operator==(Vector3 const& b);
             bool operator!=(Vector3 const& b);
@@ -28,7 +32,10 @@ namespace ImmersiveEngine::Math
 
             std::string toString();
 
-            static Vector3 zero();
+            static Vector3 zero;
+            static Vector3 up;
+            static Vector3 forward;
+            static Vector3 right;
 	};
 }
 

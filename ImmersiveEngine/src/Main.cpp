@@ -17,6 +17,7 @@
 #include"Components/Light.h"
 #include"Math/Vector2.h"
 #include"Math/Vector3.h"
+#include"Math/Quaternion.h"
 #include"Objects/Present.h"
 #include"Rendering/Mesh.h"
 #include"Components/Space.h"
@@ -160,7 +161,7 @@ int main()
 	float speed = 0.1f;
 	ImmersiveEngine::Math::Vector3 dir;
 	ImmersiveEngine::Math::Vector3 color(255, 0, 0);
-	
+	primitive.space->rotate(135.0f, ImmersiveEngine::Math::Vector3::forward);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -172,7 +173,26 @@ int main()
 		
         shaderProgram.Activate();
 
-		primitive.space->rotate(ImmersiveEngine::Math::Vector3(0.01f, 0.01f, 0));
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		{
+			cam.space->rotate(-0.05f, ImmersiveEngine::Math::Vector3::up);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		{
+			cam.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::up);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		{
+			cam.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		{
+			cam.space->rotate(-0.05f, ImmersiveEngine::Math::Vector3::right);
+		}
+
+		primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
+		primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
+		
 
 		lightComp->refreshLight(shaderProgram, spaceComp->position);
 		lightA.space->refreshTransforms(shaderProgram);
