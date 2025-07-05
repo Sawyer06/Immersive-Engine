@@ -190,6 +190,23 @@ int main()
 			cam.space->rotate(-0.05f, ImmersiveEngine::Math::Vector3::right);
 		}
 
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			cam.space->translate(-ImmersiveEngine::Math::Vector3::forward * .001f);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			cam.space->translate(ImmersiveEngine::Math::Vector3::forward * .001f);
+		}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			cam.space->translate(-ImmersiveEngine::Math::Vector3::right * .001f);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			cam.space->translate(ImmersiveEngine::Math::Vector3::right * .001f);
+		}
+
 		primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
 		primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
 		
