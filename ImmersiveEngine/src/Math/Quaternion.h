@@ -17,15 +17,18 @@ namespace ImmersiveEngine::Math
 
 			float w, x, y, z;
 
-			void normalize();
-			static Quaternion angleAxis(float angle, ImmersiveEngine::Math::Vector3& axis);
+			Quaternion normalize();
+			static Quaternion angleAxis(float angle, Vector3& axis);
+			Quaternion conjugate() const;
 			
+			bool operator==(const Quaternion& other);
+			bool operator!=(const Quaternion& other);
+
 			Quaternion operator*(const Quaternion& other);
 			
 			std::string toString();
 
 			static Quaternion identity;
-
 	};
 }
 #endif

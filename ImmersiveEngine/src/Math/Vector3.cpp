@@ -12,7 +12,7 @@ namespace ImmersiveEngine::Math
     Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {};
 
     /// Normalize between [-1, 1] v / ||v||
-    void Vector3::normalize()
+    Vector3 Vector3::normalize()
     {
         float magnitude = std::sqrt(x*x + y*y + z*z);
         if (magnitude > 0.0f)
@@ -21,6 +21,7 @@ namespace ImmersiveEngine::Math
             y = y / magnitude;
             z = z / magnitude;
         }
+        return { x, y, z };
     }
 
     /// Comparison Operations

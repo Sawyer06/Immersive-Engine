@@ -99,7 +99,7 @@ void Mesh::setTexture(Texture* texture)
 /*================================================================
                 Primitive Shape Mesh Generators
 =================================================================*/
-ImmersiveEngine::Math::Vector3 defaultColor(255, 255, 255);
+ImmersiveEngine::Math::Vector3 defaultColor(1.0f, 1.0f, 1.0f);
 ImmersiveEngine::Math::Vector3 normalDir2D(0, 0, 1.0f);
 
 std::vector<GLuint> squareIndices =
@@ -165,11 +165,13 @@ Mesh Mesh::generatePlane(float length, float width)
     float offsetX = length / 2;
     float offsetZ = width / 2;
 
+    ImmersiveEngine::Math::Vector3 normalDir(0, 1.0f, 0);
+
     std::vector<Vertex> vertices =
     {
-        Vertex{ImmersiveEngine::Math::Vector3(offsetX, 0.0f, offsetZ), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(offsetX, offsetZ)}, // 0
-        Vertex{ImmersiveEngine::Math::Vector3(-offsetX, 0.0f, offsetZ), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(-offsetX, offsetZ)}, // 1
-        Vertex{ImmersiveEngine::Math::Vector3(-offsetX, 0.0f, -offsetZ), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(-offsetX, -offsetZ)}, // 2
+        Vertex{ImmersiveEngine::Math::Vector3(offsetX, 0.0f, offsetZ), normalDir, defaultColor, ImmersiveEngine::Math::Vector2(offsetX, offsetZ)}, // 0
+        Vertex{ImmersiveEngine::Math::Vector3(-offsetX, 0.0f, offsetZ), normalDir, defaultColor, ImmersiveEngine::Math::Vector2(-offsetX, offsetZ)}, // 1
+        Vertex{ImmersiveEngine::Math::Vector3(-offsetX, 0.0f, -offsetZ), normalDir, defaultColor, ImmersiveEngine::Math::Vector2(-offsetX, -offsetZ)}, // 2
         Vertex{ImmersiveEngine::Math::Vector3(offsetX, 0.0f, -offsetZ), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(offsetX, -offsetZ)}, // 3
     };
     /*

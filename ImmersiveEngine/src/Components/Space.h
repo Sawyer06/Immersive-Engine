@@ -27,6 +27,7 @@ namespace ImmersiveEngine::cbs
 
             ImmersiveEngine::Math::Vector3 position;
             ImmersiveEngine::Math::Quaternion orientation;
+            ImmersiveEngine::Math::Vector3 pivotPoint;
             ImmersiveEngine::Math::Vector3 scale;
             ImmersiveEngine::Math::Vector3 up;
 
@@ -43,6 +44,10 @@ namespace ImmersiveEngine::cbs
             void dialate(ImmersiveEngine::Math::Vector2 scaleFactor);
 
             std::string toString() override;
+
+            ImmersiveEngine::Math::Vector3 getUp();
+            ImmersiveEngine::Math::Vector3 getForward();
+            ImmersiveEngine::Math::Vector3 getRight();
     };
 }
 #endif

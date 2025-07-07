@@ -28,8 +28,11 @@ namespace ImmersiveEngine::cbs
 		m_view = glm::mat4(1.0f);
 		m_proj = glm::mat4(1.0f);
 
+		glm::vec3 forward(0, 0, -1);
+
 		glm::vec3 pos(m_ownerSpace->position.x, m_ownerSpace->position.y, m_ownerSpace->position.z);
-		glm::vec3 rot(glm::radians(m_ownerSpace->orientation.x), glm::radians(m_ownerSpace->orientation.y), glm::radians(m_ownerSpace->orientation.z));
+		glm::quat quat(m_ownerSpace->orientation.w, m_ownerSpace->orientation.x, m_ownerSpace->orientation.y, m_ownerSpace->orientation.z);
+		glm::vec3 rot = quat * forward;
 		glm::vec3 up(m_ownerSpace->up.x, m_ownerSpace->up.y, m_ownerSpace->up.z);
 		m_view = glm::lookAt(pos, pos + rot, up); // Position of the world.
 		m_proj = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);

@@ -22,74 +22,6 @@
 #include"Rendering/Mesh.h"
 #include"Components/Space.h"
 
-/// Decimal RGB = RGB / 255
-
-/// Position and decimal RGB color of all vertices.
-/*GLfloat verticesA[] =
-{
-	// Vertex position,		Color,					 Image Offset	  Normal direction
-	// x       y  z			R     G     B			 x     y		  x     y      z
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f,
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 5.0f,      0.0f, -1.0f, 0.0f,
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 5.0f,      0.0f, -1.0f, 0.0f,
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, -1.0f, 0.0f,
-
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,     -0.8f, 0.5f,  0.0f,
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,     -0.8f, 0.5f,  0.0f, 
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,     -0.8f, 0.5f,  0.0f, 
-
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f, -0.8f, 
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.0f, 0.5f, -0.8f, 
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f, -0.8f, 
-
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, 
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, 
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, 
-
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, 
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, 
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  
-};
-
-/// The order of rendering for vertices.
-GLuint indices[] =
-{
-	0, 1, 2,
-	0, 2, 3,
-	4, 6, 5,
-	7, 9, 8,
-	10, 12, 11,
-	13, 15, 14
-};
-
-GLfloat planeVertices[] =
-{
-	-1.0f, -1.0f, 1.0f,		1.0f, 1.0f, 1.0f,		0, 0,	0, 1.0f, 0,
-	1.0f, -1.0f, 1.0f,		1.0f, 1.0f, 1.0f,		0, 0,	0, 1.0f, 0,
-	-1.0f, -1.0f, -1.0f,	1.0f, 1.0f, 1.0f,		0, 0,	0, 1.0f, 0,
-	1.0f, -1.0f, -1.0f,		1.0f, 1.0f, 1.0f,		0, 0,	0, 1.0f, 0
-};
-
-GLuint planeIndices[] =
-{
-	0, 1, 2,
-	3, 1, 2
-};*/
-
-std::vector<Vertex> planeVertices =
-{
-	Vertex{ImmersiveEngine::Math::Vector3(-1.0f, -1.0f, 1.0f), ImmersiveEngine::Math::Vector3(0,1,0), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 1.0f), ImmersiveEngine::Math::Vector2(0,0)},
-	Vertex{ImmersiveEngine::Math::Vector3(1.0f, -1.0f, 1.0f), ImmersiveEngine::Math::Vector3(0,1,0), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 1.0f), ImmersiveEngine::Math::Vector2(0,0)},
-	Vertex{ImmersiveEngine::Math::Vector3(-1.0f, -1.0f, -1.0f), ImmersiveEngine::Math::Vector3(0,1,0), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 1.0f), ImmersiveEngine::Math::Vector2(0,0)},
-	Vertex{ImmersiveEngine::Math::Vector3(1.0f, -1.0f, -1.0f), ImmersiveEngine::Math::Vector3(0,1,0), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 1.0f), ImmersiveEngine::Math::Vector2(0,0)}
-};
-
-std::vector<GLuint> planeIndices =
-{
-	0, 1, 2,
-	3, 1, 2
-};
-
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
@@ -101,7 +33,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenWidth, "HelloWorld", NULL, NULL); // Create window.
+	GLFWwindow* window = glfwCreateWindow(ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenHeight, "HelloWorld", NULL, NULL); // Create window.
 	// Error check if window isn't created.
 	if (window == NULL)
 	{
@@ -133,14 +65,17 @@ int main()
 	//cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
 	//cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, -0.5f, 0));
 
-	auto planeMesh = std::make_shared<Mesh>(planeVertices, planeIndices);
+	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* stone = new Texture("stone.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+
+	auto planeMesh = std::make_shared<Mesh>(Mesh::generatePlane(4, 5));
+	
 	ImmersiveEngine::cbs::Present plane("Plane", planeMesh);
+	plane.mesh->setTexture(stone);
 	plane.space->dialate(5.0f);
-	plane.space->translate(ImmersiveEngine::Math::Vector3(-1.0f, 4.0f, -1.0f));
+	plane.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, -6.0f));
 
 	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateCube(1));
-
-	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
 	ImmersiveEngine::cbs::Present lightA;
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
@@ -153,6 +88,9 @@ int main()
 	primitive.mesh->setTexture(sand);
 	primitive.space->dialate(1.0f);
 	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -2.0f));
+	//primitive.space->rotate(90, ImmersiveEngine::Math::Vector3::up);
+	//primitive.space->pivotPoint.x -= 0.5f;
+	//primitive.space->pivotPoint.y -= 0.5f;
 	//lightComp->specular.color = ImmersiveEngine::Math::Vector3(0, 0, 0);
 	//lightComp->diffuse.color = ImmersiveEngine::Math::Vector3(200, 255, 0);
 	//lightComp->specular.intensity = 1.0f;
@@ -161,17 +99,59 @@ int main()
 	float speed = 0.1f;
 	ImmersiveEngine::Math::Vector3 dir;
 	ImmersiveEngine::Math::Vector3 color(255, 0, 0);
-	primitive.space->rotate(135.0f, ImmersiveEngine::Math::Vector3::forward);
+	//primitive.space->rotate(135.0f, ImmersiveEngine::Math::Vector3::forward);
+	float camSpeed = 0.002f;
 
+	double mouseX;
+	double mouseY;
+	double lastX = ImmersiveEngine::Settings::g_screenLength / 2;
+	double lastY = ImmersiveEngine::Settings::g_screenHeight / 2;
+	float sensitivity = 0.2f;
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	//glfwSetCursorPos(window, (double)(ImmersiveEngine::Settings::g_screenHeight / 2), (double)(ImmersiveEngine::Settings::g_screenLength / 2));
+	bool clickIn = false;
+	
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window); // Get inputs.
-		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenLength / ImmersiveEngine::Settings::g_screenWidth);
+		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenLength / ImmersiveEngine::Settings::g_screenHeight);
 		
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Window background in decimal RGBA
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
         shaderProgram.Activate();
+		
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		{
+			clickIn = true;
+		}
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		{
+			clickIn = false;
+		}
+		if (clickIn)
+		{
+			glfwGetCursorPos(window, &mouseX, &mouseY);
+
+			if (lastX - mouseX != 0)
+			{
+				cam.space->rotate((lastX - mouseX) * sensitivity, ImmersiveEngine::Math::Vector3::up);
+			}
+			if (lastY - mouseY != 0)
+			{
+				cam.space->rotate((lastY - mouseY) * sensitivity, -cam.space->getRight());
+			}
+
+			lastX = mouseX;
+			lastY = mouseY;
+		}
+		else
+		{
+			glfwSetCursorPos(window, ImmersiveEngine::Settings::g_screenLength / 2, ImmersiveEngine::Settings::g_screenHeight / 2);
+		}
+
+		//std::cout << cam.space->orientation.toString() << "\n";
+
 
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
@@ -181,35 +161,46 @@ int main()
 		{
 			cam.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::up);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && cam.space->orientation.y < 0.4f)
 		{
-			cam.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
+			cam.space->rotate(-0.05f, cam.space->getRight());
 		}
-		else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && cam.space->orientation.y > -0.4f)
 		{
-			cam.space->rotate(-0.05f, ImmersiveEngine::Math::Vector3::right);
+			cam.space->rotate(0.05f, cam.space->getRight());
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			cam.space->translate(-ImmersiveEngine::Math::Vector3::forward * .001f);
+			cam.space->translate(-cam.space->getForward() * camSpeed);
 		}
 		else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		{
-			cam.space->translate(ImmersiveEngine::Math::Vector3::forward * .001f);
+			cam.space->translate(cam.space->getForward() * camSpeed);
 		}
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		{
-			cam.space->translate(-ImmersiveEngine::Math::Vector3::right * .001f);
+			cam.space->translate(cam.space->getRight() * camSpeed);
 		}
 		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		{
-			cam.space->translate(ImmersiveEngine::Math::Vector3::right * .001f);
+			cam.space->translate(-cam.space->getRight() * camSpeed);
 		}
+
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		{
+			camSpeed = 0.01f;
+		}
+		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+		{
+			camSpeed = 0.004f;
+		}
+		cam.space->position.y = 0;
 
 		primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
 		primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
-		
+
+		cam.space->refreshTransforms(shaderProgram);
 
 		lightComp->refreshLight(shaderProgram, spaceComp->position);
 		lightA.space->refreshTransforms(shaderProgram);

@@ -15,7 +15,7 @@ namespace ImmersiveEngine::Math
 			
             float x, y, z;
 
-            void normalize();
+            Vector3 normalize();
 
             bool operator==(Vector3 const& b);
             bool operator!=(Vector3 const& b);

@@ -11,7 +11,7 @@ namespace ImmersiveEngine::Math
 		w(w), x(x), y(y), z(z) { }
 
 	/// Normalize between [-1, 1] q / ||q||
-	void Quaternion::normalize()
+	Quaternion Quaternion::normalize()
 	{
 		float magnitude = std::sqrt(w*w + x*x + y*y + z*z);
 		if (magnitude > 0.0f) // Prevent from division by 0.
@@ -21,16 +21,32 @@ namespace ImmersiveEngine::Math
 			y = y / magnitude;
 			z = z / magnitude;
 		}
+		return { w, x, y, z };
 	}
 	
 	/// Produces a new quaternion at a certain rotation on one axis.
 	/// q = (cos(angle/2) + sin(angle/2)) * (axis)
-	Quaternion Quaternion::angleAxis(float angle, ImmersiveEngine::Math::Vector3& axis)
+	Quaternion Quaternion::angleAxis(float angle, Vector3& axis)
 	{
-		axis.normalize();
-		return Quaternion(std::cos(angle / 2), axis.x * std::sin(angle / 2), axis.y * std::sin(angle / 2), axis.z * std::sin(angle / 2));
+		Vector3 normalizedAxis = axis.normalize();
+		return Quaternion(std::cos(angle / 2), normalizedAxis.x * std::sin(angle / 2), normalizedAxis.y * std::sin(angle / 2), normalizedAxis.z * std::sin(angle / 2));
 	}
 
+	/// Returns the conjugate of this quaternion.
+	Quaternion Quaternion::conjugate() const
+	{
+		return Quaternion(w, -x, -y, -z);
+	}
+
+	bool Quaternion::operator==(const Quaternion& other)
+	{
+		return w == other.w && x == other.x && y == other.y && z == other.z;
+	}
+	bool Quaternion::operator!=(const Quaternion& other)
+	{
+		return w != other.w && x != other.x && y != other.y && z != other.z;
+	}
+	
 	/// Hamilton product.
 	Quaternion Quaternion::operator*(const Quaternion& other)
 	{
