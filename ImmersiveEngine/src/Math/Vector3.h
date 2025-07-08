@@ -17,18 +17,18 @@ namespace ImmersiveEngine::Math
 
             Vector3 normalize();
 
-            bool operator==(Vector3 const& b);
-            bool operator!=(Vector3 const& b);
+            bool operator==(const Vector3& b);
+            bool operator!=(const Vector3& b);
 
-            Vector3 operator=(Vector3 const& newValue);
-            Vector3 operator+(Vector3 const& addend);
-            Vector3 operator+=(Vector3 const& addend);
+            Vector3 operator=(const Vector3& newValue);
+            Vector3 operator+(const Vector3& addend);
+            Vector3 operator+=(const Vector3& addend);
             Vector3 operator-();
-            Vector3 operator-(Vector3 const& subtrahend);
-            Vector3 operator-=(Vector3 const& subtrahend);
-            Vector3 operator*(float const& scalar);
-            Vector3 operator*=(float const& scalar);
-            float operator*(Vector3 const& vecB);
+            Vector3 operator-(const Vector3& subtrahend);
+            Vector3 operator-=(const Vector3& subtrahend);
+            Vector3 operator*(const float& scalar);
+            Vector3 operator*=(const float& scalar);
+            float operator*(const Vector3& vecB);
 
             std::string toString();
 

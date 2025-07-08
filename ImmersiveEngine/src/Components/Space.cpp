@@ -61,6 +61,13 @@ namespace ImmersiveEngine::cbs
         orientation = orientation.normalize();
     }
 
+    void Space::lookAt(const ImmersiveEngine::Math::Vector3 target)
+    {
+        ImmersiveEngine::Math::Quaternion lookRot = ImmersiveEngine::Math::Quaternion::rotationTo(position, target);
+
+        orientation = lookRot;
+    }
+
     void Space::dialate(float scaleFactor)
     {
         scale *= scaleFactor;

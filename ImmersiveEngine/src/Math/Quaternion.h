@@ -17,14 +17,17 @@ namespace ImmersiveEngine::Math
 
 			float w, x, y, z;
 
-			Quaternion normalize();
+			Quaternion normalize() const;
 			static Quaternion angleAxis(float angle, Vector3& axis);
+			static Quaternion rotationTo(Vector3 start, Vector3 target);
 			Quaternion conjugate() const;
 			
-			bool operator==(const Quaternion& other);
-			bool operator!=(const Quaternion& other);
+			bool operator==(Quaternion const& b);
+			bool operator!=(Quaternion const& b);
 
-			Quaternion operator*(const Quaternion& other);
+			Quaternion operator=(Quaternion const& newValue);
+			Quaternion operator*(Quaternion const& quatB);
+			Quaternion operator*=(Quaternion const& quatB);
 			
 			std::string toString();
 

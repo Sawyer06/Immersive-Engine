@@ -76,6 +76,7 @@ int main()
 	plane.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, -6.0f));
 
 	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateCube(1));
+	auto primitiveMeshB = std::make_shared<Mesh>(Mesh::generateSquarePyramid(0.5f, 0.5f));
 
 	ImmersiveEngine::cbs::Present lightA;
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
@@ -88,6 +89,7 @@ int main()
 	primitive.mesh->setTexture(sand);
 	primitive.space->dialate(1.0f);
 	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -2.0f));
+
 	//primitive.space->rotate(90, ImmersiveEngine::Math::Vector3::up);
 	//primitive.space->pivotPoint.x -= 0.5f;
 	//primitive.space->pivotPoint.y -= 0.5f;
@@ -95,22 +97,17 @@ int main()
 	//lightComp->diffuse.color = ImmersiveEngine::Math::Vector3(200, 255, 0);
 	//lightComp->specular.intensity = 1.0f;
 	//lightComp->diffuse.intensity = 0.6f;
-
-	float speed = 0.1f;
-	ImmersiveEngine::Math::Vector3 dir;
-	ImmersiveEngine::Math::Vector3 color(255, 0, 0);
-	//primitive.space->rotate(135.0f, ImmersiveEngine::Math::Vector3::forward);
 	float camSpeed = 0.002f;
 
-	double mouseX;
-	double mouseY;
-	double lastX = ImmersiveEngine::Settings::g_screenLength / 2;
-	double lastY = ImmersiveEngine::Settings::g_screenHeight / 2;
+	double mouseX = ImmersiveEngine::Settings::g_screenLength / 2;
+	double mouseY = ImmersiveEngine::Settings::g_screenHeight / 2;
+	double lastX = mouseX;
+	double lastY = mouseY;
 	float sensitivity = 0.2f;
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	//glfwSetCursorPos(window, (double)(ImmersiveEngine::Settings::g_screenHeight / 2), (double)(ImmersiveEngine::Settings::g_screenLength / 2));
+	float pitch = 0;
+
 	bool clickIn = false;
-	
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window); // Get inputs.
@@ -120,37 +117,38 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
         shaderProgram.Activate();
-		
+
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
 			clickIn = true;
+			glfwSetCursorPos(window, (double)(ImmersiveEngine::Settings::g_screenHeight / 2), (double)(ImmersiveEngine::Settings::g_screenLength / 2));
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		{
 			clickIn = false;
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
 		if (clickIn)
 		{
 			glfwGetCursorPos(window, &mouseX, &mouseY);
+			float rotX = lastX - mouseX;
+			float rotY = lastY - mouseY;
 
-			if (lastX - mouseX != 0)
+			pitch += rotY * sensitivity; // Clamping
+
+			if (rotX != 0)
 			{
-				cam.space->rotate((lastX - mouseX) * sensitivity, ImmersiveEngine::Math::Vector3::up);
+				cam.space->rotate(rotX * sensitivity, ImmersiveEngine::Math::Vector3::up);
 			}
-			if (lastY - mouseY != 0)
+			if (rotY != 0 && pitch > -80.0f && pitch < 70.0f)
 			{
-				cam.space->rotate((lastY - mouseY) * sensitivity, -cam.space->getRight());
+				cam.space->rotate(rotY * sensitivity, -cam.space->getRight());
 			}
 
 			lastX = mouseX;
 			lastY = mouseY;
 		}
-		else
-		{
-			glfwSetCursorPos(window, ImmersiveEngine::Settings::g_screenLength / 2, ImmersiveEngine::Settings::g_screenHeight / 2);
-		}
-
-		//std::cout << cam.space->orientation.toString() << "\n";
 
 
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
@@ -187,18 +185,34 @@ int main()
 			cam.space->translate(-cam.space->getRight() * camSpeed);
 		}
 
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			cam.space->translate(ImmersiveEngine::Math::Vector3::up * camSpeed);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+		{
+			if (cam.space->position.y > 0.0f)
+			{
+				cam.space->translate(-ImmersiveEngine::Math::Vector3::up * camSpeed);
+			}
+			else
+			{
+				cam.space->position.y = 0;
+			}
+		}
+
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		{
-			camSpeed = 0.01f;
+			camSpeed = 0.008f;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 		{
-			camSpeed = 0.004f;
+			camSpeed = 0.003f;
 		}
-		cam.space->position.y = 0;
 
-		primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
-		primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
+		primitive.space->lookAt(cam.space->position);
+		//primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
+		//primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
 
 		cam.space->refreshTransforms(shaderProgram);
 

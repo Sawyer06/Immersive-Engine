@@ -11,17 +11,18 @@ namespace ImmersiveEngine::Math
 		w(w), x(x), y(y), z(z) { }
 
 	/// Normalize between [-1, 1] q / ||q||
-	Quaternion Quaternion::normalize()
+	Quaternion Quaternion::normalize() const
 	{
 		float magnitude = std::sqrt(w*w + x*x + y*y + z*z);
+		float nW = w; float nX = x; float nY = y; float nZ = z;
 		if (magnitude > 0.0f) // Prevent from division by 0.
 		{
-			w = w / magnitude;
-			x = x / magnitude;
-			y = y / magnitude;
-			z = z / magnitude;
+			nW = w / magnitude;
+			nX = x / magnitude;
+			nY = y / magnitude;
+			nZ = z / magnitude;
 		}
-		return { w, x, y, z };
+		return Quaternion(nW, nX, nY, nZ);
 	}
 	
 	/// Produces a new quaternion at a certain rotation on one axis.
@@ -32,30 +33,62 @@ namespace ImmersiveEngine::Math
 		return Quaternion(std::cos(angle / 2), normalizedAxis.x * std::sin(angle / 2), normalizedAxis.y * std::sin(angle / 2), normalizedAxis.z * std::sin(angle / 2));
 	}
 
+	/// Produces a quaternion whose forward is pointing at the given position.
+	Quaternion Quaternion::rotationTo(Vector3 start, Vector3 target)
+	{
+		Vector3 dir = (target - start).normalize();
+
+		// arctan(opposite/adjacent) = theta
+		float pitch = std::atan2(dir.y, std::sqrt(dir.x * dir.x + dir.z * dir.z)); // Calculate the length of the 3rd side (c) using pythagorean theorem (a^2+b^2=c^2). 
+		float yaw = std::atan2(dir.x, dir.z);
+		
+		Quaternion rot = Quaternion::angleAxis(yaw, Vector3::up) * Quaternion::angleAxis(-pitch, Vector3::right);
+		return rot.normalize();
+	}
+
 	/// Returns the conjugate of this quaternion.
 	Quaternion Quaternion::conjugate() const
 	{
 		return Quaternion(w, -x, -y, -z);
 	}
 
-	bool Quaternion::operator==(const Quaternion& other)
+	/// Comparison Operations
+	bool Quaternion::operator==(Quaternion const& b) // Equal to
 	{
-		return w == other.w && x == other.x && y == other.y && z == other.z;
+		return w == b.w && x == b.x && y == b.y && z == b.z;
 	}
-	bool Quaternion::operator!=(const Quaternion& other)
+	bool Quaternion::operator!=(Quaternion const& b) // Not equal to
 	{
-		return w != other.w && x != other.x && y != other.y && z != other.z;
+		return w != b.w && x != b.x && y != b.y && z != b.z;
 	}
 	
-	/// Hamilton product.
-	Quaternion Quaternion::operator*(const Quaternion& other)
+	/// Arithmetic Operations
+	Quaternion Quaternion::operator=(Quaternion const& newValue) // Set
+	{
+		w = newValue.w;
+		x = newValue.x;
+		y = newValue.y;
+		z = newValue.z;
+
+		return *this;
+	}
+	Quaternion Quaternion::operator*(Quaternion const& quatB) // Hamilton product
 	{
 		return Quaternion(
-			w * other.w - x * other.x - y * other.y - z * other.z, // W
-			w * other.x + x * other.w + y * other.z - z * other.y, // X
-			w * other.y - x * other.z + y * other.w + z * other.x, // Y
-			w * other.z + x * other.y - y * other.x + z * other.w // Z
+			w * quatB.w - x * quatB.x - y * quatB.y - z * quatB.z, // W
+			w * quatB.x + x * quatB.w + y * quatB.z - z * quatB.y, // X
+			w * quatB.y - x * quatB.z + y * quatB.w + z * quatB.x, // Y
+			w * quatB.z + x * quatB.y - y * quatB.x + z * quatB.w // Z
 		);
+	}
+	Quaternion Quaternion::operator*=(Quaternion const& quatB) // Hamilton product equal to
+	{
+		w = w * quatB.w - x * quatB.x - y * quatB.y - z * quatB.z; // W
+		x = w * quatB.x + x * quatB.w + y * quatB.z - z * quatB.y; // X
+		y = w * quatB.y - x * quatB.z + y * quatB.w + z * quatB.x; // Y
+		z = w * quatB.z + x * quatB.y - y * quatB.x + z * quatB.w; // Z
+
+		return *this;
 	}
 
 	std::string Quaternion::toString()

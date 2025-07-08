@@ -39,6 +39,8 @@ namespace ImmersiveEngine::cbs
             void rotate(float angle, ImmersiveEngine::Math::Vector3 axis);
             void rotateGlobal(float angle, ImmersiveEngine::Math::Vector3 axis);
 
+            void lookAt(const ImmersiveEngine::Math::Vector3 target);
+
             void dialate(float scaleFactor);
             void dialate(ImmersiveEngine::Math::Vector3 scaleFactor);
             void dialate(ImmersiveEngine::Math::Vector2 scaleFactor);

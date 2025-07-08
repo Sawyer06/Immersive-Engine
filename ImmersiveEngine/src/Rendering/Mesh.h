@@ -33,11 +33,11 @@ class Mesh
 		void draw(Shader& shaderProgram);
 		void setTexture(Texture* texture);
 
-		static Mesh generateSquare(float length);
-		static Mesh generateCircle(float radius, uint32_t segments);
-		static Mesh generatePlane(float length, float width);
-		static Mesh generateCube(float length);
-		static Mesh generateSquarePyramid(float length, float height);
+		static Mesh generateSquare(const float length);
+		static Mesh generateCircle(const float radius, uint32_t segments);
+		static Mesh generatePlane(const float length, const float width);
+		static Mesh generateCube(const float length);
+		static Mesh generateSquarePyramid(const float length, const float height);
 
 		void dump();
 };

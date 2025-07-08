@@ -108,7 +108,7 @@ std::vector<GLuint> squareIndices =
     2, 3, 0
 };
 
-Mesh Mesh::generateSquare(float length)
+Mesh Mesh::generateSquare(const float length)
 {
     float offset = length / 2;
 
@@ -128,7 +128,7 @@ Mesh Mesh::generateSquare(float length)
     return Mesh(vertices, squareIndices);
 }
 
-Mesh Mesh::generateCircle(float radius, uint32_t segments)
+Mesh Mesh::generateCircle(const float radius, uint32_t segments)
 {
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
@@ -160,7 +160,7 @@ Mesh Mesh::generateCircle(float radius, uint32_t segments)
     return Mesh(vertices, indices);
 }
 
-Mesh Mesh::generatePlane(float length, float width)
+Mesh Mesh::generatePlane(const float length, const float width)
 {
     float offsetX = length / 2;
     float offsetZ = width / 2;
@@ -204,7 +204,7 @@ std::vector<GLuint> cubeIndices =
     23, 22, 21
 };
 
-Mesh Mesh::generateCube(float length)
+Mesh Mesh::generateCube(const float length)
 {
     float offset = length / 2;
 
@@ -268,7 +268,7 @@ std::vector<GLuint> pyramidIndices =
     13, 14, 15
 };
 
-Mesh Mesh::generateSquarePyramid(float length, float height)
+Mesh Mesh::generateSquarePyramid(const float length, const float height)
 {
     float offset = length / 2;
 

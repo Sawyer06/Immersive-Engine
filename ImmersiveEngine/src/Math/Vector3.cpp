@@ -25,28 +25,28 @@ namespace ImmersiveEngine::Math
     }
 
     /// Comparison Operations
-    bool Vector3::operator==(Vector3 const& b) // Equal to
+    bool Vector3::operator==(const Vector3& b) // Equal to
     {
         return x == b.x && y == b.y && z == b.z;
     }
-    bool Vector3::operator!=(Vector3 const& b) // Not equal to
+    bool Vector3::operator!=(const Vector3& b) // Not equal to
     {
         return x != b.x && y != b.y && z != b.z;
     }
 
-    // Arithmetic Operations
-    Vector3 Vector3::operator=(Vector3 const& newValue) // Equals
+    /// Arithmetic Operations
+    Vector3 Vector3::operator=(const Vector3& newValue) // Set
     {
         x = newValue.x;
         y = newValue.y;
         z = newValue.z;
         return *this;
     }
-    Vector3 Vector3::operator+(Vector3 const& addend) // Addition
+    Vector3 Vector3::operator+(const Vector3& addend) // Addition
     {
         return Vector3((x + addend.x), (y + addend.y), (z + addend.z));
     }
-    Vector3 Vector3::operator+=(Vector3 const& addend) // Addition equal to
+    Vector3 Vector3::operator+=(const Vector3& addend) // Addition equal to
     {
         x += addend.x;
         y += addend.y;
@@ -57,29 +57,29 @@ namespace ImmersiveEngine::Math
     {
         return Vector3((x * -1), (y * -1), (z * -1));
     }
-    Vector3 Vector3::operator-(Vector3 const& subtrahend) // Subtraction
+    Vector3 Vector3::operator-(const Vector3& subtrahend) // Subtraction
     {
         return Vector3((x - subtrahend.x), (y - subtrahend.y), (z - subtrahend.z));
     }
-    Vector3 Vector3::operator-=(Vector3 const& subtrahend) // Subtraction equal to
+    Vector3 Vector3::operator-=(const Vector3& subtrahend) // Subtraction equal to
     {
         x -= subtrahend.x;
         y -= subtrahend.y;
         z -= subtrahend.z;
         return *this;
     }
-    Vector3 Vector3::operator*(float const& scalar) // Multiplication (scalar)
+    Vector3 Vector3::operator*(const float& scalar) // Multiplication (scalar)
     {
         return Vector3((scalar * x), (scalar * y), (scalar * z));
     }
-    Vector3 Vector3::operator*=(float const& scalar) // Multiplication equal to (scalar)
+    Vector3 Vector3::operator*=(const float& scalar) // Multiplication equal to (scalar)
     {
         x *= scalar;
         y *= scalar;
         z *= scalar;
         return *this;
     }
-    float Vector3::operator*(Vector3 const& vecB) // Multiplication (dot product)
+    float Vector3::operator*(const Vector3& vecB) // Multiplication (dot product)
     {
         return (vecB.x * x) + (vecB.y * y) + (vecB.z * z);
     }
