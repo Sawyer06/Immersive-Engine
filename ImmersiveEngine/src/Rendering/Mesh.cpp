@@ -105,7 +105,7 @@ ImmersiveEngine::Math::Vector3 normalDir2D(0, 0, 1.0f);
 std::vector<GLuint> squareIndices =
 {
     2, 1, 0,
-    2, 3, 0
+    0, 3, 2
 };
 
 Mesh Mesh::generateSquare(const float length)
@@ -114,10 +114,10 @@ Mesh Mesh::generateSquare(const float length)
 
     std::vector<Vertex> vertices =
     {
-        Vertex{ImmersiveEngine::Math::Vector3(offset, offset, 0.0f), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(offset, offset)}, // 0
-        Vertex{ImmersiveEngine::Math::Vector3(-offset, offset, 0.0f), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(-offset, offset)}, // 1
-        Vertex{ImmersiveEngine::Math::Vector3(-offset, -offset, 0.0f), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(-offset, -offset)}, // 2
-        Vertex{ImmersiveEngine::Math::Vector3(offset, -offset, 0.0f), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(offset, -offset)}, // 3
+        Vertex{ImmersiveEngine::Math::Vector3(-offset, -offset, 0.0f), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(-offset, -offset)}, // 0
+        Vertex{ImmersiveEngine::Math::Vector3(offset, -offset, 0.0f), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(offset, -offset)}, // 1
+        Vertex{ImmersiveEngine::Math::Vector3(offset, offset, 0.0f), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(offset, offset)}, // 2
+        Vertex{ImmersiveEngine::Math::Vector3(-offset, offset, 0.0f), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(-offset, offset)}, // 3
     };
     /*
         |======|
@@ -145,9 +145,9 @@ Mesh Mesh::generateCircle(const float radius, uint32_t segments)
         float y = std::sin(theta * i) * radius;
         vertices.push_back(Vertex{ImmersiveEngine::Math::Vector3(x, y, 0.0f), normalDir2D, defaultColor, ImmersiveEngine::Math::Vector2(x, y)});
         
-        indices.push_back(0); // Start at center of circle.
-        indices.push_back(i);
         indices.push_back(i + 1); // Connect to the next index.
+        indices.push_back(i);
+        indices.push_back(0); // Start at center of circle.
     }
     /*
           ****
@@ -159,6 +159,12 @@ Mesh Mesh::generateCircle(const float radius, uint32_t segments)
     */
     return Mesh(vertices, indices);
 }
+
+std::vector<GLuint> planeIndices =
+{
+    0, 1, 2,
+    3, 0, 2
+};
 
 Mesh Mesh::generatePlane(const float length, const float width)
 {
@@ -180,28 +186,28 @@ Mesh Mesh::generatePlane(const float length, const float width)
         |______|
          length
     */
-    return Mesh(vertices, squareIndices);
+    return Mesh(vertices, planeIndices);
 }
 
 std::vector<GLuint> cubeIndices =
 {
-    0, 1, 2,
-    3, 2, 1,
+    0, 3, 1,
+    3, 0, 2,
 
-    4, 5, 6,
-    7, 6, 5,
+    4, 5, 7,
+    7, 6, 4,
 
     8, 9, 10,
     11, 10, 9,
 
-    12, 13, 14,
-    15, 14, 13,
+    12, 14, 15,
+    15, 13, 12,
 
     16, 17, 18,
     19, 18, 17,
 
-    20, 21, 22,
-    23, 22, 21
+    20, 22, 23,
+    23, 21, 20
 };
 
 Mesh Mesh::generateCube(const float length)
@@ -259,13 +265,16 @@ Mesh Mesh::generateCube(const float length)
 
 std::vector<GLuint> pyramidIndices =
 {
-    2, 1, 0,
-    2, 3, 0,
+    0, 3, 1,
+    2, 1, 3,
     
     4, 5, 6,
+
     7, 8, 9,
+
     10, 11, 12,
-    13, 14, 15
+
+    15, 14, 13
 };
 
 Mesh Mesh::generateSquarePyramid(const float length, const float height)
@@ -274,23 +283,28 @@ Mesh Mesh::generateSquarePyramid(const float length, const float height)
 
     std::vector<Vertex> vertices =
     {
-        Vertex{ImmersiveEngine::Math::Vector3(offset, 0.0f, offset), ImmersiveEngine::Math::Vector3(0.0f, -1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, 0)}, // 0
-        Vertex{ImmersiveEngine::Math::Vector3(-offset, 0.0f, offset), ImmersiveEngine::Math::Vector3(0.0f, -1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(0, 0)}, // 1
-        Vertex{ImmersiveEngine::Math::Vector3(-offset, 0.0f, -offset), ImmersiveEngine::Math::Vector3(0.0f, -1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, 0)}, // 2
-        Vertex{ImmersiveEngine::Math::Vector3(offset, 0.0f, -offset), ImmersiveEngine::Math::Vector3(0.0f, -1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(0, 0)}, // 3
+        // Bottom face
+        Vertex{ImmersiveEngine::Math::Vector3(offset, 0.0f, offset), ImmersiveEngine::Math::Vector3(0.0f, -1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, offset)}, // 0
+        Vertex{ImmersiveEngine::Math::Vector3(-offset, 0.0f, offset), ImmersiveEngine::Math::Vector3(0.0f, -1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, offset)}, // 1
+        Vertex{ImmersiveEngine::Math::Vector3(-offset, 0.0f, -offset), ImmersiveEngine::Math::Vector3(0.0f, -1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, -offset)}, // 2
+        Vertex{ImmersiveEngine::Math::Vector3(offset, 0.0f, -offset), ImmersiveEngine::Math::Vector3(0.0f, -1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, -offset)}, // 3
 
+        // Front face
         Vertex{ImmersiveEngine::Math::Vector3(offset, 0.0f, offset), ImmersiveEngine::Math::Vector3(0.0f, 1.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, 0)}, // 4
         Vertex{ImmersiveEngine::Math::Vector3(-offset, 0.0f, offset), ImmersiveEngine::Math::Vector3(0.0f, 1.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(0, 0)}, // 5
         Vertex{ImmersiveEngine::Math::Vector3(0, height, 0), ImmersiveEngine::Math::Vector3(0.0f, 1.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset / 2, offset * height)}, // 6
 
+        // Back face
         Vertex{ImmersiveEngine::Math::Vector3(-offset, 0.0f, -offset), ImmersiveEngine::Math::Vector3(0.0f, 1.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, 0)}, // 7
         Vertex{ImmersiveEngine::Math::Vector3(offset, 0.0f, -offset), ImmersiveEngine::Math::Vector3(0.0f, 1.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(0, 0)}, // 8
         Vertex{ImmersiveEngine::Math::Vector3(0, height, 0), ImmersiveEngine::Math::Vector3(0.0f, 1.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset / 2, offset * height)}, // 9
 
+        // Right face
         Vertex{ImmersiveEngine::Math::Vector3(offset, 0.0f, -offset), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, 0)}, // 10
         Vertex{ImmersiveEngine::Math::Vector3(offset, 0.0f, offset), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(0, 0)}, // 11
         Vertex{ImmersiveEngine::Math::Vector3(0, height, 0), ImmersiveEngine::Math::Vector3(1.0f, 1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset / 2, offset * height)}, // 12
         
+        // Left face
         Vertex{ImmersiveEngine::Math::Vector3(-offset, 0.0f, -offset), ImmersiveEngine::Math::Vector3(-1.0f, 1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, 0)}, // 13
         Vertex{ImmersiveEngine::Math::Vector3(-offset, 0.0f, offset), ImmersiveEngine::Math::Vector3(-1.0f, 1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(0, 0)}, // 14
         Vertex{ImmersiveEngine::Math::Vector3(0, height, 0), ImmersiveEngine::Math::Vector3(-1.0f, 1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset / 2, offset * height)}, // 15

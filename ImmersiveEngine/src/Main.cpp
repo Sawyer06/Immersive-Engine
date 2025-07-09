@@ -33,7 +33,8 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow* window = glfwCreateWindow(ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenHeight, "HelloWorld", NULL, NULL); // Create window.
+	std::string windowTitle = "HelloWorld";
+	GLFWwindow* window = glfwCreateWindow(ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenHeight, windowTitle.c_str(), NULL, NULL); // Create window.
 	// Error check if window isn't created.
 	if (window == NULL)
 	{
@@ -53,6 +54,9 @@ int main()
 	gladLoadGL();
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Shader shaderProgram("default.vert", "default.frag");
@@ -68,7 +72,7 @@ int main()
 	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	Texture* stone = new Texture("stone.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
-	auto planeMesh = std::make_shared<Mesh>(Mesh::generatePlane(4, 5));
+	auto planeMesh = std::make_shared<Mesh>(Mesh::generatePlane(3, 5));
 	
 	ImmersiveEngine::cbs::Present plane("Plane", planeMesh);
 	plane.mesh->setTexture(stone);
@@ -88,7 +92,7 @@ int main()
 	ImmersiveEngine::cbs::Present primitive("Prim", primitiveMesh);
 	primitive.mesh->setTexture(sand);
 	primitive.space->dialate(1.0f);
-	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -2.0f));
+	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 1.0f, -2.0f));
 
 	//primitive.space->rotate(90, ImmersiveEngine::Math::Vector3::up);
 	//primitive.space->pivotPoint.x -= 0.5f;
@@ -108,8 +112,25 @@ int main()
 
 	bool clickIn = false;
 
+	double prevTime = 0.0;
+	double crntTime = 0.0;
+	double timeDiff;
+	uint32_t counter = 0;
+
 	while (!glfwWindowShouldClose(window))
 	{
+		crntTime = glfwGetTime();
+		timeDiff = crntTime - prevTime;
+		counter++;
+		if (timeDiff >= 1.0 / 30.0)
+		{
+			std::string FPS = std::to_string((1.0 / timeDiff) * counter);
+			std::string newTitle = windowTitle + " : " + FPS + " FPS";
+			glfwSetWindowTitle(window, newTitle.c_str());
+			prevTime = crntTime;
+			counter = 0;
+		}
+
 		processInput(window); // Get inputs.
 		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenLength / ImmersiveEngine::Settings::g_screenHeight);
 		
@@ -210,7 +231,7 @@ int main()
 			camSpeed = 0.003f;
 		}
 
-		primitive.space->lookAt(cam.space->position);
+		//primitive.space->lookAt(cam.space->position);
 		//primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
 		//primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
 
