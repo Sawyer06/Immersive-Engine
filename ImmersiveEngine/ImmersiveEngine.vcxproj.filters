@@ -43,6 +43,12 @@
     <Filter Include="Header Files\Components">
       <UniqueIdentifier>{2fb1b6d3-c786-4efd-924d-1763156c7773}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\XR">
+      <UniqueIdentifier>{ffce0c6f-bce1-4bd9-bb5c-5d9d4388f2e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\XR">
+      <UniqueIdentifier>{306e852f-05e5-4e34-8e5e-f4d729bb9853}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -102,6 +108,9 @@
     <ClCompile Include="src\Math\Quaternion.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="src\XR\OpenXRManager.cpp">
+      <Filter>Source Files\XR</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">
@@ -155,6 +164,9 @@
     <ClInclude Include="src\Math\Quaternion.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\XR\OpenXRManager.h">
+      <Filter>Header Files\XR</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\cheeki.jpg">
@@ -180,5 +192,8 @@
     <None Include="src\default.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE.txt" />
   </ItemGroup>
 </Project>

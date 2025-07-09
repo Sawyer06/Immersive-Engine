@@ -22,6 +22,8 @@
 #include"Rendering/Mesh.h"
 #include"Components/Space.h"
 
+#include"XR/OpenXRManager.h"
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
@@ -58,6 +60,12 @@ int main()
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// OpenXR
+	//DebugOutput debugOutput;
+	//XR_TUT_LOG("OpenXR Test");
+	ImmersiveEngine::XR::OpenXRManager app(OPENGL);
+	app.run();
 
 	Shader shaderProgram("default.vert", "default.frag");
 
