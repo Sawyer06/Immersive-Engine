@@ -90,7 +90,7 @@
 #undef XR_USE_PLATFORM_XLIB
 #undef XR_USE_PLATFORM_XCB
 #undef XR_USE_PLATFORM_WAYLAND
-#include <gfxwrapper_opengl.h>
+#include <glad/glad.h>
 #endif
 
 #if defined(XR_USE_GRAPHICS_API_OPENGL_ES)

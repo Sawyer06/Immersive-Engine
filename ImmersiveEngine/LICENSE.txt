@@ -15,7 +15,8 @@ Files:
 			openxr.h
 			openxr_platform.h
 			openxr_platform_defines.h
-Comments: Unmodified, copy of OpenXR SDK version 1.1.46
+Comments: 
+	Unmodified, copy of OpenXR SDK version 1.1.46
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -53,7 +54,10 @@ Files:
 			GraphicsAPI_OpenGL.cpp
 			OpenXRDebugUtils.h
 			OpenXRDebugUtils.cpp
-Comments: Modified includes to fit the file structure of the project by prepending "openxr/".
+Comments: 
+	Modified includes to fit the file structure of the project by prepending "openxr/".
+	Included glad.h into "GraphicsAPI.h" to access OpenGL functions.
+	Removed gfxwrapper_opengl.h include from "GraphicsAPI.h".
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
