@@ -79,7 +79,7 @@ private:
     virtual const std::vector<int64_t> GetSupportedDepthSwapchainFormats() override;
 
 private:
-    ksGpuWindow window{};
+    //ksGpuWindow window{};
 
     PFN_xrGetOpenGLGraphicsRequirementsKHR xrGetOpenGLGraphicsRequirementsKHR = nullptr;
 #if defined(XR_USE_PLATFORM_WIN32)

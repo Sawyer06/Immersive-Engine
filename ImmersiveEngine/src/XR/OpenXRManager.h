@@ -37,20 +37,59 @@ namespace ImmersiveEngine::XR
 			XrSession m_session = XR_NULL_HANDLE;
 			XrSessionState m_sessionState = XR_SESSION_STATE_UNKNOWN;
 
+			std::vector<XrViewConfigurationType> m_applicationViewConfigurations = { XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO };
+			std::vector<XrViewConfigurationType> m_viewConfigurations;
+			XrViewConfigurationType m_viewConfiguration = XR_VIEW_CONFIGURATION_TYPE_MAX_ENUM;
+			std::vector<XrViewConfigurationView> m_viewConfigurationViews;
+
+			struct SwapchainInfo 
+			{
+				XrSwapchain swapchain = XR_NULL_HANDLE;
+				int64_t swapchainFormat = 0;
+				std::vector<void*> imageViews;
+			};
+			std::vector<SwapchainInfo> m_colorSwapchainInfos = {};
+			std::vector<SwapchainInfo> m_depthSwapchainInfos = {};
+
+			std::vector<XrEnvironmentBlendMode> m_applicationEnvironmentBlendModes = { XR_ENVIRONMENT_BLEND_MODE_OPAQUE, XR_ENVIRONMENT_BLEND_MODE_ADDITIVE };
+			std::vector<XrEnvironmentBlendMode> m_environmentBlendModes = {};
+			XrEnvironmentBlendMode m_environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_MAX_ENUM;
+
+			XrSpace m_localSpace = XR_NULL_HANDLE;
+			struct RenderLayerInfo 
+			{
+				XrTime predictedDisplayTime;
+				std::vector<XrCompositionLayerBaseHeader*> layers;
+				XrCompositionLayerProjection layerProjection = { XR_TYPE_COMPOSITION_LAYER_PROJECTION };
+				std::vector<XrCompositionLayerProjectionView> layerProjectionViews;
+			};
+
 			bool m_applicationRunning = true;
 			bool m_sessionRunning = false;
 
 			void createInstance();
 			void destroyInstance();
+			
 			void createSession();
 			void destroySession();
 
+			void createSwapchains();
+			void destroySwapchains();
+
+			void createReferenceSpace();
+			void destroyReferenceSpace();
+
+			void renderFrame();
+			bool renderLayer(RenderLayerInfo& renderLayerInfo);
 			void pollEvents();
+			
+			void getInstanceProperties();
+			void getSystemID();
+			void getViewConfigurationViews();
+			void getEnvironmentBlendModes();
 
 			void createDebugMessenger();
 			void destroyDebugMessenger();
-			void getInstanceProperties();
-			void getSystemID();
 	};
 }
 #endif
