@@ -4,7 +4,7 @@
 
 // OpenXR Tutorial for Khronos Group
 
-#include <GraphicsAPI_OpenGL.h>
+#include <openxr/GraphicsAPI_OpenGL.h>
 
 #if defined(XR_USE_GRAPHICS_API_OPENGL)
 

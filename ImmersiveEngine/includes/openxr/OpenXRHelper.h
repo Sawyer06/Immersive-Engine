@@ -6,6 +6,8 @@
 
 #pragma once
 // Define any XR_USE_PLATFORM_... / XR_USE_GRAPHICS_API_... before this header file.
+#define XR_USE_PLATFORM_WIN32
+#define XR_USE_GRAPHICS_API_OPENGL
 
 // OpenXR Headers
 #include <openxr/openxr.h>

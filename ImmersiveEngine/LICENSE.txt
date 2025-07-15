@@ -49,10 +49,12 @@ Files:
 			HelperFunctions.h
 			OpenXRHelper.h
 			GraphicsAPI.h
-			GraphicsAPI.cpp
 			GraphicsAPI_OpenGL.h
-			GraphicsAPI_OpenGL.cpp
 			OpenXRDebugUtils.h
+	src/
+		XR/
+			GraphicsAPI.cpp
+			GraphicsAPI_OpenGL.cpp
 			OpenXRDebugUtils.cpp
 Comments: 
 	Modified includes to fit the file structure of the project by prepending "openxr/".

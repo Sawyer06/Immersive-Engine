@@ -1,9 +1,6 @@
 #ifndef OPEN_XR_MANAGER_CLASS
 #define OPEN_XR_MANAGER_CLASS
 
-#define XR_USE_PLATFORM_WIN32
-#define XR_USE_GRAPHICS_API_OPENGL
-
 #include<openxr/DebugOutput.h>
 #include<openxr/GraphicsAPI_OpenGL.h>
 #include<openxr/OpenXRDebugUtils.h>

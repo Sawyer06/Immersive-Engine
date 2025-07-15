@@ -5,7 +5,7 @@
 // OpenXR Tutorial for Khronos Group
 
 #pragma once
-//#include<glad/glad.h>
+#include<glad/glad.h>
 #include <openxr/GraphicsAPI.h>
 
 #if defined(XR_USE_GRAPHICS_API_OPENGL)
