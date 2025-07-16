@@ -111,15 +111,6 @@
     <ClCompile Include="src\XR\OpenXRManager.cpp">
       <Filter>Source Files\XR</Filter>
     </ClCompile>
-    <ClCompile Include="src\XR\GraphicsAPI.cpp">
-      <Filter>Source Files\XR</Filter>
-    </ClCompile>
-    <ClCompile Include="src\XR\GraphicsAPI_OpenGL.cpp">
-      <Filter>Source Files\XR</Filter>
-    </ClCompile>
-    <ClCompile Include="src\XR\OpenXRDebugUtils.cpp">
-      <Filter>Source Files\XR</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">

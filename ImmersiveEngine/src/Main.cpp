@@ -61,11 +61,7 @@ int main()
 	glFrontFace(GL_CW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// OpenXR
-	//DebugOutput debugOutput;
-	//XR_TUT_LOG("OpenXR Test");
-	ImmersiveEngine::XR::OpenXRManager app(OPENGL);
-	app.run();
+	ImmersiveEngine::XR::OpenXRManager xr;
 
 	Shader shaderProgram("default.vert", "default.frag");
 

@@ -1,92 +1,46 @@
 #ifndef OPEN_XR_MANAGER_CLASS
 #define OPEN_XR_MANAGER_CLASS
 
-#include<openxr/DebugOutput.h>
-#include<openxr/GraphicsAPI_OpenGL.h>
-#include<openxr/OpenXRDebugUtils.h>
+#include<string>
+
+#include<openxr/openxr.h>
 
 namespace ImmersiveEngine::XR
 {
 	class OpenXRManager
 	{
-		public:
-			OpenXRManager(GraphicsAPI_Type apiType);
-			~OpenXRManager() = default;
-
-			void run();
 		private:
-			XrInstance m_xrInstance = {};
+			XrSystemId m_connectedSystemID = XR_NULL_SYSTEM_ID;
+			XrSystemProperties m_connectedSystemProperties = { XR_TYPE_SYSTEM_PROPERTIES };
 
-			std::vector<const char*> m_activeAPILayers = {};
-			std::vector<const char*> m_activeInstanceExtensions = {};
-			std::vector<std::string> m_apiLayers = {};
-			std::vector<std::string> m_instanceExtensions = {};
-
-			XrDebugUtilsMessengerEXT m_debugUtilsMessenger = {};
-
-			XrFormFactor m_formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
-			XrSystemId m_systemID = {};
-			XrSystemProperties m_systemProperties = { XR_TYPE_SYSTEM_PROPERTIES };
-
-			GraphicsAPI_Type m_apiType = UNKNOWN;
-			std::unique_ptr<GraphicsAPI> m_graphicsAPI = nullptr;
-
+			XrInstance m_instance = XR_NULL_HANDLE;
 			XrSession m_session = XR_NULL_HANDLE;
-			XrSessionState m_sessionState = XR_SESSION_STATE_UNKNOWN;
 
-			std::vector<XrViewConfigurationType> m_applicationViewConfigurations = { XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO, XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO };
-			std::vector<XrViewConfigurationType> m_viewConfigurations;
-			XrViewConfigurationType m_viewConfiguration = XR_VIEW_CONFIGURATION_TYPE_MAX_ENUM;
-			std::vector<XrViewConfigurationView> m_viewConfigurationViews;
+			std::pair<XrSessionState, std::string> m_currentSessionState = { XR_SESSION_STATE_UNKNOWN, "XR_SESSION_STATE_UNKNOWN" }; // state, string debug info
 
-			struct SwapchainInfo 
-			{
-				XrSwapchain swapchain = XR_NULL_HANDLE;
-				int64_t swapchainFormat = 0;
-				std::vector<void*> imageViews;
-			};
-			std::vector<SwapchainInfo> m_colorSwapchainInfos = {};
-			std::vector<SwapchainInfo> m_depthSwapchainInfos = {};
+			XrSystemId getXRSystemID(XrInstance& instance);
+			XrSystemProperties getXRSystemProperties(XrInstance& instance, XrSystemId& systemID);
 
-			std::vector<XrEnvironmentBlendMode> m_applicationEnvironmentBlendModes = { XR_ENVIRONMENT_BLEND_MODE_OPAQUE, XR_ENVIRONMENT_BLEND_MODE_ADDITIVE };
-			std::vector<XrEnvironmentBlendMode> m_environmentBlendModes = {};
-			XrEnvironmentBlendMode m_environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_MAX_ENUM;
+			XrInstance createInstance();
+			XrSession createSession(XrInstance& instance, XrSystemId& systemID);
 
-			XrSpace m_localSpace = XR_NULL_HANDLE;
-			struct RenderLayerInfo 
-			{
-				XrTime predictedDisplayTime;
-				std::vector<XrCompositionLayerBaseHeader*> layers;
-				XrCompositionLayerProjection layerProjection = { XR_TYPE_COMPOSITION_LAYER_PROJECTION };
-				std::vector<XrCompositionLayerProjectionView> layerProjectionViews;
-			};
+			void destroyInstance(XrInstance& instance);
+			void destroySession(XrSession& session);
+		public:
+			OpenXRManager();
+			~OpenXRManager();
 
-			bool m_applicationRunning = true;
-			bool m_sessionRunning = false;
-
-			void createInstance();
-			void destroyInstance();
+			bool sessionRunning = false;
 			
-			void createSession();
-			void destroySession();
-
-			void createSwapchains();
-			void destroySwapchains();
-
-			void createReferenceSpace();
-			void destroyReferenceSpace();
-
-			void renderFrame();
-			bool renderLayer(RenderLayerInfo& renderLayerInfo);
+			void establishConnection();
 			void pollEvents();
-			
-			void getInstanceProperties();
-			void getSystemID();
-			void getViewConfigurationViews();
-			void getEnvironmentBlendModes();
 
-			void createDebugMessenger();
-			void destroyDebugMessenger();
+			void waitFrame();
+			void beginFrame();
+			void endFrame();
+
+			std::string getSessionStateAsString();
+			std::string toString();
 	};
 }
 #endif

@@ -176,9 +176,6 @@
     <ClCompile Include="src\Rendering\Texture.cpp" />
     <ClCompile Include="src\Rendering\VAO.cpp" />
     <ClCompile Include="src\Rendering\VBO.cpp" />
-    <ClCompile Include="src\XR\GraphicsAPI.cpp" />
-    <ClCompile Include="src\XR\GraphicsAPI_OpenGL.cpp" />
-    <ClCompile Include="src\XR\OpenXRDebugUtils.cpp" />
     <ClCompile Include="src\XR\OpenXRManager.cpp" />
   </ItemGroup>
   <ItemGroup>
