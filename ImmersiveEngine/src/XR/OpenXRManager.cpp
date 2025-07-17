@@ -10,7 +10,7 @@ namespace ImmersiveEngine::XR
 		destroyInstance(m_instance);
 	}
 
-	/// Set up connection with headset.
+	/// Set up a connection with the headset.
 	void OpenXRManager::establishConnection()
 	{
 		XrApplicationInfo app = createApplicationInfo("HelloWorld", 1, "ImmersiveEngine", 1);
@@ -23,7 +23,7 @@ namespace ImmersiveEngine::XR
 				XrResult gotSystemProperties = getXRSystemProperties(m_instance, m_connectedSystemID, &m_connectedSystemProperties);
 				if (gotSystemProperties != XR_SUCCESS)
 				{
-					std::cerr << "XR_INIT_ERROR could not get system properties.";
+					std::cerr << "XR_INIT_ERROR could not get system properties.\n";
 				}
 				std::cout << "Device: " << m_connectedSystemProperties.systemName << "\n";
 				
@@ -31,23 +31,95 @@ namespace ImmersiveEngine::XR
 				std::cout << "SESSION RESULT: " << sessionCreated << "\n";
 				if (sessionCreated != XR_SUCCESS)
 				{
-					std::cerr << "XR_INIT_ERROR could not create session.";
+					std::cerr << "XR_INIT_ERROR could not create session.\n";
 				}
 			}
 			else
 			{
-				std::cerr << "XR_INIT_ERROR could not get system ID.";
+				std::cerr << "XR_INIT_ERROR could not get system ID.\n";
 			}
 		}
 		else
 		{
-			std::cerr << "XR_INIT_ERROR could not create instance.";
+			std::cerr << "XR_INIT_ERROR could not create instance.\n";
 		}
 	}
 
+	/// Read the event queue of the runtime for the instance and session. React to these changes accordingly.
 	void OpenXRManager::pollEvents()
 	{
+		XrEventDataBuffer event = { XR_TYPE_EVENT_DATA_BUFFER };
+		XrResult polling = xrPollEvent(m_instance, &event);
+		if (polling == XR_SUCCESS)
+		{
+			if (event.type == XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED) // The state of the session has changed.
+			{
+				auto* sessionStateChangedEvent = (XrEventDataSessionStateChanged*)&event;
+				switch (sessionStateChangedEvent->state)
+				{
+					case XR_SESSION_STATE_IDLE:
+					{
+						m_currentSessionState = {XR_SESSION_STATE_IDLE, "IDLE"};
+						break;
+					}
+					case XR_SESSION_STATE_READY:
+					{
+						m_currentSessionState = { XR_SESSION_STATE_READY, "READY" };
+						XrSessionBeginInfo info = { XR_TYPE_SESSION_BEGIN_INFO };
+						info.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; // Two views
+						xrBeginSession(m_session, &info);
+						sessionRunning = true;
+						break;
+					}
+					case XR_SESSION_STATE_SYNCHRONIZED:
+					{
+						m_currentSessionState = { XR_SESSION_STATE_SYNCHRONIZED, "SYNCHRONIZED" };
+						break;
+					}
+					case XR_SESSION_STATE_VISIBLE:
+					{
+						m_currentSessionState = { XR_SESSION_STATE_VISIBLE, "VISIBLE" };
+						break;
+					}
+					case XR_SESSION_STATE_FOCUSED:
+					{
+						m_currentSessionState = { XR_SESSION_STATE_FOCUSED, "FOCUSED" };
+						break;
+					}
+					case XR_SESSION_STATE_STOPPING:
+					{
+						m_currentSessionState = { XR_SESSION_STATE_STOPPING, "STOPPING" };
+						xrEndSession(m_session);
+						sessionRunning = false;
+						break;
+					}
+					case XR_SESSION_STATE_LOSS_PENDING:
+					{
+						m_currentSessionState = { XR_SESSION_STATE_LOSS_PENDING, "STATE LOSS PENDING" };
 
+						sessionRunning = false;
+						break;
+					}
+					case XR_SESSION_STATE_EXITING:
+					{
+						m_currentSessionState = { XR_SESSION_STATE_EXITING, "EXITING" };
+						sessionRunning = false;
+						break;
+					}
+					default:
+					{
+						m_currentSessionState = { XR_SESSION_STATE_UNKNOWN, "UNKNOWN" };
+						break;
+					}
+				}
+			}
+			else if (event.type == XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING) // Application is about to lose the instance.
+			{
+				auto* instanceLossPendingEvent = (XrEventDataInstanceLossPending*)&event;
+				sessionRunning = false;
+				std::cerr << "XR_RUNTIME_ERROR instance loss pending at: " << instanceLossPendingEvent->lossTime << "\n";
+			}
+		}
 	}
 
 	void OpenXRManager::waitFrame()

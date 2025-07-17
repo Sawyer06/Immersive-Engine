@@ -128,6 +128,8 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
+		xr.pollEvents();
+
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
 		counter++;
