@@ -2,7 +2,7 @@
 
 namespace ImmersiveEngine::XR
 {
-	OpenXRManager::OpenXRManager() {}
+	OpenXRManager::OpenXRManager() { }
 
 	OpenXRManager::~OpenXRManager()
 	{
@@ -13,7 +13,36 @@ namespace ImmersiveEngine::XR
 	/// Set up connection with headset.
 	void OpenXRManager::establishConnection()
 	{
-		
+		XrApplicationInfo app = createApplicationInfo("HelloWorld", 1, "ImmersiveEngine", 1);
+		XrResult instanceCreated = createInstance(app, &m_instance);
+		if (instanceCreated == XR_SUCCESS)
+		{
+			XrResult gotSystemID = getXRSystemID(m_instance, &m_connectedSystemID);
+			if (gotSystemID == XR_SUCCESS)
+			{
+				XrResult gotSystemProperties = getXRSystemProperties(m_instance, m_connectedSystemID, &m_connectedSystemProperties);
+				if (gotSystemProperties != XR_SUCCESS)
+				{
+					std::cerr << "XR_INIT_ERROR could not get system properties.";
+				}
+				std::cout << "Device: " << m_connectedSystemProperties.systemName << "\n";
+				
+				XrResult sessionCreated = createSession(m_instance, m_connectedSystemID, &m_session); // ERROR: returns -38, graphics device invalid.
+				std::cout << "SESSION RESULT: " << sessionCreated << "\n";
+				if (sessionCreated != XR_SUCCESS)
+				{
+					std::cerr << "XR_INIT_ERROR could not create session.";
+				}
+			}
+			else
+			{
+				std::cerr << "XR_INIT_ERROR could not get system ID.";
+			}
+		}
+		else
+		{
+			std::cerr << "XR_INIT_ERROR could not create instance.";
+		}
 	}
 
 	void OpenXRManager::pollEvents()
@@ -23,46 +52,86 @@ namespace ImmersiveEngine::XR
 
 	void OpenXRManager::waitFrame()
 	{
-
+		XrFrameWaitInfo info = { XR_TYPE_FRAME_WAIT_INFO };
+		XrFrameState frameState = { XR_TYPE_FRAME_STATE };
+		xrWaitFrame(m_session, &info, &frameState);
 	}
 
 	void OpenXRManager::beginFrame()
 	{
-
+		XrFrameBeginInfo info = { XR_TYPE_FRAME_BEGIN_INFO };
+		xrBeginFrame(m_session, &info);
 	}
 
 	void OpenXRManager::endFrame()
 	{
-
+		XrFrameEndInfo info = { XR_TYPE_FRAME_END_INFO };
+		xrEndFrame(m_session, &info);
 	}
 
-	XrSystemId OpenXRManager::getXRSystemID(XrInstance& instance)
+	XrResult OpenXRManager::getXRSystemID(XrInstance& instance, XrSystemId* o_systemID)
 	{
 		XrSystemGetInfo info { XR_TYPE_SYSTEM_GET_INFO };
 		info.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
-		xrGetSystem(m_instance, &info, &m_connectedSystemID);
+		return xrGetSystem(m_instance, &info, o_systemID);
 	}
-	XrSystemProperties OpenXRManager::getXRSystemProperties(XrInstance& instance, XrSystemId& systemID)
+	XrResult OpenXRManager::getXRSystemProperties(XrInstance& instance, XrSystemId& systemID, XrSystemProperties* o_systemProperties)
 	{
-
-	}
-
-	XrInstance OpenXRManager::createInstance()
-	{
-
+		return xrGetSystemProperties(instance, systemID, o_systemProperties);
 	}
 
-	XrSession OpenXRManager::createSession(XrInstance& instance, XrSystemId& systemId)
-	{
 
+	XrApplicationInfo OpenXRManager::createApplicationInfo(std::string appName, uint32_t appVersion, std::string engineName, uint32_t engineVersion)
+	{
+		XrApplicationInfo app;
+		strncpy(app.applicationName, appName.c_str(), XR_MAX_APPLICATION_NAME_SIZE);
+		app.applicationVersion = appVersion;
+		strncpy(app.engineName, engineName.c_str(), XR_MAX_ENGINE_NAME_SIZE);
+		app.engineVersion = engineVersion;
+		app.apiVersion = XR_CURRENT_API_VERSION;
+		
+		return app;
 	}
 
-	void OpenXRManager::destroyInstance(XrInstance& instance)
+	/// Create an instance to communicate with the runtime.
+	XrResult OpenXRManager::createInstance(XrApplicationInfo& app, XrInstance* o_instance)
 	{
-		if (instance != XR_NULL_HANDLE) xrDestroyInstance(instance);
+		XrInstanceCreateInfo info{ XR_TYPE_INSTANCE_CREATE_INFO };
+		info.createFlags = 0;
+		info.applicationInfo = app;
+
+		return xrCreateInstance(&info, o_instance);
 	}
-	void OpenXRManager::destroySession(XrSession& session)
+
+	/// Create a session to communicate with the connected device.
+	XrResult OpenXRManager::createSession(XrInstance& instance, XrSystemId& systemID, XrSession* o_session)
 	{
-		if (session != XR_NULL_HANDLE) xrDestroySession(session);
+		XrSessionCreateInfo info{ XR_TYPE_SESSION_CREATE_INFO };
+		XrGraphicsBindingOpenGLWin32KHR graphicsBinding{ XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
+		graphicsBinding.hDC = wglGetCurrentDC();
+		graphicsBinding.hGLRC = wglGetCurrentContext();
+
+		info.next = &graphicsBinding;
+		info.systemId = systemID;
+
+		return xrCreateSession(instance, &info, o_session);
+	}
+	
+	XrResult OpenXRManager::destroyInstance(XrInstance& instance)
+	{
+		if (instance == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
+		return xrDestroyInstance(instance);
+	}
+	XrResult OpenXRManager::destroySession(XrSession& session)
+	{
+		if (session == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
+		return xrDestroySession(session);
+	}
+
+	std::string OpenXRManager::toString()
+	{
+		std::ostringstream oss;
+		oss << "[OPENXR MANAGER]";
+		return oss.str();
 	}
 }

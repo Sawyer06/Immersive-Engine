@@ -192,6 +192,7 @@
     <None Include="src\default.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

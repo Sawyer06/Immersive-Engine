@@ -2,8 +2,18 @@
 #define OPEN_XR_MANAGER_CLASS
 
 #include<string>
+#include<sstream>
+#include<iostream>
+
+#define XR_USE_GRAPHICS_API_OPENGL
+#if defined(_WIN32)
+#undef WIN32_LEAN_AND_MEAN
+#define XR_USE_PLATFORM_WIN32
+#include <windows.h>
+#endif
 
 #include<openxr/openxr.h>
+#include<openxr/openxr_platform.h>
 
 namespace ImmersiveEngine::XR
 {
@@ -18,20 +28,22 @@ namespace ImmersiveEngine::XR
 
 			std::pair<XrSessionState, std::string> m_currentSessionState = { XR_SESSION_STATE_UNKNOWN, "XR_SESSION_STATE_UNKNOWN" }; // state, string debug info
 
-			XrSystemId getXRSystemID(XrInstance& instance);
-			XrSystemProperties getXRSystemProperties(XrInstance& instance, XrSystemId& systemID);
+			XrResult getXRSystemID(XrInstance& instance, XrSystemId* o_systemID);
+			XrResult getXRSystemProperties(XrInstance& instance, XrSystemId& systemID, XrSystemProperties* o_systemProperties);
 
-			XrInstance createInstance();
-			XrSession createSession(XrInstance& instance, XrSystemId& systemID);
+			XrApplicationInfo createApplicationInfo(std::string appName, uint32_t appVersion, std::string engineName, uint32_t engineVersion);
 
-			void destroyInstance(XrInstance& instance);
-			void destroySession(XrSession& session);
+			XrResult createInstance(XrApplicationInfo& app, XrInstance* o_instance);
+			XrResult createSession(XrInstance& instance, XrSystemId& systemID, XrSession* o_session);
+
+			XrResult destroyInstance(XrInstance& instance);
+			XrResult destroySession(XrSession& session);
 		public:
 			OpenXRManager();
 			~OpenXRManager();
 
 			bool sessionRunning = false;
-			
+
 			void establishConnection();
 			void pollEvents();
 
@@ -39,7 +51,6 @@ namespace ImmersiveEngine::XR
 			void beginFrame();
 			void endFrame();
 
-			std::string getSessionStateAsString();
 			std::string toString();
 	};
 }

@@ -60,8 +60,13 @@ int main()
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	
+	bool openInVR = true;
 	ImmersiveEngine::XR::OpenXRManager xr;
+	if (openInVR)
+	{
+		xr.establishConnection();
+	}
 
 	Shader shaderProgram("default.vert", "default.frag");
 
