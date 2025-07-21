@@ -8,12 +8,19 @@ namespace ImmersiveEngine::XR
 	{
 		destroySession(m_session);
 		destroyInstance(m_instance);
+		for (uint32_t i = 0; i < m_views.size(); ++i)
+		{
+			destroySwapchain(m_swapchains[i]);
+		}
+		m_swapchains.clear();
+		m_images.clear();
+		m_views.clear();
 	}
 
 	/// Set up a connection with the headset.
 	void OpenXRManager::establishConnection()
 	{
-		XrApplicationInfo app = createApplicationInfo("HelloWorld", 1, "ImmersiveEngine", 1);
+		XrApplicationInfo app = generateApplicationInfo("HelloWorld", 1, "ImmersiveEngine", 1);
 		XrResult instanceCreated = createInstance(app, &m_instance);
 		if (instanceCreated == XR_SUCCESS)
 		{
@@ -29,7 +36,35 @@ namespace ImmersiveEngine::XR
 				
 				XrResult sessionCreated = createSession(m_instance, m_connectedSystemID, &m_session); // ERROR: returns -38, graphics device invalid.
 				std::cout << "SESSION RESULT: " << sessionCreated << "\n";
-				if (sessionCreated != XR_SUCCESS)
+				if (sessionCreated == XR_SUCCESS)
+				{
+					XrResult gotViews = getViewConfigurationViews(m_viewType, m_instance, m_connectedSystemID, &m_views);
+					if (gotViews == XR_SUCCESS)
+					{
+						m_swapchains.resize(m_views.size());
+						for (uint32_t i = 0; i < m_swapchains.size(); ++i)
+						{
+							XrResult createdSwapchains = createSwapchain(m_views[i], m_session, &m_swapchains[i]);
+							if (createdSwapchains == XR_SUCCESS)
+							{
+								XrResult gotImages = enumerateSwapchainImages(m_swapchains[i], &m_images[i]);
+								if (gotImages != XR_SUCCESS)
+								{
+									std::cerr << "XR_INIT_ERROR could acquire swapchain images.\n";
+								}
+							}
+							else
+							{
+								std::cerr << "XR_INIT_ERROR could not create swapchain.\n";
+							}
+						}
+					}
+					else
+					{
+						std::cerr << "XR_INIT_ERROR could not get configuration views.\n";
+					}
+				}
+				else
 				{
 					std::cerr << "XR_INIT_ERROR could not create session.\n";
 				}
@@ -66,7 +101,7 @@ namespace ImmersiveEngine::XR
 					{
 						m_currentSessionState = { XR_SESSION_STATE_READY, "READY" };
 						XrSessionBeginInfo info = { XR_TYPE_SESSION_BEGIN_INFO };
-						info.primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; // Two views
+						info.primaryViewConfigurationType = m_viewType; // Two views
 						xrBeginSession(m_session, &info);
 						sessionRunning = true;
 						break;
@@ -141,6 +176,18 @@ namespace ImmersiveEngine::XR
 		xrEndFrame(m_session, &info);
 	}
 
+	XrApplicationInfo OpenXRManager::generateApplicationInfo(std::string appName, uint32_t appVersion, std::string engineName, uint32_t engineVersion)
+	{
+		XrApplicationInfo app;
+		strncpy(app.applicationName, appName.c_str(), XR_MAX_APPLICATION_NAME_SIZE);
+		app.applicationVersion = appVersion;
+		strncpy(app.engineName, engineName.c_str(), XR_MAX_ENGINE_NAME_SIZE);
+		app.engineVersion = engineVersion;
+		app.apiVersion = XR_CURRENT_API_VERSION;
+
+		return app;
+	}
+
 	XrResult OpenXRManager::getXRSystemID(XrInstance& instance, XrSystemId* o_systemID)
 	{
 		XrSystemGetInfo info { XR_TYPE_SYSTEM_GET_INFO };
@@ -151,18 +198,13 @@ namespace ImmersiveEngine::XR
 	{
 		return xrGetSystemProperties(instance, systemID, o_systemProperties);
 	}
-
-
-	XrApplicationInfo OpenXRManager::createApplicationInfo(std::string appName, uint32_t appVersion, std::string engineName, uint32_t engineVersion)
+	XrResult OpenXRManager::getViewConfigurationViews(XrViewConfigurationType& viewType, XrInstance& instance, XrSystemId& systemID, std::vector<XrViewConfigurationView>* o_views)
 	{
-		XrApplicationInfo app;
-		strncpy(app.applicationName, appName.c_str(), XR_MAX_APPLICATION_NAME_SIZE);
-		app.applicationVersion = appVersion;
-		strncpy(app.engineName, engineName.c_str(), XR_MAX_ENGINE_NAME_SIZE);
-		app.engineVersion = engineVersion;
-		app.apiVersion = XR_CURRENT_API_VERSION;
-		
-		return app;
+		uint32_t viewCount = 0;
+		xrEnumerateViewConfigurationViews(instance, systemID, viewType, 0, &viewCount, nullptr); // First get number of views.
+		o_views->resize(viewCount);
+
+		return xrEnumerateViewConfigurationViews(instance, systemID, viewType, viewCount, &viewCount, o_views->data()); // Populate views list.
 	}
 
 	/// Create an instance to communicate with the runtime.
@@ -188,7 +230,52 @@ namespace ImmersiveEngine::XR
 
 		return xrCreateSession(instance, &info, o_session);
 	}
+
+	/// Create a swapchain (a reel of buffers) for a specific eye view.
+	XrResult OpenXRManager::createSwapchain(XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain)
+	{
+		XrSwapchainCreateInfo info = { XR_TYPE_SWAPCHAIN_CREATE_INFO };
+		info.usageFlags = XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
+		info.format = GL_SRGB8_ALPHA8;
+		info.sampleCount = view.recommendedSwapchainSampleCount;
+		info.width = view.recommendedImageRectWidth;
+		info.height = view.maxImageRectHeight;
+		info.faceCount = 1;
+		info.arraySize = 1;
+		info.mipCount = 1;
+
+		return xrCreateSwapchain(session, &info, o_swapchain);
+	}
 	
+	XrResult OpenXRManager::acquireSwapchainImage(XrSwapchain& swapchain, uint32_t* o_index)
+	{
+		XrSwapchainImageAcquireInfo info = { XR_TYPE_SWAPCHAIN_CREATE_INFO };
+		return xrAcquireSwapchainImage(swapchain, &info, o_index);
+	}
+
+	/// Gets the image list for a swapchain.
+	XrResult OpenXRManager::enumerateSwapchainImages(XrSwapchain& swapchain, std::vector<XrSwapchainImageOpenGLKHR>* o_images)
+	{
+		uint32_t imageCount = 0;
+		xrEnumerateSwapchainImages(swapchain, 0, &imageCount, nullptr);
+		o_images->resize(imageCount);
+		return xrEnumerateSwapchainImages(swapchain, imageCount, &imageCount, (XrSwapchainImageBaseHeader*)o_images->data());
+	}
+
+	/// Wait on oldest acquired swapchain image to avoid writing to it before the compositer has finished reading it.
+	XrResult OpenXRManager::waitSwapchainImage(XrSwapchain& swapchain)
+	{
+		XrSwapchainImageWaitInfo info = { XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
+		return xrWaitSwapchainImage(swapchain, &info);
+	}
+
+	/// Give the oldest acquired swapchain image back to the swapchain for reuse.
+	XrResult OpenXRManager::releaseSwapchainImage(XrSwapchain& swapchain)
+	{
+		XrSwapchainImageReleaseInfo info = { XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
+		return xrReleaseSwapchainImage(swapchain, &info);
+	}
+
 	XrResult OpenXRManager::destroyInstance(XrInstance& instance)
 	{
 		if (instance == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
@@ -198,6 +285,17 @@ namespace ImmersiveEngine::XR
 	{
 		if (session == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
 		return xrDestroySession(session);
+	}
+	XrResult OpenXRManager::destroySwapchain(XrSwapchain& swapchain)
+	{
+		if (swapchain == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
+		return xrDestroySwapchain(swapchain);
+	}
+
+	uint32_t OpenXRManager::getEyeCount()
+	{
+		if (m_instance == XR_NULL_HANDLE) return 0;
+		return m_views.size();
 	}
 
 	std::string OpenXRManager::toString()
