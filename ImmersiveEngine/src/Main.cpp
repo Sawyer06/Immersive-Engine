@@ -24,6 +24,16 @@
 
 #include"XR/OpenXRManager.h"
 
+#ifdef _WIN32
+extern "C" 
+{
+	// Force NVIDIA GPU usage
+	__declspec(dllexport) DWORD NvOptimusEnablement = 1;
+	// Force AMD GPU usage  
+	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+#endif
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
@@ -54,19 +64,20 @@ int main()
 		return -1;
 	}
 	gladLoadGL();
-	glEnable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CW);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	bool openInVR = true;
 	ImmersiveEngine::XR::OpenXRManager xr;
 	if (openInVR)
 	{
 		xr.establishConnection();
 	}
+
+	glEnable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Shader shaderProgram("default.vert", "default.frag");
 	GLuint FBO;
@@ -251,7 +262,7 @@ int main()
 		lightComp->refreshLight(shaderProgram, spaceComp->position);
 		cam.space->refreshTransforms(shaderProgram);
 
-		if (openInVR)
+		if (openInVR && xr.sessionRunning)
 		{
 			xr.waitFrame();
 			xr.beginFrame();

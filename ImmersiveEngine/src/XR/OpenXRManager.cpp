@@ -39,7 +39,7 @@ namespace ImmersiveEngine::XR
 			std::cerr << "XR_INIT_ERROR could not get system properties.\n";
 			return;
 		}
-		std::cout << "Device: " << m_connectedSystemProperties.systemName << "\n";
+		std::cout << "Established connection!";
 
 		XrGraphicsRequirementsOpenGLKHR graphicsRequirements = { XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR };
 		XrResult gotGraphicsReq = utils::getGraphicsRequirements(m_instance, m_connectedSystemID, &graphicsRequirements);
@@ -49,8 +49,7 @@ namespace ImmersiveEngine::XR
 			return;
 		}
 
-		XrResult sessionCreated = utils::createSession(m_instance, m_connectedSystemID, &m_session); // ERROR: returns -38, graphics device invalid.
-		std::cout << "SESSION RESULT: " << sessionCreated << "\n";
+		XrResult sessionCreated = utils::createSession(m_instance, m_connectedSystemID, &m_session);
 		if (sessionCreated != XR_SUCCESS)
 		{
 			std::cerr << "XR_INIT_ERROR could not create session.\n";
@@ -206,7 +205,7 @@ namespace ImmersiveEngine::XR
 		XrResult gotViews = utils::getViews(m_viewType, m_frameState, m_referenceSpace, m_session, viewCount, &m_views);
 		if (gotViews != XR_SUCCESS)
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not locate views.\n";
+			std::cerr << "XR_RUNTIME_ERROR could not locate views.\n" << gotViews;
 		}
 	}
 
@@ -227,7 +226,7 @@ namespace ImmersiveEngine::XR
 				(int32_t)m_viewConfigs[i].recommendedImageRectHeight
 			};
 		}
-		XrCompositionLayerProjection layer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
+		XrCompositionLayerProjection layer = { XR_TYPE_COMPOSITION_LAYER_PROJECTION };
 		layer.space = m_referenceSpace;
 		layer.viewCount = (uint32_t)projectionViews.size();
 		layer.views = projectionViews.data();
@@ -266,7 +265,7 @@ namespace ImmersiveEngine::XR
 	std::string OpenXRManager::toString()
 	{
 		std::ostringstream oss;
-		oss << "[OPENXR MANAGER]";
+		oss << "[OPENXR MANAGER]" << "\nDevice: " << m_connectedSystemProperties.systemName << "\nCurrent State: " << m_currentSessionState.second << "\n";
 		return oss.str();
 	}
 }

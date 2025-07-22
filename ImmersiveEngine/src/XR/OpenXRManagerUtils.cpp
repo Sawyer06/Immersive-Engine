@@ -41,11 +41,20 @@ namespace utils
 		uint32_t viewCount = 0;
 		xrEnumerateViewConfigurationViews(instance, systemID, viewType, 0, &viewCount, nullptr); // First get number of view configs.
 		o_viewConfigs->resize(viewCount);
+		for (auto& viewConfig : *o_viewConfigs) 
+		{
+			viewConfig.type = XR_TYPE_VIEW_CONFIGURATION_VIEW;
+		}
 
 		return xrEnumerateViewConfigurationViews(instance, systemID, viewType, viewCount, &viewCount, o_viewConfigs->data()); // Populate view configs list.
 	}
 	XrResult getViews(XrViewConfigurationType& viewType, XrFrameState& frameState, XrSpace& space, XrSession& session, uint32_t& viewCount, std::vector<XrView>* o_views)
 	{
+		for (auto& view : *o_views)
+		{
+			view.type = XR_TYPE_VIEW;
+		}
+
 		XrViewLocateInfo info = { XR_TYPE_VIEW_LOCATE_INFO };
 		info.viewConfigurationType = viewType;
 		info.displayTime = frameState.predictedDisplayTime;
@@ -72,11 +81,14 @@ namespace utils
 	/// Create a session to communicate with the connected device.
 	XrResult createSession(XrInstance& instance, XrSystemId& systemID, XrSession* o_session)
 	{
+		HDC hDC = wglGetCurrentDC();
+		HGLRC hGLRC = wglGetCurrentContext();
+		wglMakeCurrent(hDC, hGLRC);
+
 		XrSessionCreateInfo info = { XR_TYPE_SESSION_CREATE_INFO };
 		XrGraphicsBindingOpenGLWin32KHR graphicsBinding = { XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
-		graphicsBinding.hDC = wglGetCurrentDC();
-		graphicsBinding.hGLRC = wglGetCurrentContext();
-		std::cout << "hDC: " << graphicsBinding.hDC << " hGLRC: " << graphicsBinding.hGLRC << "\n";
+		graphicsBinding.hDC = hDC;
+		graphicsBinding.hGLRC = hGLRC;
 
 		info.next = &graphicsBinding;
 		info.systemId = systemID;
