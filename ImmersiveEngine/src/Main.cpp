@@ -69,6 +69,8 @@ int main()
 	}
 
 	Shader shaderProgram("default.vert", "default.frag");
+	GLuint FBO;
+	glGenFramebuffers(1, &FBO);
 
 	//ImmersiveEngine::Settings::g_ambientLightColor = ImmersiveEngine::Math::Vector3(255, 0, 0);
 
@@ -245,12 +247,33 @@ int main()
 		//primitive.space->lookAt(cam.space->position);
 		//primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
 		//primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
-
+		lightA.space->refreshTransforms(shaderProgram);
+		lightComp->refreshLight(shaderProgram, spaceComp->position);
 		cam.space->refreshTransforms(shaderProgram);
 
-		lightComp->refreshLight(shaderProgram, spaceComp->position);
-		lightA.space->refreshTransforms(shaderProgram);
-		//lightA.mesh->draw(shaderProgram);
+		if (openInVR)
+		{
+			xr.waitFrame();
+			xr.beginFrame();
+			for (uint32_t i = 0; i < xr.getEyeCount(); ++i)
+			{
+				GLuint image = xr.getFrameImage(i);
+				xr.waitRenderToEye(i);
+				
+				glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
+				glViewport(0, 0, 1080, 1080);
+
+				plane.space->refreshTransforms(shaderProgram);
+				plane.mesh->draw(shaderProgram);
+				
+				primitive.space->refreshTransforms(shaderProgram);
+				primitive.mesh->draw(shaderProgram);
+
+				xr.endRenderToEye(i);
+			}
+			xr.endFrame();
+		}
 
 		plane.space->refreshTransforms(shaderProgram);
 		plane.mesh->draw(shaderProgram);
@@ -264,6 +287,8 @@ int main()
 	sand->Delete();
 	shaderProgram.Delete();
 	
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0;

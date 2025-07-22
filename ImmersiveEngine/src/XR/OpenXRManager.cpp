@@ -6,12 +6,12 @@ namespace ImmersiveEngine::XR
 
 	OpenXRManager::~OpenXRManager()
 	{
-		destroySession(m_session);
-		destroyInstance(m_instance);
 		for (uint32_t i = 0; i < m_views.size(); ++i)
 		{
-			destroySwapchain(m_swapchains[i]);
+			utils::destroySwapchain(m_swapchains[i]);
 		}
+		utils::destroySession(m_session);
+		utils::destroyInstance(m_instance);
 		m_swapchains.clear();
 		m_images.clear();
 		m_views.clear();
@@ -20,69 +20,79 @@ namespace ImmersiveEngine::XR
 	/// Set up a connection with the headset.
 	void OpenXRManager::establishConnection()
 	{
-		XrApplicationInfo app = generateApplicationInfo("HelloWorld", 1, "ImmersiveEngine", 1);
-		XrResult instanceCreated = createInstance(app, &m_instance);
-		if (instanceCreated == XR_SUCCESS)
-		{
-			XrResult gotSystemID = getXRSystemID(m_instance, &m_connectedSystemID);
-			if (gotSystemID == XR_SUCCESS)
-			{
-				XrResult gotSystemProperties = getXRSystemProperties(m_instance, m_connectedSystemID, &m_connectedSystemProperties);
-				if (gotSystemProperties != XR_SUCCESS)
-				{
-					std::cerr << "XR_INIT_ERROR could not get system properties.\n";
-				}
-				std::cout << "Device: " << m_connectedSystemProperties.systemName << "\n";
-				
-				XrResult sessionCreated = createSession(m_instance, m_connectedSystemID, &m_session); // ERROR: returns -38, graphics device invalid.
-				std::cout << "SESSION RESULT: " << sessionCreated << "\n";
-				if (sessionCreated == XR_SUCCESS)
-				{
-					XrResult gotViews = getViewConfigurationViews(m_viewType, m_instance, m_connectedSystemID, &m_views);
-					if (gotViews == XR_SUCCESS)
-					{
-						m_swapchains.resize(m_views.size());
-						for (uint32_t i = 0; i < m_swapchains.size(); ++i)
-						{
-							XrResult createdSwapchains = createSwapchain(m_views[i], m_session, &m_swapchains[i]);
-							if (createdSwapchains == XR_SUCCESS)
-							{
-								XrResult gotImages = enumerateSwapchainImages(m_swapchains[i], &m_images[i]);
-								if (gotImages != XR_SUCCESS)
-								{
-									std::cerr << "XR_INIT_ERROR could acquire swapchain images.\n";
-								}
-							}
-							else
-							{
-								std::cerr << "XR_INIT_ERROR could not create swapchain.\n";
-							}
-						}
-					}
-					else
-					{
-						std::cerr << "XR_INIT_ERROR could not get configuration views.\n";
-					}
-				}
-				else
-				{
-					std::cerr << "XR_INIT_ERROR could not create session.\n";
-				}
-			}
-			else
-			{
-				std::cerr << "XR_INIT_ERROR could not get system ID.\n";
-			}
-		}
-		else
+		XrApplicationInfo app = utils::generateApplicationInfo("HelloWorld", 1, "ImmersiveEngine", 1);
+		XrResult instanceCreated = utils::createInstance(app, m_enabledExtensions, &m_instance);
+		if (instanceCreated != XR_SUCCESS)
 		{
 			std::cerr << "XR_INIT_ERROR could not create instance.\n";
+			return;
+		}
+		XrResult gotSystemID = utils::getXRSystemID(m_instance, &m_connectedSystemID);
+		if (gotSystemID != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR could not get system ID.\n";
+			return;
+		}
+		XrResult gotSystemProperties = utils::getXRSystemProperties(m_instance, m_connectedSystemID, &m_connectedSystemProperties);
+		if (gotSystemProperties != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR could not get system properties.\n";
+			return;
+		}
+		std::cout << "Device: " << m_connectedSystemProperties.systemName << "\n";
+
+		XrGraphicsRequirementsOpenGLKHR graphicsRequirements = { XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR };
+		XrResult gotGraphicsReq = utils::getGraphicsRequirements(m_instance, m_connectedSystemID, &graphicsRequirements);
+		if (gotGraphicsReq != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR could not get graphics requirements: " << gotGraphicsReq << "\n";
+			return;
+		}
+
+		XrResult sessionCreated = utils::createSession(m_instance, m_connectedSystemID, &m_session); // ERROR: returns -38, graphics device invalid.
+		std::cout << "SESSION RESULT: " << sessionCreated << "\n";
+		if (sessionCreated != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR could not create session.\n";
+			return;
+		}
+
+		XrResult createdSpace = utils::createReferenceSpace(m_referenceSpaceType, m_session, &m_referenceSpace);
+		if (createdSpace != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR could not create a reference space.\n";
+			return;
+		}
+		
+		XrResult gotViewConfigs = utils::getViewConfigurationViews(m_viewType, m_instance, m_connectedSystemID, &m_viewConfigs);
+		if (gotViewConfigs != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR could not get configuration views.\n";
+			return;
+		}
+
+		m_swapchains.resize(m_views.size());
+		for (uint32_t i = 0; i < m_swapchains.size(); ++i)
+		{
+			XrResult createdSwapchains = utils::createSwapchain(m_viewConfigs[i], m_session, &m_swapchains[i]);
+			if (createdSwapchains != XR_SUCCESS)
+			{
+				std::cerr << "XR_INIT_ERROR could not create swapchain.\n";
+				return;
+			}
+			XrResult gotImages = utils::enumerateSwapchainImages(m_swapchains[i], &m_images[i]);
+			if (gotImages != XR_SUCCESS)
+			{
+				std::cerr << "XR_INIT_ERROR could acquire swapchain images.\n";
+				return;
+			}
 		}
 	}
 
 	/// Read the event queue of the runtime for the instance and session. React to these changes accordingly.
 	void OpenXRManager::pollEvents()
 	{
+		if (m_instance == XR_NULL_HANDLE) return;
 		XrEventDataBuffer event = { XR_TYPE_EVENT_DATA_BUFFER };
 		XrResult polling = xrPollEvent(m_instance, &event);
 		if (polling == XR_SUCCESS)
@@ -157,145 +167,100 @@ namespace ImmersiveEngine::XR
 		}
 	}
 
+	void OpenXRManager::waitRenderToEye(uint32_t eyeIndex)
+	{
+		XrResult waited = utils::waitSwapchainImage(m_swapchains[eyeIndex]);
+		if (waited != XR_SUCCESS)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not wait to write to swapchain on eye " << eyeIndex << ".\n";
+		}
+	}
+
+	void OpenXRManager::endRenderToEye(uint32_t eyeIndex)
+	{
+		if (m_swapchains.empty()) return;
+
+		XrResult imageReleased = utils::releaseSwapchainImage(m_swapchains[eyeIndex]);
+		if (imageReleased != XR_SUCCESS)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not release swapchain image on eye " << eyeIndex << ".\n";
+			return;
+		}
+	}
+
 	void OpenXRManager::waitFrame()
 	{
+		if (m_session == XR_NULL_HANDLE) return;
 		XrFrameWaitInfo info = { XR_TYPE_FRAME_WAIT_INFO };
-		XrFrameState frameState = { XR_TYPE_FRAME_STATE };
-		xrWaitFrame(m_session, &info, &frameState);
+		xrWaitFrame(m_session, &info, &m_frameState);
 	}
 
 	void OpenXRManager::beginFrame()
 	{
+		if (m_session == XR_NULL_HANDLE) return;
 		XrFrameBeginInfo info = { XR_TYPE_FRAME_BEGIN_INFO };
 		xrBeginFrame(m_session, &info);
+		
+		uint32_t viewCount = getEyeCount();
+
+		XrResult gotViews = utils::getViews(m_viewType, m_frameState, m_referenceSpace, m_session, viewCount, &m_views);
+		if (gotViews != XR_SUCCESS)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not locate views.\n";
+		}
 	}
 
 	void OpenXRManager::endFrame()
 	{
+		if (m_session == XR_NULL_HANDLE) return;
+
+		std::vector<XrCompositionLayerProjectionView> projectionViews = { };
+		for (uint32_t i = 0; i < getEyeCount(); ++i)
+		{
+			projectionViews[i] = { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW };
+			projectionViews[i].pose = m_views[i].pose;
+			projectionViews[i].fov = m_views[i].fov;
+			projectionViews[i].subImage.swapchain = m_swapchains[i];
+			projectionViews[i].subImage.imageRect.offset = { 0, 0 };
+			projectionViews[i].subImage.imageRect.extent = {
+				(int32_t)m_viewConfigs[i].recommendedImageRectWidth,
+				(int32_t)m_viewConfigs[i].recommendedImageRectHeight
+			};
+		}
+		XrCompositionLayerProjection layer{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
+		layer.space = m_referenceSpace;
+		layer.viewCount = (uint32_t)projectionViews.size();
+		layer.views = projectionViews.data();
+
+		XrCompositionLayerBaseHeader* layers[] = { (XrCompositionLayerBaseHeader*)&layer };
+
 		XrFrameEndInfo info = { XR_TYPE_FRAME_END_INFO };
+		info.displayTime = m_frameState.predictedDisplayTime;
+		info.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
+		info.layerCount = 1;
+		info.layers = layers;
+
 		xrEndFrame(m_session, &info);
-	}
-
-	XrApplicationInfo OpenXRManager::generateApplicationInfo(std::string appName, uint32_t appVersion, std::string engineName, uint32_t engineVersion)
-	{
-		XrApplicationInfo app;
-		strncpy(app.applicationName, appName.c_str(), XR_MAX_APPLICATION_NAME_SIZE);
-		app.applicationVersion = appVersion;
-		strncpy(app.engineName, engineName.c_str(), XR_MAX_ENGINE_NAME_SIZE);
-		app.engineVersion = engineVersion;
-		app.apiVersion = XR_CURRENT_API_VERSION;
-
-		return app;
-	}
-
-	XrResult OpenXRManager::getXRSystemID(XrInstance& instance, XrSystemId* o_systemID)
-	{
-		XrSystemGetInfo info { XR_TYPE_SYSTEM_GET_INFO };
-		info.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
-		return xrGetSystem(m_instance, &info, o_systemID);
-	}
-	XrResult OpenXRManager::getXRSystemProperties(XrInstance& instance, XrSystemId& systemID, XrSystemProperties* o_systemProperties)
-	{
-		return xrGetSystemProperties(instance, systemID, o_systemProperties);
-	}
-	XrResult OpenXRManager::getViewConfigurationViews(XrViewConfigurationType& viewType, XrInstance& instance, XrSystemId& systemID, std::vector<XrViewConfigurationView>* o_views)
-	{
-		uint32_t viewCount = 0;
-		xrEnumerateViewConfigurationViews(instance, systemID, viewType, 0, &viewCount, nullptr); // First get number of views.
-		o_views->resize(viewCount);
-
-		return xrEnumerateViewConfigurationViews(instance, systemID, viewType, viewCount, &viewCount, o_views->data()); // Populate views list.
-	}
-
-	/// Create an instance to communicate with the runtime.
-	XrResult OpenXRManager::createInstance(XrApplicationInfo& app, XrInstance* o_instance)
-	{
-		XrInstanceCreateInfo info{ XR_TYPE_INSTANCE_CREATE_INFO };
-		info.createFlags = 0;
-		info.applicationInfo = app;
-
-		return xrCreateInstance(&info, o_instance);
-	}
-
-	/// Create a session to communicate with the connected device.
-	XrResult OpenXRManager::createSession(XrInstance& instance, XrSystemId& systemID, XrSession* o_session)
-	{
-		XrSessionCreateInfo info{ XR_TYPE_SESSION_CREATE_INFO };
-		XrGraphicsBindingOpenGLWin32KHR graphicsBinding{ XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
-		graphicsBinding.hDC = wglGetCurrentDC();
-		graphicsBinding.hGLRC = wglGetCurrentContext();
-
-		info.next = &graphicsBinding;
-		info.systemId = systemID;
-
-		return xrCreateSession(instance, &info, o_session);
-	}
-
-	/// Create a swapchain (a reel of buffers) for a specific eye view.
-	XrResult OpenXRManager::createSwapchain(XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain)
-	{
-		XrSwapchainCreateInfo info = { XR_TYPE_SWAPCHAIN_CREATE_INFO };
-		info.usageFlags = XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
-		info.format = GL_SRGB8_ALPHA8;
-		info.sampleCount = view.recommendedSwapchainSampleCount;
-		info.width = view.recommendedImageRectWidth;
-		info.height = view.maxImageRectHeight;
-		info.faceCount = 1;
-		info.arraySize = 1;
-		info.mipCount = 1;
-
-		return xrCreateSwapchain(session, &info, o_swapchain);
-	}
-	
-	XrResult OpenXRManager::acquireSwapchainImage(XrSwapchain& swapchain, uint32_t* o_index)
-	{
-		XrSwapchainImageAcquireInfo info = { XR_TYPE_SWAPCHAIN_CREATE_INFO };
-		return xrAcquireSwapchainImage(swapchain, &info, o_index);
-	}
-
-	/// Gets the image list for a swapchain.
-	XrResult OpenXRManager::enumerateSwapchainImages(XrSwapchain& swapchain, std::vector<XrSwapchainImageOpenGLKHR>* o_images)
-	{
-		uint32_t imageCount = 0;
-		xrEnumerateSwapchainImages(swapchain, 0, &imageCount, nullptr);
-		o_images->resize(imageCount);
-		return xrEnumerateSwapchainImages(swapchain, imageCount, &imageCount, (XrSwapchainImageBaseHeader*)o_images->data());
-	}
-
-	/// Wait on oldest acquired swapchain image to avoid writing to it before the compositer has finished reading it.
-	XrResult OpenXRManager::waitSwapchainImage(XrSwapchain& swapchain)
-	{
-		XrSwapchainImageWaitInfo info = { XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
-		return xrWaitSwapchainImage(swapchain, &info);
-	}
-
-	/// Give the oldest acquired swapchain image back to the swapchain for reuse.
-	XrResult OpenXRManager::releaseSwapchainImage(XrSwapchain& swapchain)
-	{
-		XrSwapchainImageReleaseInfo info = { XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
-		return xrReleaseSwapchainImage(swapchain, &info);
-	}
-
-	XrResult OpenXRManager::destroyInstance(XrInstance& instance)
-	{
-		if (instance == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
-		return xrDestroyInstance(instance);
-	}
-	XrResult OpenXRManager::destroySession(XrSession& session)
-	{
-		if (session == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
-		return xrDestroySession(session);
-	}
-	XrResult OpenXRManager::destroySwapchain(XrSwapchain& swapchain)
-	{
-		if (swapchain == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
-		return xrDestroySwapchain(swapchain);
 	}
 
 	uint32_t OpenXRManager::getEyeCount()
 	{
-		if (m_instance == XR_NULL_HANDLE) return 0;
+		if (m_connectedSystemID == XR_NULL_SYSTEM_ID || m_views.empty()) return 0;
 		return m_views.size();
+	}
+	uint32_t OpenXRManager::getFrameImage(uint32_t eyeIndex)
+	{
+		if (m_swapchains.empty() || m_images.empty()) return 0;
+
+		uint32_t imageIndex;
+		XrResult imageIndexAcquired = utils::acquireSwapchainImage(m_swapchains[eyeIndex], &imageIndex);
+		if (imageIndexAcquired != XR_SUCCESS)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not acquire swapchain image index on eye " << eyeIndex << ".\n";
+			return 0;
+		}
+
+		return m_images[eyeIndex][imageIndex].image; // Get image by current eye (row) and next available image (column).
 	}
 
 	std::string OpenXRManager::toString()

@@ -178,6 +178,7 @@
     <ClCompile Include="src\Rendering\VAO.cpp" />
     <ClCompile Include="src\Rendering\VBO.cpp" />
     <ClCompile Include="src\XR\OpenXRManager.cpp" />
+    <ClCompile Include="src\XR\OpenXRManagerUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Components\Camera.h" />
@@ -198,6 +199,7 @@
     <ClInclude Include="src\Rendering\VBO.h" />
     <ClInclude Include="src\Settings.h" />
     <ClInclude Include="src\XR\OpenXRManager.h" />
+    <ClInclude Include="src\XR\OpenXRManagerUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\cheeki.jpg" />
