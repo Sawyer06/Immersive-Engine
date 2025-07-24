@@ -17,6 +17,9 @@
 #include<openxr/openxr.h>
 #include<openxr/openxr_platform.h>
 
+#include"../Math/Vector3.h"
+#include"../Math/Quaternion.h"
+
 namespace utils
 {
 	XrApplicationInfo generateApplicationInfo(std::string appName, uint32_t appVersion, std::string engineName, uint32_t engineVersion);

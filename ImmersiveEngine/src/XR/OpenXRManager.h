@@ -5,6 +5,25 @@
 
 namespace ImmersiveEngine::XR
 {
+	struct ViewConfig
+	{
+		uint32_t width = 0;
+		uint32_t height = 0;
+
+		ViewConfig() = default;
+		ViewConfig(uint32_t w, uint32_t h) :
+			width(w), height(h) { }
+	};
+	struct HMDSpace
+	{
+		ImmersiveEngine::Math::Vector3 position = { 0, 0, 0 };
+		ImmersiveEngine::Math::Quaternion orientation = { 1, 0, 0, 0 };
+
+		HMDSpace() = default;
+		HMDSpace(ImmersiveEngine::Math::Vector3 pos, ImmersiveEngine::Math::Quaternion rot) :
+			position(pos), orientation(rot) { }
+	};
+
 	class OpenXRManager
 	{
 		private:
@@ -43,7 +62,10 @@ namespace ImmersiveEngine::XR
 			void endFrame();
 
 			uint32_t getEyeCount();
+			ViewConfig getViewConfig(uint32_t eyeIndex);
+			HMDSpace getHMDSpace();
 			uint32_t getFrameImage(uint32_t eyeIndex);
+			
 
 			std::string toString();
 	};

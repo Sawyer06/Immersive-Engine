@@ -135,6 +135,10 @@ namespace utils
 		uint32_t imageCount = 0;
 		xrEnumerateSwapchainImages(swapchain, 0, &imageCount, nullptr);
 		o_images->resize(imageCount);
+		for (auto& image : *o_images)
+		{
+			image.type = XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR;
+		}
 		return xrEnumerateSwapchainImages(swapchain, imageCount, &imageCount, (XrSwapchainImageBaseHeader*)o_images->data());
 	}
 
@@ -142,6 +146,7 @@ namespace utils
 	XrResult waitSwapchainImage(XrSwapchain& swapchain)
 	{
 		XrSwapchainImageWaitInfo info = { XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
+		info.timeout = XR_INFINITE_DURATION;
 		return xrWaitSwapchainImage(swapchain, &info);
 	}
 

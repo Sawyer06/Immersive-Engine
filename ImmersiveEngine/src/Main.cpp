@@ -25,12 +25,12 @@
 #include"XR/OpenXRManager.h"
 
 #ifdef _WIN32
-extern "C" 
+extern "C"
 {
 	// Force NVIDIA GPU usage
-	__declspec(dllexport) DWORD NvOptimusEnablement = 1;
+	//__declspec(dllexport) DWORD NvOptimusEnablement = 1;
 	// Force AMD GPU usage  
-	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+	//__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
 
@@ -65,7 +65,7 @@ int main()
 	}
 	gladLoadGL();
 
-	bool openInVR = true;
+	bool openInVR = false;
 	ImmersiveEngine::XR::OpenXRManager xr;
 	if (openInVR)
 	{
@@ -141,7 +141,7 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
-		xr.pollEvents();
+		if (openInVR) xr.pollEvents();
 
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
@@ -273,11 +273,12 @@ int main()
 				
 				glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
-				glViewport(0, 0, 1080, 1080);
+				ImmersiveEngine::XR::ViewConfig view = xr.getViewConfig(i);
+				glViewport(0, 0, view.width, view.height);
 
 				plane.space->refreshTransforms(shaderProgram);
 				plane.mesh->draw(shaderProgram);
-				
+												
 				primitive.space->refreshTransforms(shaderProgram);
 				primitive.mesh->draw(shaderProgram);
 
@@ -298,7 +299,7 @@ int main()
 	sand->Delete();
 	shaderProgram.Delete();
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &FBO);
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

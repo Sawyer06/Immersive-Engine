@@ -39,7 +39,6 @@ namespace ImmersiveEngine::XR
 			std::cerr << "XR_INIT_ERROR could not get system properties.\n";
 			return;
 		}
-		std::cout << "Established connection!";
 
 		XrGraphicsRequirementsOpenGLKHR graphicsRequirements = { XR_TYPE_GRAPHICS_REQUIREMENTS_OPENGL_KHR };
 		XrResult gotGraphicsReq = utils::getGraphicsRequirements(m_instance, m_connectedSystemID, &graphicsRequirements);
@@ -70,7 +69,8 @@ namespace ImmersiveEngine::XR
 			return;
 		}
 
-		m_swapchains.resize(m_views.size());
+		m_swapchains.resize(m_viewConfigs.size());
+		m_images.resize(m_viewConfigs.size());
 		for (uint32_t i = 0; i < m_swapchains.size(); ++i)
 		{
 			XrResult createdSwapchains = utils::createSwapchain(m_viewConfigs[i], m_session, &m_swapchains[i]);
@@ -82,10 +82,11 @@ namespace ImmersiveEngine::XR
 			XrResult gotImages = utils::enumerateSwapchainImages(m_swapchains[i], &m_images[i]);
 			if (gotImages != XR_SUCCESS)
 			{
-				std::cerr << "XR_INIT_ERROR could acquire swapchain images.\n";
+				std::cerr << "XR_INIT_ERROR could not acquire swapchain images.\n" << gotImages;
 				return;
 			}
 		}
+		std::cout << "[OPENXR] Established connection!";
 	}
 
 	/// Read the event queue of the runtime for the instance and session. React to these changes accordingly.
@@ -246,6 +247,32 @@ namespace ImmersiveEngine::XR
 	{
 		if (m_connectedSystemID == XR_NULL_SYSTEM_ID || m_views.empty()) return 0;
 		return m_views.size();
+	}
+	ViewConfig OpenXRManager::getViewConfig(uint32_t eyeIndex)
+	{
+		if (m_viewConfigs.empty())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not get view configurations, does not exist.\n";
+			return ViewConfig();
+		}
+		return ViewConfig{ (uint32_t)m_viewConfigs[eyeIndex].recommendedImageRectWidth, (uint32_t)m_viewConfigs[eyeIndex].recommendedImageRectHeight };
+	}
+	HMDSpace OpenXRManager::getHMDSpace()
+	{
+		if (m_views.empty())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not get views, does not exist.\n";
+			return HMDSpace();
+		}
+		ImmersiveEngine::Math::Vector3 centeredPosition = { 0, 0, 0 };
+		ImmersiveEngine::Math::Quaternion orientation = { m_views[0].pose.orientation.w,  m_views[0].pose.orientation.x,  m_views[0].pose.orientation.y,  m_views[0].pose.orientation.z };
+		for (int i = 0; i < m_views.size(); ++i)
+		{
+			ImmersiveEngine::Math::Vector3 eyePos = { m_views[i].pose.position.x, m_views[i].pose.position.y, m_views[i].pose.position.z };
+			centeredPosition += eyePos;
+		}
+		centeredPosition *= (1 / m_views.size());
+		return HMDSpace(centeredPosition, orientation);
 	}
 	uint32_t OpenXRManager::getFrameImage(uint32_t eyeIndex)
 	{
