@@ -3,6 +3,7 @@
 
 #include"../Objects/Present.h"
 #include"Space.h"
+#include"../XR/OpenXRManager.h"
 
 namespace ImmersiveEngine::cbs
 {
@@ -21,10 +22,8 @@ namespace ImmersiveEngine::cbs
 			float nearPlane;
 			float farPlane;
 
-			ImmersiveEngine::Math::Vector3 hmdPosition;
-			ImmersiveEngine::Math::Vector3 hmdOrientation;
-
 			void refreshViewProjection(Shader& shaderProgram, const float aspectRatio);
+			void refreshViewProjection(Shader& shaderProgram, XrViewConfigurationView viewConfig, XrView view);
 
 			std::string toString() override;
 	};

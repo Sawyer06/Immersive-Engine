@@ -212,6 +212,8 @@
     <None Include="packages.config" />
     <None Include="src\default.frag" />
     <None Include="src\default.vert" />
+    <None Include="src\screen.frag" />
+    <None Include="src\screen.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

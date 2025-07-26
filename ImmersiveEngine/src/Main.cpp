@@ -28,11 +28,22 @@
 extern "C"
 {
 	// Force NVIDIA GPU usage
-	//__declspec(dllexport) DWORD NvOptimusEnablement = 1;
+	__declspec(dllexport) DWORD NvOptimusEnablement = 1;
 	// Force AMD GPU usage  
 	//__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
+
+float screenVertices[] =
+{
+	 -1.0f,  1.0f,  0.0f, 1.0f,
+	 -1.0f, -1.0f,  0.0f, 0.0f,
+	  1.0f,  1.0f,  1.0f, 1.0f,
+
+	-1.0f, -1.0f,  0.0f, 0.0f,
+	 1.0f,  1.0f,  1.0f, 1.0f,
+	 1.0f, -1.0f,  1.0f, 0.0f
+};
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -40,7 +51,7 @@ void processInput(GLFWwindow* window);
 int main()
 {
     glfwInit();
-	
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -64,8 +75,9 @@ int main()
 		return -1;
 	}
 	gladLoadGL();
+	glfwSwapInterval(0);
 
-	bool openInVR = false;
+	bool openInVR = true;
 	ImmersiveEngine::XR::OpenXRManager xr;
 	if (openInVR)
 	{
@@ -79,10 +91,48 @@ int main()
 	glFrontFace(GL_CW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	Shader shaderProgram("default.vert", "default.frag");
-	GLuint FBO;
-	glGenFramebuffers(1, &FBO);
+	unsigned int screenVAO, screenVBO;
+	glGenVertexArrays(1, &screenVAO);
+	glGenBuffers(1, &screenVBO);
+	glBindVertexArray(screenVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, screenVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(screenVertices), &screenVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	glBindVertexArray(0);
 
+	Shader shaderProgram("default.vert", "default.frag");
+	Shader screenShader("screen.vert", "screen.frag");
+	
+	//screenShader.Activate();
+
+	unsigned int FBO;
+	glGenFramebuffers(1, &FBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+	unsigned int texColorBuffer;
+	glGenTextures(1, &texColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
+
+	unsigned int RBO;
+	glGenRenderbuffers(1, &RBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenHeight);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "FBO_ERROR framebuffer is not complete.\n";
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	//ImmersiveEngine::Settings::g_ambientLightColor = ImmersiveEngine::Math::Vector3(255, 0, 0);
 
 	ImmersiveEngine::cbs::Present cam;
@@ -156,12 +206,6 @@ int main()
 		}
 
 		processInput(window); // Get inputs.
-		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenLength / ImmersiveEngine::Settings::g_screenHeight);
-		
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Window background in decimal RGBA
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-        shaderProgram.Activate();
 
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
@@ -258,9 +302,26 @@ int main()
 		//primitive.space->lookAt(cam.space->position);
 		//primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
 		//primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glClearColor(0.0f, 0.2f, 0.4f, 1.0f); // Window background in decimal RGBA
+		glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glViewport(0, 0, ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenHeight);
+		
+		shaderProgram.Activate();
+
+		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenLength / ImmersiveEngine::Settings::g_screenHeight);
+
 		lightA.space->refreshTransforms(shaderProgram);
 		lightComp->refreshLight(shaderProgram, spaceComp->position);
 		cam.space->refreshTransforms(shaderProgram);
+
+		plane.space->refreshTransforms(shaderProgram);
+		plane.mesh->draw(shaderProgram);
+
+		primitive.space->refreshTransforms(shaderProgram);
+		primitive.mesh->draw(shaderProgram);
 
 		if (openInVR && xr.sessionRunning)
 		{
@@ -270,11 +331,8 @@ int main()
 			{
 				GLuint image = xr.getFrameImage(i);
 				xr.waitRenderToEye(i);
-				
-				glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
-				ImmersiveEngine::XR::ViewConfig view = xr.getViewConfig(i);
-				glViewport(0, 0, view.width, view.height);
+
+				camComp->refreshViewProjection(shaderProgram, xr.getViewConfig(i), xr.getView(i));
 
 				plane.space->refreshTransforms(shaderProgram);
 				plane.mesh->draw(shaderProgram);
@@ -282,24 +340,52 @@ int main()
 				primitive.space->refreshTransforms(shaderProgram);
 				primitive.mesh->draw(shaderProgram);
 
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+				glDisable(GL_CULL_FACE);
+				glDisable(GL_DEPTH_TEST);
+				glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+				glViewport(0, 0, ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenHeight);
+
+				screenShader.Activate();
+				glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+				screenShader.setInt("screenTexture", 0);
+				glBindVertexArray(screenVAO);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+				glBindVertexArray(0);
+
 				xr.endRenderToEye(i);
 			}
 			xr.endFrame();
 		}
+		
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		plane.space->refreshTransforms(shaderProgram);
-		plane.mesh->draw(shaderProgram);
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glViewport(0, 0, ImmersiveEngine::Settings::g_screenLength, ImmersiveEngine::Settings::g_screenHeight);
 
-		primitive.space->refreshTransforms(shaderProgram);
-		primitive.mesh->draw(shaderProgram);
-
+		screenShader.Activate();
+		glBindTexture(GL_TEXTURE_2D, texColorBuffer);
+		screenShader.setInt("screenTexture", 0);
+		glBindVertexArray(screenVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);
+		
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
-	sand->Delete();
-	shaderProgram.Delete();
-	
+	glDeleteVertexArrays(1, &screenVAO);
+	glDeleteBuffers(1, &screenVBO);
+	glDeleteRenderbuffers(1, &RBO);
 	glDeleteFramebuffers(1, &FBO);
+
+	sand->Delete();
+	stone->Delete();
+	shaderProgram.Delete();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

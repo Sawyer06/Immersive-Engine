@@ -199,6 +199,12 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="src\screen.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\screen.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

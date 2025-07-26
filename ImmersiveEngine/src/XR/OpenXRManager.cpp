@@ -248,35 +248,46 @@ namespace ImmersiveEngine::XR
 		if (m_connectedSystemID == XR_NULL_SYSTEM_ID || m_views.empty()) return 0;
 		return m_views.size();
 	}
-	ViewConfig OpenXRManager::getViewConfig(uint32_t eyeIndex)
+	XrViewConfigurationView OpenXRManager::getViewConfig(uint32_t eyeIndex)
 	{
 		if (m_viewConfigs.empty())
 		{
 			std::cerr << "XR_RUNTIME_ERROR could not get view configurations, does not exist.\n";
-			return ViewConfig();
+			return XrViewConfigurationView();
 		}
-		return ViewConfig{ (uint32_t)m_viewConfigs[eyeIndex].recommendedImageRectWidth, (uint32_t)m_viewConfigs[eyeIndex].recommendedImageRectHeight };
+		if (eyeIndex >= m_viewConfigs.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not get view config, eye index out of bounds.\n";
+			return XrViewConfigurationView();
+		}
+		return m_viewConfigs[eyeIndex];
 	}
-	HMDSpace OpenXRManager::getHMDSpace()
+	XrView OpenXRManager::getView(uint32_t eyeIndex)
 	{
-		if (m_views.empty())
+		if (m_viewConfigs.empty())
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not get views, does not exist.\n";
-			return HMDSpace();
+			std::cerr << "XR_RUNTIME_ERROR could not get view, does not exist.\n";
+			return XrView();
 		}
-		ImmersiveEngine::Math::Vector3 centeredPosition = { 0, 0, 0 };
-		ImmersiveEngine::Math::Quaternion orientation = { m_views[0].pose.orientation.w,  m_views[0].pose.orientation.x,  m_views[0].pose.orientation.y,  m_views[0].pose.orientation.z };
-		for (int i = 0; i < m_views.size(); ++i)
+		if (eyeIndex >= m_viewConfigs.size())
 		{
-			ImmersiveEngine::Math::Vector3 eyePos = { m_views[i].pose.position.x, m_views[i].pose.position.y, m_views[i].pose.position.z };
-			centeredPosition += eyePos;
+			std::cerr << "XR_RUNTIME_ERROR could not get view, eye index out of bounds.\n";
+			return XrView();
 		}
-		centeredPosition *= (1 / m_views.size());
-		return HMDSpace(centeredPosition, orientation);
+		return m_views[eyeIndex];
 	}
 	uint32_t OpenXRManager::getFrameImage(uint32_t eyeIndex)
 	{
-		if (m_swapchains.empty() || m_images.empty()) return 0;
+		if (m_swapchains.empty() || m_images.empty())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not get frame image, initialized incorrectly.\n";
+			return 0;
+		}
+		if (eyeIndex >= m_views.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not get frame image, eye index out of bounds.\n";
+			return 0;
+		}
 
 		uint32_t imageIndex;
 		XrResult imageIndexAcquired = utils::acquireSwapchainImage(m_swapchains[eyeIndex], &imageIndex);
