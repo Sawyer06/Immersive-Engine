@@ -47,7 +47,6 @@ namespace ImmersiveEngine::XR
 			XrView getView(uint32_t eyeIndex);
 
 			uint32_t getFrameImage(uint32_t eyeIndex);
-			
 
 			std::string toString();
 	};

@@ -114,6 +114,9 @@
     <ClCompile Include="src\XR\OpenXRManagerUtils.cpp">
       <Filter>Source Files\XR</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rendering\FBO.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">
@@ -172,6 +175,9 @@
     </ClInclude>
     <ClInclude Include="src\XR\OpenXRManagerUtils.h">
       <Filter>Header Files\XR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rendering\FBO.h">
+      <Filter>Header Files\Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

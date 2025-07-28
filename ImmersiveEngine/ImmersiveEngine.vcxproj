@@ -171,6 +171,7 @@
     <ClCompile Include="src\Objects\Object.cpp" />
     <ClCompile Include="src\Objects\Present.cpp" />
     <ClCompile Include="src\Rendering\EBO.cpp" />
+    <ClCompile Include="src\Rendering\FBO.cpp" />
     <ClCompile Include="src\Rendering\Mesh.cpp" />
     <ClCompile Include="src\Rendering\shaderClass.cpp" />
     <ClCompile Include="src\Rendering\stb.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="src\Objects\Object.h" />
     <ClInclude Include="src\Objects\Present.h" />
     <ClInclude Include="src\Rendering\EBO.h" />
+    <ClInclude Include="src\Rendering\FBO.h" />
     <ClInclude Include="src\Rendering\Mesh.h" />
     <ClInclude Include="src\Rendering\shaderClass.h" />
     <ClInclude Include="src\Rendering\Texture.h" />

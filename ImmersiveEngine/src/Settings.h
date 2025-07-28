@@ -6,7 +6,7 @@
 
 namespace ImmersiveEngine::Settings
 {
-	inline const uint32_t g_screenLength = 800;
+	inline const uint32_t g_screenWidth = 800;
 	inline const uint32_t g_screenHeight = 800;
 	
 	inline ImmersiveEngine::Math::Vector3 g_ambientLightColor(255, 255, 255);
