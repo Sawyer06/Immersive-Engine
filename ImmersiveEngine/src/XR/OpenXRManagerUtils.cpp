@@ -48,7 +48,7 @@ namespace utils
 
 		return xrEnumerateViewConfigurationViews(instance, systemID, viewType, viewCount, &viewCount, o_viewConfigs->data()); // Populate view configs list.
 	}
-	XrResult getViews(XrViewConfigurationType& viewType, XrFrameState& frameState, XrSpace& space, XrSession& session, uint32_t& viewCount, std::vector<XrView>* o_views)
+	XrResult getViews(XrViewConfigurationType& viewType, XrFrameState& frameState, XrSpace& space, XrSession& session, std::vector<XrView>* o_views)
 	{
 		for (auto& view : *o_views)
 		{
@@ -61,9 +61,9 @@ namespace utils
 		info.space = space;
 
 		XrViewState viewState = { XR_TYPE_VIEW_STATE };
-		uint32_t viewCountOut;
+		uint32_t viewCount = 0;
 
-		return xrLocateViews(session, &info, &viewState, viewCount, &viewCountOut, o_views->data());
+		return xrLocateViews(session, &info, &viewState, o_views->size(), &viewCount, o_views->data());
 	}
 
 	/// Create an instance to communicate with the runtime.
@@ -125,7 +125,7 @@ namespace utils
 	/// Get the index of the next available image in the swapchain.
 	XrResult acquireSwapchainImage(XrSwapchain& swapchain, uint32_t* o_index)
 	{
-		XrSwapchainImageAcquireInfo info = { XR_TYPE_SWAPCHAIN_CREATE_INFO };
+		XrSwapchainImageAcquireInfo info = { XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
 		return xrAcquireSwapchainImage(swapchain, &info, o_index);
 	}
 

@@ -25,7 +25,7 @@ namespace ImmersiveEngine::XR
 			std::vector<const char*> m_enabledExtensions = { XR_KHR_OPENGL_ENABLE_EXTENSION_NAME };
 
 			XrViewConfigurationType m_viewType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; // Two views
-			XrReferenceSpaceType m_referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
+			XrReferenceSpaceType m_referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
 		public:
 			OpenXRManager();
 			~OpenXRManager();

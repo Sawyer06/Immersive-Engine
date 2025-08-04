@@ -28,7 +28,7 @@ namespace utils
 	XrResult getXRSystemID(XrInstance& instance, XrSystemId* o_systemID);
 	XrResult getXRSystemProperties(XrInstance& instance, XrSystemId& systemID, XrSystemProperties* o_systemProperties);
 	XrResult getViewConfigurationViews(XrViewConfigurationType& viewType, XrInstance& instance, XrSystemId& systemID, std::vector<XrViewConfigurationView>* o_viewConfigs);
-	XrResult getViews(XrViewConfigurationType& viewType, XrFrameState& frameState, XrSpace& space, XrSession& session, uint32_t& viewCount, std::vector<XrView>* o_views);
+	XrResult getViews(XrViewConfigurationType& viewType, XrFrameState& frameState, XrSpace& space, XrSession& session, std::vector<XrView>* o_views);
 
 	XrResult createInstance(XrApplicationInfo& app, std::vector<const char*> extensions, XrInstance* o_instance);
 	XrResult createSession(XrInstance& instance, XrSystemId& systemID, XrSession* o_session);

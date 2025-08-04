@@ -11,7 +11,7 @@ float screenVertices[] =
 	 1.0f, -1.0f,  1.0f, 0.0f
 };
 
-FBO::FBO() : m_width(0), m_height(0), m_RBO(0), m_texColorBuffer(0), m_screenVAO(0), m_screenVBO(0)
+FBO::FBO() : m_width(1), m_height(1), m_RBO(0), m_texColorBuffer(0), m_screenVAO(0), m_screenVBO(0)
 {
 	glGenFramebuffers(1, &ID);
 
@@ -56,11 +56,20 @@ void FBO::SetUp(GLuint width, GLuint height)
 
 void FBO::Resize(GLuint width, GLuint height)
 {
-	if (width == m_width || height == m_height) return; // Return if this is already the size.
+	if (width == m_width && height == m_height) return; // Return if this is already the size.
 	m_width = width;
 	m_height = height;
 
-	SetUp(width, height);
+	SetUp(m_width, m_height);
+}
+
+void FBO::AttachExternalTexture(GLuint& image, GLuint width, GLuint height)
+{
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO);
 }
 
 /// Draw frame buffer object to screen.

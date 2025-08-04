@@ -258,7 +258,7 @@ int main()
 		//primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
 
 		FBO.Bind();
-		glClearColor(0.0f, 0.2f, 0.4f, 1.0f); // Window background in decimal RGBA
+		glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, ImmersiveEngine::Settings::g_screenWidth, ImmersiveEngine::Settings::g_screenHeight);
@@ -283,18 +283,31 @@ int main()
 
 		if (openInVR && xr.sessionRunning)
 		{
+			//std::cout << "Session is running.\n";
 			xr.waitFrame();
 			xr.beginFrame();
+			
 			for (uint32_t i = 0; i < xr.getEyeCount(); ++i)
 			{
+				//std::cout << "Rendering eye: " << i << "\n";
 				GLuint image = xr.getFrameImage(i);
+				//std::cout << image << "\n";
 				xr.waitRenderToEye(i);
 
 				XrViewConfigurationView viewConfig = xr.getViewConfig(i);
 				XrView view = xr.getView(i);
 
-				FBO.Resize(viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
+				FBO.Bind();
+				FBO.AttachExternalTexture(image, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
+				//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
 
+				glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
+				glEnable(GL_DEPTH_TEST);
+				glEnable(GL_CULL_FACE);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glViewport(0, 0, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
+
+				shaderProgram.Activate();
 				camComp->refreshViewProjection(shaderProgram, viewConfig, view);
 
 				plane.space->refreshTransforms(shaderProgram);
@@ -303,7 +316,7 @@ int main()
 				primitive.space->refreshTransforms(shaderProgram);
 				primitive.mesh->draw(shaderProgram);
 
-				FBO.Bind();
+				FBO.Unbind();
 
 				glDisable(GL_CULL_FACE);
 				glDisable(GL_DEPTH_TEST);
@@ -313,9 +326,6 @@ int main()
 
 				screenShader.Activate();
 				FBO.DrawScreen();
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
-
-				FBO.Unbind();
 
 				xr.endRenderToEye(i);
 			}

@@ -6,7 +6,7 @@ namespace ImmersiveEngine::XR
 
 	OpenXRManager::~OpenXRManager()
 	{
-		for (uint32_t i = 0; i < m_views.size(); ++i)
+		for (uint32_t i = 0; i < m_viewConfigs.size(); ++i)
 		{
 			utils::destroySwapchain(m_swapchains[i]);
 		}
@@ -15,6 +15,7 @@ namespace ImmersiveEngine::XR
 		m_swapchains.clear();
 		m_images.clear();
 		m_views.clear();
+		m_viewConfigs.clear();
 	}
 
 	/// Set up a connection with the headset.
@@ -69,6 +70,7 @@ namespace ImmersiveEngine::XR
 			return;
 		}
 
+		m_views.resize(m_viewConfigs.size());
 		m_swapchains.resize(m_viewConfigs.size());
 		m_images.resize(m_viewConfigs.size());
 		for (uint32_t i = 0; i < m_swapchains.size(); ++i)
@@ -86,13 +88,14 @@ namespace ImmersiveEngine::XR
 				return;
 			}
 		}
-		std::cout << "[OPENXR] Established connection!";
+		std::cout << "[OPENXR] Established connection!\n";
 	}
 
 	/// Read the event queue of the runtime for the instance and session. React to these changes accordingly.
 	void OpenXRManager::pollEvents()
 	{
 		if (m_instance == XR_NULL_HANDLE) return;
+
 		XrEventDataBuffer event = { XR_TYPE_EVENT_DATA_BUFFER };
 		XrResult polling = xrPollEvent(m_instance, &event);
 		if (polling == XR_SUCCESS)
@@ -104,7 +107,7 @@ namespace ImmersiveEngine::XR
 				{
 					case XR_SESSION_STATE_IDLE:
 					{
-						m_currentSessionState = {XR_SESSION_STATE_IDLE, "IDLE"};
+						m_currentSessionState = { XR_SESSION_STATE_IDLE, "IDLE" };
 						break;
 					}
 					case XR_SESSION_STATE_READY:
@@ -169,55 +172,86 @@ namespace ImmersiveEngine::XR
 
 	void OpenXRManager::waitRenderToEye(uint32_t eyeIndex)
 	{
+		if (m_images.empty())
+		{
+			std::cerr << "XR_RUNTIME_ERROR no swapchain images on eye " << eyeIndex << "\n";
+			return;
+		}
+		else if (eyeIndex >= m_views.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not wait to render to eye, eye index out of bounds.\n";
+			return;
+		}
 		XrResult waited = utils::waitSwapchainImage(m_swapchains[eyeIndex]);
 		if (waited != XR_SUCCESS)
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not wait to write to swapchain on eye " << eyeIndex << ".\n";
+			std::cerr << waited << ": XR_RUNTIME_ERROR could not wait to write to swapchain on eye " << eyeIndex << ".\n";
 		}
 	}
 
 	void OpenXRManager::endRenderToEye(uint32_t eyeIndex)
 	{
-		if (m_swapchains.empty()) return;
+		if (m_swapchains.empty())
+		{
+			std::cerr << "XR_RUNTIME_ERROR no swapchains to release images from.\n";
+			return;
+		}
+		else if (eyeIndex >= m_views.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not end render to eye, eye index out of bounds.\n";
+			return;
+		}
 
 		XrResult imageReleased = utils::releaseSwapchainImage(m_swapchains[eyeIndex]);
 		if (imageReleased != XR_SUCCESS)
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not release swapchain image on eye " << eyeIndex << ".\n";
+			std::cerr << imageReleased << ": XR_RUNTIME_ERROR could not release swapchain image on eye " << eyeIndex << ".\n";
 			return;
 		}
 	}
 
 	void OpenXRManager::waitFrame()
 	{
-		if (m_session == XR_NULL_HANDLE) return;
+		if (m_session == XR_NULL_HANDLE)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not wait frame, session does not exist.\n";
+			return;
+		}
 		XrFrameWaitInfo info = { XR_TYPE_FRAME_WAIT_INFO };
 		xrWaitFrame(m_session, &info, &m_frameState);
 	}
 
 	void OpenXRManager::beginFrame()
 	{
-		if (m_session == XR_NULL_HANDLE) return;
+		if (m_session == XR_NULL_HANDLE)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not begin frame, session does not exist.\n";
+			return;
+		}
 		XrFrameBeginInfo info = { XR_TYPE_FRAME_BEGIN_INFO };
 		xrBeginFrame(m_session, &info);
-		
-		uint32_t viewCount = getEyeCount();
 
-		XrResult gotViews = utils::getViews(m_viewType, m_frameState, m_referenceSpace, m_session, viewCount, &m_views);
+		XrResult gotViews = utils::getViews(m_viewType, m_frameState, m_referenceSpace, m_session, &m_views);
 		if (gotViews != XR_SUCCESS)
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not locate views.\n" << gotViews;
+			std::cerr << gotViews << ": XR_RUNTIME_ERROR could not locate views." << "\n";
 		}
 	}
 
 	void OpenXRManager::endFrame()
 	{
-		if (m_session == XR_NULL_HANDLE) return;
+		if (m_session == XR_NULL_HANDLE)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not end frame, session does not exist.\n";
+			return;
+		}
 
-		std::vector<XrCompositionLayerProjectionView> projectionViews = { };
+		std::vector<XrCompositionLayerProjectionView> projectionViews(getEyeCount());
+		
 		for (uint32_t i = 0; i < getEyeCount(); ++i)
 		{
 			projectionViews[i] = { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW };
+
 			projectionViews[i].pose = m_views[i].pose;
 			projectionViews[i].fov = m_views[i].fov;
 			projectionViews[i].subImage.swapchain = m_swapchains[i];
@@ -245,17 +279,21 @@ namespace ImmersiveEngine::XR
 
 	uint32_t OpenXRManager::getEyeCount()
 	{
-		if (m_connectedSystemID == XR_NULL_SYSTEM_ID || m_views.empty()) return 0;
+		if (m_connectedSystemID == XR_NULL_SYSTEM_ID || m_views.empty())
+		{
+			std::cerr << "No eyes!\n";
+			return 0;
+		}
 		return m_views.size();
 	}
 	XrViewConfigurationView OpenXRManager::getViewConfig(uint32_t eyeIndex)
 	{
 		if (m_viewConfigs.empty())
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not get view configurations, does not exist.\n";
+			std::cerr << "XR_RUNTIME_ERROR could not get view configurations, no view configs initialized.\n";
 			return XrViewConfigurationView();
 		}
-		if (eyeIndex >= m_viewConfigs.size())
+		else if (eyeIndex >= m_viewConfigs.size())
 		{
 			std::cerr << "XR_RUNTIME_ERROR could not get view config, eye index out of bounds.\n";
 			return XrViewConfigurationView();
@@ -264,12 +302,12 @@ namespace ImmersiveEngine::XR
 	}
 	XrView OpenXRManager::getView(uint32_t eyeIndex)
 	{
-		if (m_viewConfigs.empty())
+		if (m_views.empty())
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not get view, does not exist.\n";
+			std::cerr << "XR_RUNTIME_ERROR could not get view, no views initialized.\n";
 			return XrView();
 		}
-		if (eyeIndex >= m_viewConfigs.size())
+		else if (eyeIndex >= m_views.size())
 		{
 			std::cerr << "XR_RUNTIME_ERROR could not get view, eye index out of bounds.\n";
 			return XrView();
@@ -293,7 +331,7 @@ namespace ImmersiveEngine::XR
 		XrResult imageIndexAcquired = utils::acquireSwapchainImage(m_swapchains[eyeIndex], &imageIndex);
 		if (imageIndexAcquired != XR_SUCCESS)
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not acquire swapchain image index on eye " << eyeIndex << ".\n";
+			std::cerr << imageIndexAcquired << ": XR_RUNTIME_ERROR could not acquire swapchain image index on eye " << eyeIndex << "\n";
 			return 0;
 		}
 
