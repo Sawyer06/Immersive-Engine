@@ -68,10 +68,12 @@ int main()
 	glfwSwapInterval(0); // vsync off
 
 	bool openInVR = true;
+	std::vector<FBO> eyeFBO;
 	ImmersiveEngine::XR::OpenXRManager xr;
 	if (openInVR)
 	{
 		xr.establishConnection();
+		eyeFBO.resize(xr.getEyeCount());
 	}
 
 	glEnable(GL_BLEND);
@@ -110,7 +112,7 @@ int main()
 
 	ImmersiveEngine::cbs::Present lightA;
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
-	ImmersiveEngine::cbs::Light* lightComp = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
+	ImmersiveEngine::cbs::Light* lightCompA = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightA.space->position.y += -0.2f;
 	lightA.space->position.x += 1;
 	lightA.space->position.z += 1;
@@ -257,32 +259,9 @@ int main()
 		//primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
 		//primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
 
-		FBO.Bind();
-		glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
-		glEnable(GL_DEPTH_TEST);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, ImmersiveEngine::Settings::g_screenWidth, ImmersiveEngine::Settings::g_screenHeight);
-
-		int width, height;
-		glfwGetWindowSize(window, &width, &height);
-		FBO.Resize(width, height);
-		
-		shaderProgram.Activate();
-
-		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenWidth / ImmersiveEngine::Settings::g_screenHeight);
-
-		lightA.space->refreshTransforms(shaderProgram);
-		lightComp->refreshLight(shaderProgram, spaceComp->position);
-		cam.space->refreshTransforms(shaderProgram);
-
-		plane.space->refreshTransforms(shaderProgram);
-		plane.mesh->draw(shaderProgram);
-
-		primitive.space->refreshTransforms(shaderProgram);
-		primitive.mesh->draw(shaderProgram);
-
 		if (openInVR && xr.sessionRunning)
 		{
+
 			//std::cout << "Session is running.\n";
 			xr.waitFrame();
 			xr.beginFrame();
@@ -297,8 +276,8 @@ int main()
 				XrViewConfigurationView viewConfig = xr.getViewConfig(i);
 				XrView view = xr.getView(i);
 
-				FBO.Bind();
-				FBO.AttachExternalTexture(image, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
+				eyeFBO[i].Bind();
+				eyeFBO[i].AttachExternalTexture(image, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 				//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
 
 				glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
@@ -316,7 +295,7 @@ int main()
 				primitive.space->refreshTransforms(shaderProgram);
 				primitive.mesh->draw(shaderProgram);
 
-				FBO.Unbind();
+				eyeFBO[i].Unbind();
 
 				glDisable(GL_CULL_FACE);
 				glDisable(GL_DEPTH_TEST);
@@ -325,13 +304,38 @@ int main()
 				glViewport(0, 0, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 
 				screenShader.Activate();
-				FBO.DrawScreen();
+				eyeFBO[i].DrawScreen();
 
 				xr.endRenderToEye(i);
 			}
 			xr.endFrame();
 		}
 		
+		FBO.Bind();
+		glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
+		glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, ImmersiveEngine::Settings::g_screenWidth, ImmersiveEngine::Settings::g_screenHeight);
+
+		int width, height;
+		glfwGetWindowSize(window, &width, &height);
+		FBO.Resize(width, height);
+
+		shaderProgram.Activate();
+
+		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenWidth / ImmersiveEngine::Settings::g_screenHeight);
+
+		lightA.space->refreshTransforms(shaderProgram);
+		lightCompA->refreshLight(shaderProgram, spaceComp->position);
+
+		cam.space->refreshTransforms(shaderProgram);
+
+		plane.space->refreshTransforms(shaderProgram);
+		plane.mesh->draw(shaderProgram);
+
+		primitive.space->refreshTransforms(shaderProgram);
+		primitive.mesh->draw(shaderProgram);
+
 		FBO.Unbind();
 
 		glDisable(GL_CULL_FACE);
@@ -342,7 +346,7 @@ int main()
 
 		screenShader.Activate();
 		FBO.DrawScreen();
-		
+
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
