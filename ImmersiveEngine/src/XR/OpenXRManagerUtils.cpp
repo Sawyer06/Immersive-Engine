@@ -97,11 +97,11 @@ namespace utils
 	}
 
 	/// Create a swapchain (a reel of buffers) for a specific eye view.
-	XrResult createSwapchain(XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain)
+	XrResult createSwapchain(uint64_t& format, XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain)
 	{
 		XrSwapchainCreateInfo info = { XR_TYPE_SWAPCHAIN_CREATE_INFO };
-		info.usageFlags = XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
-		info.format = GL_SRGB8_ALPHA8;
+		info.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
+		info.format = format;
 		info.sampleCount = view.recommendedSwapchainSampleCount;
 		info.width = view.recommendedImageRectWidth;
 		info.height = view.maxImageRectHeight;

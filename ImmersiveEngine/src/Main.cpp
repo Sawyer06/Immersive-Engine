@@ -269,7 +269,8 @@ int main()
 			for (uint32_t i = 0; i < xr.getEyeCount(); ++i)
 			{
 				//std::cout << "Rendering eye: " << i << "\n";
-				GLuint image = xr.getFrameImage(i);
+				GLuint colorImage = xr.getFrameColorImage(i);
+				GLuint depthImage = xr.getFrameDepthImage(i);
 				//std::cout << image << "\n";
 				xr.waitRenderToEye(i);
 
@@ -277,10 +278,12 @@ int main()
 				XrView view = xr.getView(i);
 
 				eyeFBO[i].Bind();
-				eyeFBO[i].AttachExternalTexture(image, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
+				eyeFBO[i].AttachExternalTexture(GL_COLOR_ATTACHMENT0, colorImage, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
+				eyeFBO[i].AttachExternalTexture(GL_DEPTH_ATTACHMENT, depthImage, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 				//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
 
 				glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
+				glClearDepth(1.0f);
 				glEnable(GL_DEPTH_TEST);
 				glEnable(GL_CULL_FACE);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -304,14 +307,14 @@ int main()
 				glViewport(0, 0, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 
 				screenShader.Activate();
-				eyeFBO[i].DrawScreen();
+				//eyeFBO[i].DrawScreen();
 
 				xr.endRenderToEye(i);
 			}
 			xr.endFrame();
 		}
 		
-		FBO.Bind();
+		/*FBO.Bind();
 		glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -345,7 +348,7 @@ int main()
 		glViewport(0, 0, ImmersiveEngine::Settings::g_screenWidth, ImmersiveEngine::Settings::g_screenHeight);
 
 		screenShader.Activate();
-		FBO.DrawScreen();
+		FBO.DrawScreen();*/
 
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.

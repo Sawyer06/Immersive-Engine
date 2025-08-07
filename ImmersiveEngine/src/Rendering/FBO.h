@@ -11,7 +11,7 @@ class FBO
 		FBO();
 
 		void Resize(GLuint width, GLuint height);
-		void AttachExternalTexture(GLuint& image, GLuint width, GLuint height);
+		void AttachExternalTexture(GLuint attachment, GLuint& image, GLuint width, GLuint height);
 		void DrawScreen();
 		void Bind();
 		void Unbind();

@@ -15,7 +15,10 @@ namespace ImmersiveEngine::XR
 			XrSession m_session = XR_NULL_HANDLE;
 			std::vector<XrView> m_views = { };
 			std::vector<XrViewConfigurationView> m_viewConfigs = { };
-			std::vector<XrSwapchain> m_swapchains = { };
+			
+			std::vector<utils::SwapchainInfo> m_colorSwapchainInfos = { };
+			std::vector<utils::SwapchainInfo> m_depthSwapchainInfos = { };
+
 			std::vector<std::vector<XrSwapchainImageOpenGLKHR>> m_images = { };
 			XrSpace m_referenceSpace = XR_NULL_HANDLE;
 			XrFrameState m_frameState = { XR_TYPE_FRAME_STATE };
@@ -46,7 +49,8 @@ namespace ImmersiveEngine::XR
 			XrViewConfigurationView getViewConfig(uint32_t eyeIndex);
 			XrView getView(uint32_t eyeIndex);
 
-			uint32_t getFrameImage(uint32_t eyeIndex);
+			uint32_t getFrameColorImage(uint32_t eyeIndex);
+			uint32_t getFrameDepthImage(uint32_t eyeIndex);
 
 			std::string toString();
 	};

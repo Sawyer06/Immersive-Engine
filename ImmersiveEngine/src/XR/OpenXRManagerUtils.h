@@ -22,6 +22,13 @@
 
 namespace utils
 {
+	struct SwapchainInfo 
+	{
+		XrSwapchain swapchain = XR_NULL_HANDLE;
+		int64_t format = 0;
+		std::vector<XrSwapchainImageOpenGLKHR> images = { };
+	};
+
 	XrApplicationInfo generateApplicationInfo(std::string appName, uint32_t appVersion, std::string engineName, uint32_t engineVersion);
 
 	XrResult getGraphicsRequirements(XrInstance& instance, XrSystemId& systemID, XrGraphicsRequirementsOpenGLKHR* o_graphicsRequirements);
@@ -32,7 +39,7 @@ namespace utils
 
 	XrResult createInstance(XrApplicationInfo& app, std::vector<const char*> extensions, XrInstance* o_instance);
 	XrResult createSession(XrInstance& instance, XrSystemId& systemID, XrSession* o_session);
-	XrResult createSwapchain(XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain);
+	XrResult createSwapchain(uint64_t& format, XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain);
 	XrResult createReferenceSpace(XrReferenceSpaceType& type, XrSession& session, XrSpace* o_referenceSpace);
 
 	XrResult enumerateSwapchainImages(XrSwapchain& swapchain, std::vector<XrSwapchainImageOpenGLKHR>* o_images);

@@ -8,12 +8,13 @@ namespace ImmersiveEngine::XR
 	{
 		for (uint32_t i = 0; i < m_viewConfigs.size(); ++i)
 		{
-			utils::destroySwapchain(m_swapchains[i]);
+			utils::destroySwapchain(m_colorSwapchainInfos[i].swapchain);
+			utils::destroySwapchain(m_depthSwapchainInfos[i].swapchain);
 		}
 		utils::destroySession(m_session);
 		utils::destroyInstance(m_instance);
-		m_swapchains.clear();
-		m_images.clear();
+		m_colorSwapchainInfos.clear();
+		m_depthSwapchainInfos.clear();
 		m_views.clear();
 		m_viewConfigs.clear();
 	}
@@ -71,20 +72,39 @@ namespace ImmersiveEngine::XR
 		}
 
 		m_views.resize(m_viewConfigs.size());
-		m_swapchains.resize(m_viewConfigs.size());
-		m_images.resize(m_viewConfigs.size());
-		for (uint32_t i = 0; i < m_swapchains.size(); ++i)
+		m_colorSwapchainInfos.resize(m_viewConfigs.size());
+		m_depthSwapchainInfos.resize(m_viewConfigs.size());
+
+		for (uint32_t i = 0; i < m_viewConfigs.size(); ++i)
 		{
-			XrResult createdSwapchains = utils::createSwapchain(m_viewConfigs[i], m_session, &m_swapchains[i]);
-			if (createdSwapchains != XR_SUCCESS)
+			uint64_t colorFormat = GL_SRGB8_ALPHA8;
+			XrResult createdColorSwapchain = utils::createSwapchain(colorFormat, m_viewConfigs[i], m_session, &m_colorSwapchainInfos[i].swapchain);
+			m_colorSwapchainInfos[i].format = colorFormat;
+			if (createdColorSwapchain != XR_SUCCESS)
 			{
-				std::cerr << "XR_INIT_ERROR could not create swapchain.\n";
+				std::cerr << "XR_INIT_ERROR could not create color swapchain.\n";
 				return;
 			}
-			XrResult gotImages = utils::enumerateSwapchainImages(m_swapchains[i], &m_images[i]);
-			if (gotImages != XR_SUCCESS)
+			
+			uint64_t depthFormat = GL_DEPTH24_STENCIL8;
+			XrResult createdDepthSwapchain = utils::createSwapchain(depthFormat, m_viewConfigs[i], m_session, &m_depthSwapchainInfos[i].swapchain);
+			m_depthSwapchainInfos[i].format = depthFormat;
+			if (createdDepthSwapchain != XR_SUCCESS)
 			{
-				std::cerr << "XR_INIT_ERROR could not acquire swapchain images.\n" << gotImages;
+				std::cerr << "XR_INIT_ERROR could not create depth swapchain.\n" << createdDepthSwapchain;
+				return;
+			}
+
+			XrResult gotColorImages = utils::enumerateSwapchainImages(m_colorSwapchainInfos[i].swapchain, &m_colorSwapchainInfos[i].images);
+			if (gotColorImages != XR_SUCCESS)
+			{
+				std::cerr << "XR_INIT_ERROR could not acquire color swapchain images.\n" << gotColorImages;
+				return;
+			}
+			XrResult gotDepthImages = utils::enumerateSwapchainImages(m_depthSwapchainInfos[i].swapchain, &m_depthSwapchainInfos[i].images);
+			if (gotDepthImages != XR_SUCCESS)
+			{
+				std::cerr << "XR_INIT_ERROR could not acquire color swapchain images.\n" << gotDepthImages;
 				return;
 			}
 		}
@@ -172,28 +192,40 @@ namespace ImmersiveEngine::XR
 
 	void OpenXRManager::waitRenderToEye(uint32_t eyeIndex)
 	{
-		if (m_images.empty())
-		{
-			std::cerr << "XR_RUNTIME_ERROR no swapchain images on eye " << eyeIndex << "\n";
-			return;
-		}
-		else if (eyeIndex >= m_views.size())
+		if (eyeIndex >= m_views.size())
 		{
 			std::cerr << "XR_RUNTIME_ERROR could not wait to render to eye, eye index out of bounds.\n";
 			return;
 		}
-		XrResult waited = utils::waitSwapchainImage(m_swapchains[eyeIndex]);
-		if (waited != XR_SUCCESS)
+
+		if (m_colorSwapchainInfos.empty())
 		{
-			std::cerr << waited << ": XR_RUNTIME_ERROR could not wait to write to swapchain on eye " << eyeIndex << ".\n";
+			std::cerr << "XR_RUNTIME_ERROR no swapchain color images on eye " << eyeIndex << "\n";
+			return;
+		}
+		XrResult waitedColor = utils::waitSwapchainImage(m_colorSwapchainInfos[eyeIndex].swapchain);
+		if (waitedColor != XR_SUCCESS)
+		{
+			std::cerr << waitedColor << ": XR_RUNTIME_ERROR could not wait to write to color swapchain on eye " << eyeIndex << ".\n";
+		}
+
+		if (m_depthSwapchainInfos.empty())
+		{
+			std::cerr << "XR_RUNTIME_ERROR no swapchain depth images on eye " << eyeIndex << "\n";
+			return;
+		}
+		XrResult waitedDepth = utils::waitSwapchainImage(m_depthSwapchainInfos[eyeIndex].swapchain);
+		if (waitedDepth != XR_SUCCESS)
+		{
+			std::cerr << waitedDepth << ": XR_RUNTIME_ERROR could not wait to write to depth swapchain on eye " << eyeIndex << ".\n";
 		}
 	}
 
 	void OpenXRManager::endRenderToEye(uint32_t eyeIndex)
 	{
-		if (m_swapchains.empty())
+		if (m_colorSwapchainInfos.empty())
 		{
-			std::cerr << "XR_RUNTIME_ERROR no swapchains to release images from.\n";
+			std::cerr << "XR_RUNTIME_ERROR no color swapchain infos to release images from.\n";
 			return;
 		}
 		else if (eyeIndex >= m_views.size())
@@ -201,11 +233,27 @@ namespace ImmersiveEngine::XR
 			std::cerr << "XR_RUNTIME_ERROR could not end render to eye, eye index out of bounds.\n";
 			return;
 		}
-
-		XrResult imageReleased = utils::releaseSwapchainImage(m_swapchains[eyeIndex]);
-		if (imageReleased != XR_SUCCESS)
+		XrResult colorImageReleased = utils::releaseSwapchainImage(m_colorSwapchainInfos[eyeIndex].swapchain);
+		if (colorImageReleased != XR_SUCCESS)
 		{
-			std::cerr << imageReleased << ": XR_RUNTIME_ERROR could not release swapchain image on eye " << eyeIndex << ".\n";
+			std::cerr << colorImageReleased << ": XR_RUNTIME_ERROR could not release swapchain color image on eye " << eyeIndex << ".\n";
+			return;
+		}
+
+		if (m_depthSwapchainInfos.empty())
+		{
+			std::cerr << "XR_RUNTIME_ERROR no depth swapchain infos to release images from.\n";
+			return;
+		}
+		else if (eyeIndex >= m_views.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not end render to eye, eye index out of bounds.\n";
+			return;
+		}
+		XrResult depthImageReleased = utils::releaseSwapchainImage(m_depthSwapchainInfos[eyeIndex].swapchain);
+		if (depthImageReleased != XR_SUCCESS)
+		{
+			std::cerr << colorImageReleased << ": XR_RUNTIME_ERROR could not release swapchain depth image on eye " << eyeIndex << ".\n";
 			return;
 		}
 	}
@@ -254,12 +302,14 @@ namespace ImmersiveEngine::XR
 
 			projectionViews[i].pose = m_views[i].pose;
 			projectionViews[i].fov = m_views[i].fov;
-			projectionViews[i].subImage.swapchain = m_swapchains[i];
+			projectionViews[i].subImage.swapchain = m_colorSwapchainInfos[i].swapchain;
 			projectionViews[i].subImage.imageRect.offset = { 0, 0 };
-			projectionViews[i].subImage.imageRect.extent = {
+			projectionViews[i].subImage.imageRect.extent = 
+			{
 				(int32_t)m_viewConfigs[i].recommendedImageRectWidth,
 				(int32_t)m_viewConfigs[i].recommendedImageRectHeight
 			};
+			projectionViews[i].subImage.imageArrayIndex = 0;
 		}
 		XrCompositionLayerProjection layer = { XR_TYPE_COMPOSITION_LAYER_PROJECTION };
 		layer.space = m_referenceSpace;
@@ -281,7 +331,7 @@ namespace ImmersiveEngine::XR
 	{
 		if (m_connectedSystemID == XR_NULL_SYSTEM_ID || m_views.empty())
 		{
-			std::cerr << "No eyes!\n";
+			std::cerr << "XR_RUNTIME_ERROR no eyes!\n";
 			return 0;
 		}
 		return m_views.size();
@@ -314,28 +364,52 @@ namespace ImmersiveEngine::XR
 		}
 		return m_views[eyeIndex];
 	}
-	uint32_t OpenXRManager::getFrameImage(uint32_t eyeIndex)
+	
+	uint32_t OpenXRManager::getFrameColorImage(uint32_t eyeIndex)
 	{
-		if (m_swapchains.empty() || m_images.empty())
+		if (m_colorSwapchainInfos.empty() || m_colorSwapchainInfos[eyeIndex].images.empty())
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not get frame image, initialized incorrectly.\n";
+			std::cerr << "XR_RUNTIME_ERROR could not get frame color image, initialized incorrectly.\n";
 			return 0;
 		}
-		if (eyeIndex >= m_views.size())
+		else if (eyeIndex >= m_views.size())
 		{
-			std::cerr << "XR_RUNTIME_ERROR could not get frame image, eye index out of bounds.\n";
+			std::cerr << "XR_RUNTIME_ERROR could not get frame depth image, eye index out of bounds.\n";
 			return 0;
 		}
 
 		uint32_t imageIndex;
-		XrResult imageIndexAcquired = utils::acquireSwapchainImage(m_swapchains[eyeIndex], &imageIndex);
+		XrResult imageIndexAcquired = utils::acquireSwapchainImage(m_colorSwapchainInfos[eyeIndex].swapchain, &imageIndex);
 		if (imageIndexAcquired != XR_SUCCESS)
 		{
-			std::cerr << imageIndexAcquired << ": XR_RUNTIME_ERROR could not acquire swapchain image index on eye " << eyeIndex << "\n";
+			std::cerr << imageIndexAcquired << ": XR_RUNTIME_ERROR could not acquire swapchain color image index on eye " << eyeIndex << "\n";
 			return 0;
 		}
 
-		return m_images[eyeIndex][imageIndex].image; // Get image by current eye (row) and next available image (column).
+		return m_colorSwapchainInfos[eyeIndex].images[imageIndex].image; // Get image by current eye (row) and next available image (column).
+	}
+	uint32_t OpenXRManager::getFrameDepthImage(uint32_t eyeIndex)
+	{
+		if (m_depthSwapchainInfos.empty() || m_depthSwapchainInfos[eyeIndex].images.empty())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not get frame depth image, initialized incorrectly.\n";
+			return 0;
+		}
+		else if (eyeIndex >= m_views.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not get frame depth image, eye index out of bounds.\n";
+			return 0;
+		}
+
+		uint32_t imageIndex;
+		XrResult imageIndexAcquired = utils::acquireSwapchainImage(m_depthSwapchainInfos[eyeIndex].swapchain, &imageIndex);
+		if (imageIndexAcquired != XR_SUCCESS)
+		{
+			std::cerr << imageIndexAcquired << ": XR_RUNTIME_ERROR could not acquire swapchain depth image index on eye " << eyeIndex << "\n";
+			return 0;
+		}
+
+		return m_depthSwapchainInfos[eyeIndex].images[imageIndex].image; // Get image by current eye (row) and next available image (column).
 	}
 
 	std::string OpenXRManager::toString()
