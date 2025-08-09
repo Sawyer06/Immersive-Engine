@@ -12,6 +12,8 @@ namespace ImmersiveEngine::XR
 			XrSystemProperties m_connectedSystemProperties = { XR_TYPE_SYSTEM_PROPERTIES };
 
 			XrInstance m_instance = XR_NULL_HANDLE;
+			XrInstanceProperties m_instanceProperties = { XR_TYPE_INSTANCE_PROPERTIES };
+
 			XrSession m_session = XR_NULL_HANDLE;
 			std::vector<XrView> m_views = { };
 			std::vector<XrViewConfigurationView> m_viewConfigs = { };
@@ -25,7 +27,11 @@ namespace ImmersiveEngine::XR
 
 			std::pair<XrSessionState, std::string> m_currentSessionState = { XR_SESSION_STATE_UNKNOWN, "XR_SESSION_STATE_UNKNOWN" }; // state, string debug info
 
-			std::vector<const char*> m_enabledExtensions = { XR_KHR_OPENGL_ENABLE_EXTENSION_NAME };
+			std::vector<const char*> m_activeAPILayers = { };
+			std::vector<const char*> m_activeExtensions = { };
+
+			std::vector<std::string> m_requestedAPILayers = { };
+			std::vector<std::string> m_requestedExtensions = { };
 
 			XrViewConfigurationType m_viewType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO; // Two views
 			XrReferenceSpaceType m_referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;

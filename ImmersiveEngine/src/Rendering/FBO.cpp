@@ -33,7 +33,7 @@ void FBO::SetUp(GLuint width, GLuint height)
 {
 	Bind();
 
-	/*glGenTextures(1, &m_texColorBuffer);
+	glGenTextures(1, &m_texColorBuffer);
 	glBindTexture(GL_TEXTURE_2D, m_texColorBuffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -45,13 +45,13 @@ void FBO::SetUp(GLuint width, GLuint height)
 	glGenRenderbuffers(1, &m_RBO);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO);*/
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		std::cout << "FBO_ERROR framebuffer is not complete.\n";
 	}
-	Unbind();
+	//Unbind();
 }
 
 void FBO::Resize(GLuint width, GLuint height)

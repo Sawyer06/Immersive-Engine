@@ -31,13 +31,16 @@ namespace utils
 
 	XrApplicationInfo generateApplicationInfo(std::string appName, uint32_t appVersion, std::string engineName, uint32_t engineVersion);
 
+	XrResult getInstanceProperties(XrInstance& instance, XrInstanceProperties* o_properties);
 	XrResult getGraphicsRequirements(XrInstance& instance, XrSystemId& systemID, XrGraphicsRequirementsOpenGLKHR* o_graphicsRequirements);
 	XrResult getXRSystemID(XrInstance& instance, XrSystemId* o_systemID);
 	XrResult getXRSystemProperties(XrInstance& instance, XrSystemId& systemID, XrSystemProperties* o_systemProperties);
 	XrResult getViewConfigurationViews(XrViewConfigurationType& viewType, XrInstance& instance, XrSystemId& systemID, std::vector<XrViewConfigurationView>* o_viewConfigs);
 	XrResult getViews(XrViewConfigurationType& viewType, XrFrameState& frameState, XrSpace& space, XrSession& session, std::vector<XrView>* o_views);
+	XrResult getAPILayerProperties(std::vector<XrApiLayerProperties>* o_properties);
+	XrResult getInstanceExtensionProperties(std::vector<XrExtensionProperties>* o_properties);
 
-	XrResult createInstance(XrApplicationInfo& app, std::vector<const char*> extensions, XrInstance* o_instance);
+	XrResult createInstance(XrApplicationInfo& app, std::vector<const char*> activeAPILayers, std::vector<const char*> activeExtensions, XrInstance* o_instance);
 	XrResult createSession(XrInstance& instance, XrSystemId& systemID, XrSession* o_session);
 	XrResult createSwapchain(uint64_t& format, XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain);
 	XrResult createReferenceSpace(XrReferenceSpaceType& type, XrSession& session, XrSpace* o_referenceSpace);

@@ -14,6 +14,10 @@ namespace utils
 		return app;
 	}
 
+	XrResult getInstanceProperties(XrInstance& instance, XrInstanceProperties* properties)
+	{
+		return xrGetInstanceProperties(instance, properties);
+	}
 	XrResult getGraphicsRequirements(XrInstance& instance, XrSystemId& systemID, XrGraphicsRequirementsOpenGLKHR* o_graphicsRequirements)
 	{
 		PFN_xrGetOpenGLGraphicsRequirementsKHR pfnGetOpenGLGraphicsRequirementsKHR = nullptr;
@@ -28,7 +32,7 @@ namespace utils
 	}
 	XrResult getXRSystemID(XrInstance& instance, XrSystemId* o_systemID)
 	{
-		XrSystemGetInfo info{ XR_TYPE_SYSTEM_GET_INFO };
+		XrSystemGetInfo info = { XR_TYPE_SYSTEM_GET_INFO };
 		info.formFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
 		return xrGetSystem(instance, &info, o_systemID);
 	}
@@ -65,15 +69,32 @@ namespace utils
 
 		return xrLocateViews(session, &info, &viewState, o_views->size(), &viewCount, o_views->data());
 	}
+	XrResult getAPILayerProperties(std::vector<XrApiLayerProperties>* o_properties)
+	{
+		uint32_t apiLayerCount = 0;
+		xrEnumerateApiLayerProperties(0, &apiLayerCount, nullptr);
+		o_properties->resize(apiLayerCount, { XR_TYPE_API_LAYER_PROPERTIES });
+		return xrEnumerateApiLayerProperties(apiLayerCount, &apiLayerCount, o_properties->data());
+	}
+	XrResult getInstanceExtensionProperties(std::vector<XrExtensionProperties>* o_properties)
+	{
+		uint32_t extensionCount = 0;
+		xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionCount, nullptr);
+		o_properties->resize(extensionCount, { XR_TYPE_EXTENSION_PROPERTIES });
+		return xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount, o_properties->data());
+	}
 
 	/// Create an instance to communicate with the runtime.
-	XrResult createInstance(XrApplicationInfo& app, std::vector<const char*> extensions, XrInstance* o_instance)
+	XrResult createInstance(XrApplicationInfo& app, std::vector<const char*> activeAPILayers, std::vector<const char*> activeExtensions, XrInstance* o_instance)
 	{
 		XrInstanceCreateInfo info = { XR_TYPE_INSTANCE_CREATE_INFO };
 		info.createFlags = 0;
 		info.applicationInfo = app;
-		info.enabledExtensionCount = extensions.size();
-		info.enabledExtensionNames = extensions.data();
+		
+		info.enabledApiLayerCount = static_cast<uint32_t>(activeAPILayers.size());
+		info.enabledApiLayerNames = activeAPILayers.data();
+		info.enabledExtensionCount = static_cast<uint32_t>(activeExtensions.size());
+		info.enabledExtensionNames = activeExtensions.data();
 
 		return xrCreateInstance(&info, o_instance);
 	}

@@ -2,7 +2,10 @@
 
 namespace ImmersiveEngine::XR
 {
-	OpenXRManager::OpenXRManager() { }
+	OpenXRManager::OpenXRManager() 
+	{ 
+		m_requestedExtensions.push_back(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME);
+	}
 
 	OpenXRManager::~OpenXRManager()
 	{
@@ -23,12 +26,78 @@ namespace ImmersiveEngine::XR
 	void OpenXRManager::establishConnection()
 	{
 		XrApplicationInfo app = utils::generateApplicationInfo("HelloWorld", 1, "ImmersiveEngine", 1);
-		XrResult instanceCreated = utils::createInstance(app, m_enabledExtensions, &m_instance);
+
+		std::vector<XrApiLayerProperties> apiLayerProperties;
+		XrResult apiLayersGotten = utils::getAPILayerProperties(&apiLayerProperties);
+		if (apiLayersGotten != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR could not get API layers from the OpenXR runtime.\n";
+			return;
+		}
+		
+		// Determine active API layers based on what is requested and what the runtime provides.
+		for (auto& requestedLayer : m_requestedAPILayers)
+		{
+			for (auto& layerProperty : apiLayerProperties)
+			{
+				// If the requested layer and the current gotten layer do not match, check next gotten layer.
+				if (strcmp(requestedLayer.c_str(), layerProperty.layerName) != 0) 
+				{
+					continue;
+				}
+				else // Once the requested API layer is found.
+				{
+					m_activeAPILayers.push_back(requestedLayer.c_str());
+					break;
+				}
+			}
+		}
+
+		std::vector<XrExtensionProperties> extensionProperties;
+		XrResult extensionsGotten = utils::getInstanceExtensionProperties(&extensionProperties);
+		if (extensionsGotten != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR could not get the extensions from the OpenXR instance.\n";
+			return;
+		}
+
+		// Determine active instance extensions based on what is requested and what the instance provides.
+		for (auto& requestedExtension : m_requestedExtensions)
+		{
+			bool found = false;
+			for (auto& extensionProperty : extensionProperties)
+			{
+				// If the requested extension and the current gotten extension do not match, check next gotten extension.
+				if (strcmp(requestedExtension.c_str(), extensionProperty.extensionName) != 0) 
+				{
+					continue;
+				}
+				else // Once the requested instance extension is found.
+				{
+					m_activeExtensions.push_back(requestedExtension.c_str());
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				std::cerr << "XR_INIT_ERROR could not find requested OpenXR extension: " << requestedExtension << "\n";
+			}
+		}
+
+		XrResult instanceCreated = utils::createInstance(app, m_activeAPILayers, m_activeExtensions, &m_instance);
 		if (instanceCreated != XR_SUCCESS)
 		{
 			std::cerr << "XR_INIT_ERROR could not create instance.\n";
 			return;
 		}
+		XrResult gotInstanceProperties = utils::getInstanceProperties(m_instance, &m_instanceProperties);
+		if (gotInstanceProperties != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR could not get instance properties.\n";
+			return;
+		}
+
 		XrResult gotSystemID = utils::getXRSystemID(m_instance, &m_connectedSystemID);
 		if (gotSystemID != XR_SUCCESS)
 		{
@@ -329,9 +398,9 @@ namespace ImmersiveEngine::XR
 
 	uint32_t OpenXRManager::getEyeCount()
 	{
-		if (m_connectedSystemID == XR_NULL_SYSTEM_ID || m_views.empty())
+		if (m_connectedSystemID != XR_NULL_SYSTEM_ID && m_views.empty())
 		{
-			std::cerr << "XR_RUNTIME_ERROR no eyes!\n";
+			std::cerr << "XR_RUNTIME_ERROR no eyes were found on the connected device.\n";
 			return 0;
 		}
 		return m_views.size();
@@ -414,8 +483,28 @@ namespace ImmersiveEngine::XR
 
 	std::string OpenXRManager::toString()
 	{
+		std::string layerLst = "";
+		for (const std::string& layer : m_activeAPILayers)
+		{
+			layerLst.append("\n\t");
+			layerLst.append(layer);
+		}
+
+		std::string extensionsLst = "";
+		for (const std::string& extension : m_activeExtensions)
+		{
+			extensionsLst.append("\n\t");
+			extensionsLst.append(extension);
+		}
+
 		std::ostringstream oss;
-		oss << "[OPENXR MANAGER]" << "\nDevice: " << m_connectedSystemProperties.systemName << "\nCurrent State: " << m_currentSessionState.second << "\n";
+		oss << "\n[OPENXR MANAGER]" 
+			<< "\nDevice: " << m_connectedSystemProperties.systemName
+			<< "\nCurrent State: " << m_currentSessionState.second
+			<< "\nRuntime: " << m_instanceProperties.runtimeName << " version " << m_instanceProperties.runtimeVersion
+			<< "\nActive API Layers: " << layerLst
+			<< "\nActive Extensions: " << extensionsLst
+			<< "\n";
 		return oss.str();
 	}
 }

@@ -162,6 +162,10 @@ int main()
 		}
 
 		processInput(window); // Get inputs.
+		if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+		{
+			std::cout << xr.toString();
+		}
 
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
@@ -194,7 +198,6 @@ int main()
 			lastX = mouseX;
 			lastY = mouseY;
 		}
-
 
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 		{
@@ -307,14 +310,14 @@ int main()
 				glViewport(0, 0, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 
 				screenShader.Activate();
-				//eyeFBO[i].DrawScreen();
+				eyeFBO[i].DrawScreen();
 
 				xr.endRenderToEye(i);
 			}
 			xr.endFrame();
 		}
 		
-		/*FBO.Bind();
+		FBO.Bind();
 		glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -348,7 +351,7 @@ int main()
 		glViewport(0, 0, ImmersiveEngine::Settings::g_screenWidth, ImmersiveEngine::Settings::g_screenHeight);
 
 		screenShader.Activate();
-		FBO.DrawScreen();*/
+		FBO.DrawScreen();
 
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
