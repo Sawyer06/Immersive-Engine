@@ -23,7 +23,7 @@ namespace utils
 		PFN_xrGetOpenGLGraphicsRequirementsKHR pfnGetOpenGLGraphicsRequirementsKHR = nullptr;
 		xrGetInstanceProcAddr(instance, "xrGetOpenGLGraphicsRequirementsKHR", (PFN_xrVoidFunction*)(&pfnGetOpenGLGraphicsRequirementsKHR));
 
-		if (pfnGetOpenGLGraphicsRequirementsKHR) 
+		if (pfnGetOpenGLGraphicsRequirementsKHR)
 		{
 			return pfnGetOpenGLGraphicsRequirementsKHR(instance, systemID, o_graphicsRequirements);
 		}
@@ -118,10 +118,10 @@ namespace utils
 	}
 
 	/// Create a swapchain (a reel of buffers) for a specific eye view.
-	XrResult createSwapchain(uint64_t& format, XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain)
+	XrResult createSwapchain(XrSwapchainUsageFlags& flags, uint64_t& format, XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain)
 	{
 		XrSwapchainCreateInfo info = { XR_TYPE_SWAPCHAIN_CREATE_INFO };
-		info.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
+		info.usageFlags = flags;
 		info.format = format;
 		info.sampleCount = view.recommendedSwapchainSampleCount;
 		info.width = view.recommendedImageRectWidth;
@@ -197,6 +197,13 @@ namespace utils
 		if (swapchain == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
 		XrResult destroyed = xrDestroySwapchain(swapchain);
 		swapchain = XR_NULL_HANDLE;
+		return destroyed;
+	}
+	XrResult destroyReferenceSpace(XrSpace& space)
+	{
+		if (space == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
+		XrResult destroyed = destroyReferenceSpace(space);
+		space = XR_NULL_HANDLE;
 		return destroyed;
 	}
 }

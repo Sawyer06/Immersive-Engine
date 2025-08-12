@@ -42,7 +42,7 @@ namespace utils
 
 	XrResult createInstance(XrApplicationInfo& app, std::vector<const char*> activeAPILayers, std::vector<const char*> activeExtensions, XrInstance* o_instance);
 	XrResult createSession(XrInstance& instance, XrSystemId& systemID, XrSession* o_session);
-	XrResult createSwapchain(uint64_t& format, XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain);
+	XrResult createSwapchain(XrSwapchainUsageFlags& flags, uint64_t& format, XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain);
 	XrResult createReferenceSpace(XrReferenceSpaceType& type, XrSession& session, XrSpace* o_referenceSpace);
 
 	XrResult enumerateSwapchainImages(XrSwapchain& swapchain, std::vector<XrSwapchainImageOpenGLKHR>* o_images);
@@ -53,5 +53,6 @@ namespace utils
 	XrResult destroyInstance(XrInstance& instance);
 	XrResult destroySession(XrSession& session);
 	XrResult destroySwapchain(XrSwapchain& swapchain);
+	XrResult destroyReferenceSpace(XrSpace& space);
 }
 #endif

@@ -271,9 +271,10 @@ int main()
 			
 			for (uint32_t i = 0; i < xr.getEyeCount(); ++i)
 			{
-				//std::cout << "Rendering eye: " << i << "\n";
 				GLuint colorImage = xr.getFrameColorImage(i);
 				GLuint depthImage = xr.getFrameDepthImage(i);
+
+				//std::cout << "Rendering eye: " << i << "\n";
 				//std::cout << image << "\n";
 				xr.waitRenderToEye(i);
 
@@ -286,7 +287,7 @@ int main()
 				//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
 
 				glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
-				glClearDepth(1.0f);
+				//glClearDepth(1.0f);
 				glEnable(GL_DEPTH_TEST);
 				glEnable(GL_CULL_FACE);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -316,20 +317,20 @@ int main()
 			}
 			xr.endFrame();
 		}
-		
+		int width, height;
+		glfwGetWindowSize(window, &width, &height);
+
 		FBO.Bind();
 		glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, ImmersiveEngine::Settings::g_screenWidth, ImmersiveEngine::Settings::g_screenHeight);
+		glViewport(0, 0, width, height);
 
-		int width, height;
-		glfwGetWindowSize(window, &width, &height);
 		FBO.Resize(width, height);
 
 		shaderProgram.Activate();
 
-		camComp->refreshViewProjection(shaderProgram, (float)ImmersiveEngine::Settings::g_screenWidth / ImmersiveEngine::Settings::g_screenHeight);
+		camComp->refreshViewProjection(shaderProgram, (float)width / height);
 
 		lightA.space->refreshTransforms(shaderProgram);
 		lightCompA->refreshLight(shaderProgram, spaceComp->position);
@@ -348,7 +349,7 @@ int main()
 		glDisable(GL_DEPTH_TEST);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glViewport(0, 0, ImmersiveEngine::Settings::g_screenWidth, ImmersiveEngine::Settings::g_screenHeight);
+		glViewport(0, 0, width, height);
 
 		screenShader.Activate();
 		FBO.DrawScreen();

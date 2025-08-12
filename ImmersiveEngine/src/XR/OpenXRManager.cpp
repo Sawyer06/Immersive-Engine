@@ -16,6 +16,8 @@ namespace ImmersiveEngine::XR
 		}
 		utils::destroySession(m_session);
 		utils::destroyInstance(m_instance);
+		utils::destroyReferenceSpace(m_referenceSpace);
+		
 		m_colorSwapchainInfos.clear();
 		m_depthSwapchainInfos.clear();
 		m_views.clear();
@@ -146,8 +148,9 @@ namespace ImmersiveEngine::XR
 
 		for (uint32_t i = 0; i < m_viewConfigs.size(); ++i)
 		{
+			XrSwapchainUsageFlags colorFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
 			uint64_t colorFormat = GL_SRGB8_ALPHA8;
-			XrResult createdColorSwapchain = utils::createSwapchain(colorFormat, m_viewConfigs[i], m_session, &m_colorSwapchainInfos[i].swapchain);
+			XrResult createdColorSwapchain = utils::createSwapchain(colorFlags, colorFormat, m_viewConfigs[i], m_session, &m_colorSwapchainInfos[i].swapchain);
 			m_colorSwapchainInfos[i].format = colorFormat;
 			if (createdColorSwapchain != XR_SUCCESS)
 			{
@@ -155,8 +158,9 @@ namespace ImmersiveEngine::XR
 				return;
 			}
 			
-			uint64_t depthFormat = GL_DEPTH24_STENCIL8;
-			XrResult createdDepthSwapchain = utils::createSwapchain(depthFormat, m_viewConfigs[i], m_session, &m_depthSwapchainInfos[i].swapchain);
+			XrSwapchainUsageFlags depthFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			uint64_t depthFormat = GL_DEPTH_COMPONENT32F;
+			XrResult createdDepthSwapchain = utils::createSwapchain(depthFlags, depthFormat, m_viewConfigs[i], m_session, &m_depthSwapchainInfos[i].swapchain);
 			m_depthSwapchainInfos[i].format = depthFormat;
 			if (createdDepthSwapchain != XR_SUCCESS)
 			{
@@ -346,7 +350,11 @@ namespace ImmersiveEngine::XR
 			return;
 		}
 		XrFrameBeginInfo info = { XR_TYPE_FRAME_BEGIN_INFO };
-		xrBeginFrame(m_session, &info);
+		XrResult beganFrame = xrBeginFrame(m_session, &info);
+		if (beganFrame != XR_SUCCESS)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not begin frame.\n";
+		}
 
 		XrResult gotViews = utils::getViews(m_viewType, m_frameState, m_referenceSpace, m_session, &m_views);
 		if (gotViews != XR_SUCCESS)
@@ -393,7 +401,12 @@ namespace ImmersiveEngine::XR
 		info.layerCount = 1;
 		info.layers = layers;
 
-		xrEndFrame(m_session, &info);
+		XrResult endedFrame = xrEndFrame(m_session, &info);
+
+		if (endedFrame != XR_SUCCESS)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not end frame.\n";
+		}
 	}
 
 	uint32_t OpenXRManager::getEyeCount()
@@ -455,7 +468,7 @@ namespace ImmersiveEngine::XR
 			return 0;
 		}
 
-		return m_colorSwapchainInfos[eyeIndex].images[imageIndex].image; // Get image by current eye (row) and next available image (column).
+		return m_colorSwapchainInfos[eyeIndex].images[imageIndex].image; // Get image by current eye and next available image.
 	}
 	uint32_t OpenXRManager::getFrameDepthImage(uint32_t eyeIndex)
 	{
@@ -478,7 +491,7 @@ namespace ImmersiveEngine::XR
 			return 0;
 		}
 
-		return m_depthSwapchainInfos[eyeIndex].images[imageIndex].image; // Get image by current eye (row) and next available image (column).
+		return m_depthSwapchainInfos[eyeIndex].images[imageIndex].image; // Get image by current eye and next available image.
 	}
 
 	std::string OpenXRManager::toString()

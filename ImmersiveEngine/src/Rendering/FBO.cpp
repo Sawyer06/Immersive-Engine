@@ -51,7 +51,7 @@ void FBO::SetUp(GLuint width, GLuint height)
 	{
 		std::cout << "FBO_ERROR framebuffer is not complete.\n";
 	}
-	//Unbind();
+	Unbind();
 }
 
 void FBO::Resize(GLuint width, GLuint height)
