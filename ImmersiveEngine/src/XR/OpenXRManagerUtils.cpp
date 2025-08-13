@@ -44,10 +44,10 @@ namespace utils
 	{
 		uint32_t viewCount = 0;
 		xrEnumerateViewConfigurationViews(instance, systemID, viewType, 0, &viewCount, nullptr); // First get number of view configs.
-		o_viewConfigs->resize(viewCount);
+		o_viewConfigs->resize(viewCount, { XR_TYPE_VIEW_CONFIGURATION_VIEW });
 		for (auto& viewConfig : *o_viewConfigs) 
 		{
-			viewConfig.type = XR_TYPE_VIEW_CONFIGURATION_VIEW;
+			//viewConfig.type = XR_TYPE_VIEW_CONFIGURATION_VIEW;
 		}
 
 		return xrEnumerateViewConfigurationViews(instance, systemID, viewType, viewCount, &viewCount, o_viewConfigs->data()); // Populate view configs list.
@@ -56,7 +56,7 @@ namespace utils
 	{
 		for (auto& view : *o_views)
 		{
-			view.type = XR_TYPE_VIEW;
+			//view.type = XR_TYPE_VIEW;
 		}
 
 		XrViewLocateInfo info = { XR_TYPE_VIEW_LOCATE_INFO };
@@ -155,10 +155,10 @@ namespace utils
 	{
 		uint32_t imageCount = 0;
 		xrEnumerateSwapchainImages(swapchain, 0, &imageCount, nullptr);
-		o_images->resize(imageCount);
+		o_images->resize(imageCount, { XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR });
 		for (auto& image : *o_images)
 		{
-			image.type = XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR;
+			//image.type = XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR;
 		}
 		return xrEnumerateSwapchainImages(swapchain, imageCount, &imageCount, (XrSwapchainImageBaseHeader*)o_images->data());
 	}

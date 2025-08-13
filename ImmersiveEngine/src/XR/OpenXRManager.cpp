@@ -2,8 +2,8 @@
 
 namespace ImmersiveEngine::XR
 {
-	OpenXRManager::OpenXRManager() 
-	{ 
+	OpenXRManager::OpenXRManager()
+	{
 		m_requestedExtensions.push_back(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME);
 	}
 
@@ -17,7 +17,7 @@ namespace ImmersiveEngine::XR
 		utils::destroySession(m_session);
 		utils::destroyInstance(m_instance);
 		utils::destroyReferenceSpace(m_referenceSpace);
-		
+
 		m_colorSwapchainInfos.clear();
 		m_depthSwapchainInfos.clear();
 		m_views.clear();
@@ -36,14 +36,14 @@ namespace ImmersiveEngine::XR
 			std::cerr << "XR_INIT_ERROR could not get API layers from the OpenXR runtime.\n";
 			return;
 		}
-		
+
 		// Determine active API layers based on what is requested and what the runtime provides.
 		for (auto& requestedLayer : m_requestedAPILayers)
 		{
 			for (auto& layerProperty : apiLayerProperties)
 			{
 				// If the requested layer and the current gotten layer do not match, check next gotten layer.
-				if (strcmp(requestedLayer.c_str(), layerProperty.layerName) != 0) 
+				if (strcmp(requestedLayer.c_str(), layerProperty.layerName) != 0)
 				{
 					continue;
 				}
@@ -70,7 +70,7 @@ namespace ImmersiveEngine::XR
 			for (auto& extensionProperty : extensionProperties)
 			{
 				// If the requested extension and the current gotten extension do not match, check next gotten extension.
-				if (strcmp(requestedExtension.c_str(), extensionProperty.extensionName) != 0) 
+				if (strcmp(requestedExtension.c_str(), extensionProperty.extensionName) != 0)
 				{
 					continue;
 				}
@@ -134,7 +134,7 @@ namespace ImmersiveEngine::XR
 			std::cerr << "XR_INIT_ERROR could not create a reference space.\n";
 			return;
 		}
-		
+
 		XrResult gotViewConfigs = utils::getViewConfigurationViews(m_viewType, m_instance, m_connectedSystemID, &m_viewConfigs);
 		if (gotViewConfigs != XR_SUCCESS)
 		{
@@ -142,7 +142,7 @@ namespace ImmersiveEngine::XR
 			return;
 		}
 
-		m_views.resize(m_viewConfigs.size());
+		m_views.resize(m_viewConfigs.size(), { XR_TYPE_VIEW });
 		m_colorSwapchainInfos.resize(m_viewConfigs.size());
 		m_depthSwapchainInfos.resize(m_viewConfigs.size());
 
@@ -157,7 +157,7 @@ namespace ImmersiveEngine::XR
 				std::cerr << "XR_INIT_ERROR could not create color swapchain.\n";
 				return;
 			}
-			
+
 			XrSwapchainUsageFlags depthFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 			uint64_t depthFormat = GL_DEPTH_COMPONENT32F;
 			XrResult createdDepthSwapchain = utils::createSwapchain(depthFlags, depthFormat, m_viewConfigs[i], m_session, &m_depthSwapchainInfos[i].swapchain);
@@ -198,60 +198,74 @@ namespace ImmersiveEngine::XR
 				auto* sessionStateChangedEvent = (XrEventDataSessionStateChanged*)&event;
 				switch (sessionStateChangedEvent->state)
 				{
-					case XR_SESSION_STATE_IDLE:
+				case XR_SESSION_STATE_IDLE:
+				{
+					m_currentSessionState = { XR_SESSION_STATE_IDLE, "IDLE" };
+					break;
+				}
+				case XR_SESSION_STATE_READY:
+				{
+					m_currentSessionState = { XR_SESSION_STATE_READY, "READY" };
+					XrSessionBeginInfo info = { XR_TYPE_SESSION_BEGIN_INFO };
+					info.primaryViewConfigurationType = m_viewType; // Two views
+					XrResult beganSession = xrBeginSession(m_session, &info);
+					if (beganSession != XR_SUCCESS)
 					{
-						m_currentSessionState = { XR_SESSION_STATE_IDLE, "IDLE" };
-						break;
+						std::cerr << beganSession << ": XR_RUNTIME_ERROR could not begin session.\n";
 					}
-					case XR_SESSION_STATE_READY:
+					else
 					{
-						m_currentSessionState = { XR_SESSION_STATE_READY, "READY" };
-						XrSessionBeginInfo info = { XR_TYPE_SESSION_BEGIN_INFO };
-						info.primaryViewConfigurationType = m_viewType; // Two views
-						xrBeginSession(m_session, &info);
 						sessionRunning = true;
-						break;
 					}
-					case XR_SESSION_STATE_SYNCHRONIZED:
+					break;
+				}
+				case XR_SESSION_STATE_SYNCHRONIZED:
+				{
+					m_currentSessionState = { XR_SESSION_STATE_SYNCHRONIZED, "SYNCHRONIZED" };
+					break;
+				}
+				case XR_SESSION_STATE_VISIBLE:
+				{
+					m_currentSessionState = { XR_SESSION_STATE_VISIBLE, "VISIBLE" };
+					break;
+				}
+				case XR_SESSION_STATE_FOCUSED:
+				{
+					m_currentSessionState = { XR_SESSION_STATE_FOCUSED, "FOCUSED" };
+					break;
+				}
+				case XR_SESSION_STATE_STOPPING:
+				{
+					m_currentSessionState = { XR_SESSION_STATE_STOPPING, "STOPPING" };
+					XrResult endedSession = xrEndSession(m_session);
+					if (endedSession != XR_SUCCESS)
 					{
-						m_currentSessionState = { XR_SESSION_STATE_SYNCHRONIZED, "SYNCHRONIZED" };
-						break;
+						std::cerr << endedSession << ": XR_RUNTIME_ERROR could not end session.\n";
 					}
-					case XR_SESSION_STATE_VISIBLE:
+					else
 					{
-						m_currentSessionState = { XR_SESSION_STATE_VISIBLE, "VISIBLE" };
-						break;
-					}
-					case XR_SESSION_STATE_FOCUSED:
-					{
-						m_currentSessionState = { XR_SESSION_STATE_FOCUSED, "FOCUSED" };
-						break;
-					}
-					case XR_SESSION_STATE_STOPPING:
-					{
-						m_currentSessionState = { XR_SESSION_STATE_STOPPING, "STOPPING" };
-						xrEndSession(m_session);
 						sessionRunning = false;
-						break;
 					}
-					case XR_SESSION_STATE_LOSS_PENDING:
-					{
-						m_currentSessionState = { XR_SESSION_STATE_LOSS_PENDING, "STATE LOSS PENDING" };
+					break;
+				}
+				case XR_SESSION_STATE_LOSS_PENDING:
+				{
+					m_currentSessionState = { XR_SESSION_STATE_LOSS_PENDING, "STATE LOSS PENDING" };
 
-						sessionRunning = false;
-						break;
-					}
-					case XR_SESSION_STATE_EXITING:
-					{
-						m_currentSessionState = { XR_SESSION_STATE_EXITING, "EXITING" };
-						sessionRunning = false;
-						break;
-					}
-					default:
-					{
-						m_currentSessionState = { XR_SESSION_STATE_UNKNOWN, "UNKNOWN" };
-						break;
-					}
+					sessionRunning = false;
+					break;
+				}
+				case XR_SESSION_STATE_EXITING:
+				{
+					m_currentSessionState = { XR_SESSION_STATE_EXITING, "EXITING" };
+					sessionRunning = false;
+					break;
+				}
+				default:
+				{
+					m_currentSessionState = { XR_SESSION_STATE_UNKNOWN, "UNKNOWN" };
+					break;
+				}
 				}
 			}
 			else if (event.type == XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING) // Application is about to lose the instance.
@@ -339,7 +353,11 @@ namespace ImmersiveEngine::XR
 			return;
 		}
 		XrFrameWaitInfo info = { XR_TYPE_FRAME_WAIT_INFO };
-		xrWaitFrame(m_session, &info, &m_frameState);
+		XrResult waitedFrame = xrWaitFrame(m_session, &info, &m_frameState);
+		if (waitedFrame != XR_SUCCESS)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not wait frame.\n";
+		}
 	}
 
 	void OpenXRManager::beginFrame()
@@ -370,10 +388,13 @@ namespace ImmersiveEngine::XR
 			std::cerr << "XR_RUNTIME_ERROR could not end frame, session does not exist.\n";
 			return;
 		}
+		const uint32_t eyeCount = getEyeCount();
 
-		std::vector<XrCompositionLayerProjectionView> projectionViews(getEyeCount());
-		
-		for (uint32_t i = 0; i < getEyeCount(); ++i)
+		std::vector<XrCompositionLayerBaseHeader*> layers;
+		std::vector<XrCompositionLayerProjectionView> projectionViews(eyeCount);
+		XrCompositionLayerProjection layerProjection = { XR_TYPE_COMPOSITION_LAYER_PROJECTION };
+
+		for (uint32_t i = 0; i < eyeCount; ++i)
 		{
 			projectionViews[i] = { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW };
 
@@ -388,18 +409,17 @@ namespace ImmersiveEngine::XR
 			};
 			projectionViews[i].subImage.imageArrayIndex = 0;
 		}
-		XrCompositionLayerProjection layer = { XR_TYPE_COMPOSITION_LAYER_PROJECTION };
-		layer.space = m_referenceSpace;
-		layer.viewCount = (uint32_t)projectionViews.size();
-		layer.views = projectionViews.data();
-
-		XrCompositionLayerBaseHeader* layers[] = { (XrCompositionLayerBaseHeader*)&layer };
+		layerProjection.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
+		layerProjection.space = m_referenceSpace;
+		layerProjection.viewCount = eyeCount;
+		layerProjection.views = projectionViews.data();
+		layers.push_back(reinterpret_cast<XrCompositionLayerBaseHeader*>(&layerProjection));
 
 		XrFrameEndInfo info = { XR_TYPE_FRAME_END_INFO };
 		info.displayTime = m_frameState.predictedDisplayTime;
 		info.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
-		info.layerCount = 1;
-		info.layers = layers;
+		info.layerCount = (uint32_t)layers.size();
+		info.layers = layers.data();
 
 		XrResult endedFrame = xrEndFrame(m_session, &info);
 
@@ -446,7 +466,7 @@ namespace ImmersiveEngine::XR
 		}
 		return m_views[eyeIndex];
 	}
-	
+
 	uint32_t OpenXRManager::getFrameColorImage(uint32_t eyeIndex)
 	{
 		if (m_colorSwapchainInfos.empty() || m_colorSwapchainInfos[eyeIndex].images.empty())
@@ -511,7 +531,7 @@ namespace ImmersiveEngine::XR
 		}
 
 		std::ostringstream oss;
-		oss << "\n[OPENXR MANAGER]" 
+		oss << "\n[OPENXR MANAGER]"
 			<< "\nDevice: " << m_connectedSystemProperties.systemName
 			<< "\nCurrent State: " << m_currentSessionState.second
 			<< "\nRuntime: " << m_instanceProperties.runtimeName << " version " << m_instanceProperties.runtimeVersion
