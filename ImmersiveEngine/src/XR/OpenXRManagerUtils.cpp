@@ -125,7 +125,7 @@ namespace utils
 		info.format = format;
 		info.sampleCount = view.recommendedSwapchainSampleCount;
 		info.width = view.recommendedImageRectWidth;
-		info.height = view.maxImageRectHeight;
+		info.height = view.recommendedImageRectHeight;
 		info.faceCount = 1;
 		info.arraySize = 1;
 		info.mipCount = 1;
@@ -141,6 +141,14 @@ namespace utils
 		info.poseInReferenceSpace = { {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f} };
 
 		return xrCreateReferenceSpace(session, &info, o_referenceSpace);
+	}
+
+	XrResult enumerateSwapchainFormats(XrSession& session, std::vector<int64_t>* o_formats)
+	{
+		uint32_t formatCount = 0;
+		xrEnumerateSwapchainFormats(session, 0, &formatCount, nullptr);
+		o_formats->resize(formatCount);
+		return xrEnumerateSwapchainFormats(session, formatCount, &formatCount, o_formats->data());
 	}
 
 	/// Get the index of the next available image in the swapchain.

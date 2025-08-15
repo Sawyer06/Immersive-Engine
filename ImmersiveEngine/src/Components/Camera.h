@@ -23,7 +23,7 @@ namespace ImmersiveEngine::cbs
 			float farPlane;
 
 			void refreshViewProjection(Shader& shaderProgram, const float aspectRatio);
-			void refreshViewProjection(Shader& shaderProgram, XrViewConfigurationView viewConfig, XrView view);
+			void refreshViewProjection(Shader& shaderProgram, XrView view);
 
 			std::string toString() override;
 	};

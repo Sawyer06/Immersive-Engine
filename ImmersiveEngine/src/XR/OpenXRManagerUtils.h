@@ -45,8 +45,9 @@ namespace utils
 	XrResult createSwapchain(XrSwapchainUsageFlags& flags, uint64_t& format, XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain);
 	XrResult createReferenceSpace(XrReferenceSpaceType& type, XrSession& session, XrSpace* o_referenceSpace);
 
-	XrResult enumerateSwapchainImages(XrSwapchain& swapchain, std::vector<XrSwapchainImageOpenGLKHR>* o_images);
+	XrResult enumerateSwapchainFormats(XrSession& session, std::vector<int64_t>* o_formats);
 	XrResult acquireSwapchainImage(XrSwapchain& swapchain, uint32_t* o_index);
+	XrResult enumerateSwapchainImages(XrSwapchain& swapchain, std::vector<XrSwapchainImageOpenGLKHR>* o_images);
 	XrResult waitSwapchainImage(XrSwapchain& swapchain);
 	XrResult releaseSwapchainImage(XrSwapchain& swapchain);
 

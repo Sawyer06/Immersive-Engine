@@ -241,21 +241,21 @@ int main()
 		{
 			if (cam.space->position.y > 0.0f)
 			{
-				cam.space->translate(-ImmersiveEngine::Math::Vector3::up * camSpeed);
+				//cam.space->translate(-ImmersiveEngine::Math::Vector3::up * camSpeed);
 			}
 			else
 			{
-				cam.space->position.y = 0;
+				//cam.space->position.y = 0;
 			}
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		{
-			camSpeed = 0.008f;
+			camSpeed = 0.05f;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 		{
-			camSpeed = 0.003f;
+			camSpeed = 0.02f;
 		}
 
 		//primitive.space->lookAt(cam.space->position);
@@ -284,17 +284,18 @@ int main()
 				eyeFBO[i].Bind();
 				eyeFBO[i].AttachExternalTexture(GL_COLOR_ATTACHMENT0, colorImage, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 				eyeFBO[i].AttachExternalTexture(GL_DEPTH_ATTACHMENT, depthImage, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
-				//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image, 0);
 
 				glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
-				//glClearDepth(1.0f);
+				glClearDepth(1.0f);
 				glEnable(GL_DEPTH_TEST);
 				glEnable(GL_CULL_FACE);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glViewport(0, 0, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
+				//FBO.Resize(viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 
 				shaderProgram.Activate();
-				camComp->refreshViewProjection(shaderProgram, viewConfig, view);
+				//camComp->refreshViewProjection(shaderProgram, (float)viewConfig.recommendedImageRectWidth / viewConfig.recommendedImageRectHeight);
+				camComp->refreshViewProjection(shaderProgram, view);
 
 				plane.space->refreshTransforms(shaderProgram);
 				plane.mesh->draw(shaderProgram);
@@ -312,6 +313,7 @@ int main()
 
 				screenShader.Activate();
 				eyeFBO[i].DrawScreen();
+				glFlush();
 
 				xr.endRenderToEye(i);
 			}

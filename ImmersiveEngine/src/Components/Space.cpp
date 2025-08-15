@@ -19,12 +19,6 @@ namespace ImmersiveEngine::cbs
 
         m_matrix = glm::translate(m_matrix, glm::vec3(-pivotPoint.x, -pivotPoint.y, -pivotPoint.z)); // Move back x, y, z
 
-        /*
-        m_matrix = glm::rotate(m_matrix, glm::radians(orientation.x), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotate x
-        m_matrix = glm::rotate(m_matrix, glm::radians(orientation.y), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate y
-        m_matrix = glm::rotate(m_matrix, glm::radians(orientation.z), glm::vec3(0.0f, 0.0f, 1.0f)); // Rotate z
-        */
-
         m_matrix = glm::scale(m_matrix, glm::vec3(scale.x, scale.y, scale.z)); // Scale x, y, z
 
         shaderProgram.setMat4("transform", m_matrix);
@@ -40,7 +34,7 @@ namespace ImmersiveEngine::cbs
         translate(pos);
     }
 
-    /// NONCOMMUTATIVE : ORDER OF OPERATIONS MATTER
+    /// NONCOMMUTATIVE -> ORDER OF OPERATIONS MATTER
     void Space::rotate(float angle, ImmersiveEngine::Math::Vector3 axis)
     {
         float angleRadians = glm::radians(angle);

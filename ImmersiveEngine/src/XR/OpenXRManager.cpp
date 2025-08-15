@@ -154,7 +154,7 @@ namespace ImmersiveEngine::XR
 			m_colorSwapchainInfos[i].format = colorFormat;
 			if (createdColorSwapchain != XR_SUCCESS)
 			{
-				std::cerr << "XR_INIT_ERROR could not create color swapchain.\n";
+				std::cerr << "XR_INIT_ERROR could not create color swapchain.\n" << createdColorSwapchain;
 				return;
 			}
 
@@ -533,6 +533,7 @@ namespace ImmersiveEngine::XR
 		std::ostringstream oss;
 		oss << "\n[OPENXR MANAGER]"
 			<< "\nDevice: " << m_connectedSystemProperties.systemName
+			<< "\nSession Running: " << (sessionRunning ? "true" : "false")
 			<< "\nCurrent State: " << m_currentSessionState.second
 			<< "\nRuntime: " << m_instanceProperties.runtimeName << " version " << m_instanceProperties.runtimeVersion
 			<< "\nActive API Layers: " << layerLst
