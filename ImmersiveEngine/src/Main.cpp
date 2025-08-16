@@ -99,13 +99,24 @@ int main()
 
 	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	Texture* stone = new Texture("stone.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* brick = new Texture("brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
 	auto planeMesh = std::make_shared<Mesh>(Mesh::generatePlane(3, 5));
-	
 	ImmersiveEngine::cbs::Present plane("Plane", planeMesh);
 	plane.mesh->setTexture(stone);
 	plane.space->dialate(5.0f);
 	plane.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, -6.0f));
+
+	auto wallMesh = std::make_shared<Mesh>(Mesh::generateSquare(3));
+	ImmersiveEngine::cbs::Present wallA("Wall", wallMesh);
+	wallA.mesh->setTexture(brick);
+	wallA.space->dialate(4.0f);
+	wallA.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -1.0f, -6.0f));
+	ImmersiveEngine::cbs::Present wallB("Wall", wallMesh);
+	wallB.mesh->setTexture(brick);
+	wallB.space->dialate(4.0f);
+	wallB.space->translate(ImmersiveEngine::Math::Vector3(-3.0f, -1.0f, -3.0f));
+	wallB.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::up);
 
 	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateCube(1));
 	auto primitiveMeshB = std::make_shared<Mesh>(Mesh::generateSquarePyramid(0.5f, 0.5f));
@@ -259,8 +270,8 @@ int main()
 		}
 
 		//primitive.space->lookAt(cam.space->position);
-		//primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
-		//primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
+		primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
+		primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
 
 		if (openInVR && xr.sessionRunning)
 		{
@@ -299,6 +310,11 @@ int main()
 
 				plane.space->refreshTransforms(shaderProgram);
 				plane.mesh->draw(shaderProgram);
+
+				wallA.space->refreshTransforms(shaderProgram);
+				wallA.mesh->draw(shaderProgram);
+				wallB.space->refreshTransforms(shaderProgram);
+				wallB.mesh->draw(shaderProgram);
 												
 				primitive.space->refreshTransforms(shaderProgram);
 				primitive.mesh->draw(shaderProgram);
@@ -342,6 +358,11 @@ int main()
 		plane.space->refreshTransforms(shaderProgram);
 		plane.mesh->draw(shaderProgram);
 
+		wallA.space->refreshTransforms(shaderProgram);
+		wallA.mesh->draw(shaderProgram);
+		wallB.space->refreshTransforms(shaderProgram);
+		wallB.mesh->draw(shaderProgram);
+
 		primitive.space->refreshTransforms(shaderProgram);
 		primitive.mesh->draw(shaderProgram);
 
@@ -363,6 +384,8 @@ int main()
 
 	sand->Delete();
 	stone->Delete();
+	brick->Delete();
+
 	shaderProgram.Delete();
 	screenShader.Delete();
 
