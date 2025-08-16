@@ -1,7 +1,7 @@
 #ifndef OPEN_XR_MANAGER_CLASS_H
 #define OPEN_XR_MANAGER_CLASS_H
 
-#include"OpenXRManagerUtils.h"
+#include"OpenXRUtils.h"
 
 namespace ImmersiveEngine::XR
 {
@@ -21,7 +21,6 @@ namespace ImmersiveEngine::XR
 			std::vector<utils::SwapchainInfo> m_colorSwapchainInfos = { };
 			std::vector<utils::SwapchainInfo> m_depthSwapchainInfos = { };
 
-			std::vector<std::vector<XrSwapchainImageOpenGLKHR>> m_images = { };
 			XrSpace m_referenceSpace = XR_NULL_HANDLE;
 			XrFrameState m_frameState = { XR_TYPE_FRAME_STATE };
 

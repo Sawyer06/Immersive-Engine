@@ -1,7 +1,7 @@
 #ifndef CAMERA_CLASS_H
 #define CAMERA_CLASS_H
 
-#include"../Objects/Present.h"
+#include"../Objects/Object.h"
 #include"Space.h"
 #include"../XR/OpenXRManager.h"
 

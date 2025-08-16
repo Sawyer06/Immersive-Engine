@@ -111,11 +111,11 @@
     <ClCompile Include="src\XR\OpenXRManager.cpp">
       <Filter>Source Files\XR</Filter>
     </ClCompile>
-    <ClCompile Include="src\XR\OpenXRManagerUtils.cpp">
-      <Filter>Source Files\XR</Filter>
-    </ClCompile>
     <ClCompile Include="src\Rendering\FBO.cpp">
       <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\XR\OpenXRUtils.cpp">
+      <Filter>Source Files\XR</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -173,11 +173,11 @@
     <ClInclude Include="src\XR\OpenXRManager.h">
       <Filter>Header Files\XR</Filter>
     </ClInclude>
-    <ClInclude Include="src\XR\OpenXRManagerUtils.h">
-      <Filter>Header Files\XR</Filter>
-    </ClInclude>
     <ClInclude Include="src\Rendering\FBO.h">
       <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\XR\OpenXRUtils.h">
+      <Filter>Header Files\XR</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
