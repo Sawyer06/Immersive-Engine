@@ -140,7 +140,10 @@ int main()
 	//lightComp->diffuse.color = ImmersiveEngine::Math::Vector3(200, 255, 0);
 	//lightComp->specular.intensity = 1.0f;
 	//lightComp->diffuse.intensity = 0.6f;
-	float camSpeed = 0.002f;
+	
+	float camWalkSpeed = 10.0f;
+	float camSprintSpeed = 30.0f;
+	float camSpeed = 0;
 
 	double mouseX = ImmersiveEngine::Settings::g_screenWidth / 2;
 	double mouseY = ImmersiveEngine::Settings::g_screenHeight / 2;
@@ -156,8 +159,15 @@ int main()
 	double timeDiff;
 	uint32_t counter = 0;
 
+	float x1 = 0;
+	float x2 = 0;
+
 	while (!glfwWindowShouldClose(window))
 	{
+		x2 = glfwGetTime();
+		float deltaTime = x2 - x1;
+		x1 = x2;
+
 		if (openInVR) xr.pollEvents();
 
 		crntTime = glfwGetTime();
@@ -210,68 +220,40 @@ int main()
 			lastY = mouseY;
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		{
-			cam.space->rotate(-0.05f, ImmersiveEngine::Math::Vector3::up);
-		}
-		else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		{
-			cam.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::up);
-		}
-		else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && cam.space->orientation.y < 0.4f)
-		{
-			cam.space->rotate(-0.05f, cam.space->getRight());
-		}
-		else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && cam.space->orientation.y > -0.4f)
-		{
-			cam.space->rotate(0.05f, cam.space->getRight());
-		}
-
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			cam.space->translate(-cam.space->getForward() * camSpeed);
+			cam.space->translate(-cam.space->getForward() * deltaTime * camSpeed);
 		}
 		else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		{
-			cam.space->translate(cam.space->getForward() * camSpeed);
+			cam.space->translate(cam.space->getForward() * camSpeed * deltaTime);
 		}
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		{
-			cam.space->translate(cam.space->getRight() * camSpeed);
+			cam.space->translate(cam.space->getRight() * camSpeed * deltaTime);
 		}
 		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		{
-			cam.space->translate(-cam.space->getRight() * camSpeed);
+			cam.space->translate(-cam.space->getRight() * camSpeed * deltaTime);
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
-			cam.space->translate(ImmersiveEngine::Math::Vector3::up * camSpeed);
-		}
-		else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
-		{
-			if (cam.space->position.y > 0.0f)
-			{
-				//cam.space->translate(-ImmersiveEngine::Math::Vector3::up * camSpeed);
-			}
-			else
-			{
-				//cam.space->position.y = 0;
-			}
+			cam.space->translate(ImmersiveEngine::Math::Vector3::up * camSpeed * deltaTime);
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		{
-			camSpeed = 0.05f;
+			camSpeed = camSprintSpeed;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 		{
-			camSpeed = 0.02f;
+			camSpeed = camWalkSpeed;
 		}
 
 		//primitive.space->lookAt(cam.space->position);
-		primitive.space->rotate(0.05f, ImmersiveEngine::Math::Vector3::right);
-		primitive.space->rotate(0.1f, ImmersiveEngine::Math::Vector3::forward);
+		primitive.space->rotate(15.0f * deltaTime, ImmersiveEngine::Math::Vector3::right);
+		primitive.space->rotate(20.0f * deltaTime, ImmersiveEngine::Math::Vector3::forward);
 
 		if (openInVR && xr.sessionRunning)
 		{
