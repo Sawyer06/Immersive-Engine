@@ -204,11 +204,10 @@
     <ClInclude Include="src\XR\OpenXRUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="src\brick.png" />
     <Image Include="src\cheeki.jpg" />
-    <Image Include="src\coconut.png" />
-    <Image Include="src\crab-body.png" />
-    <Image Include="src\crab-leg.png" />
     <Image Include="src\sand.jpg" />
+    <Image Include="src\stone.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
