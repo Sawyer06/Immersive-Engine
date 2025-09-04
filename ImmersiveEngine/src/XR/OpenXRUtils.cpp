@@ -143,6 +143,31 @@ namespace utils
 		return xrCreateReferenceSpace(session, &info, o_referenceSpace);
 	}
 
+	XrResult createActionSet(XrInstance& instance, const char* name, uint32_t& priority, XrActionSet* o_actionSet)
+	{
+		XrActionSetCreateInfo info = { XR_TYPE_ACTION_SET_CREATE_INFO };
+		strcpy(info.actionSetName, name);
+		strcpy(info.localizedActionSetName, name);
+		info.priority = priority;
+
+		return xrCreateActionSet(instance, &info, o_actionSet);
+	}
+	XrResult createAction(XrActionSet& actionSet, const char* name, XrActionType& type, std::vector<XrPath> subactionPaths, XrAction* o_action)
+	{
+		XrActionCreateInfo info = { XR_TYPE_ACTION_CREATE_INFO };
+		strcpy(info.actionName, name);
+		strcpy(info.localizedActionName, name);
+		info.actionType = type;
+		info.countSubactionPaths = subactionPaths.size();
+		info.subactionPaths = subactionPaths.data();
+
+		return xrCreateAction(actionSet, &info, o_action);
+	}
+	XrResult createPath(XrInstance& instance, const char* pathString, XrPath* o_path)
+	{
+		return xrStringToPath(instance, pathString, o_path);
+	}
+
 	XrResult enumerateSwapchainFormats(XrSession& session, std::vector<int64_t>* o_formats)
 	{
 		uint32_t formatCount = 0;
@@ -186,6 +211,37 @@ namespace utils
 		return xrReleaseSwapchainImage(swapchain, &info);
 	}
 
+	XrResult suggestBindings(XrInstance& instance, XrPath& interactionProfile, std::vector<XrActionSuggestedBinding>& bindings)
+	{
+		XrInteractionProfileSuggestedBinding suggestedBindings = { XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
+		suggestedBindings.interactionProfile = interactionProfile;
+		suggestedBindings.countSuggestedBindings = bindings.size();
+		suggestedBindings.suggestedBindings = bindings.data();
+		
+		return xrSuggestInteractionProfileBindings(instance, &suggestedBindings);
+	}
+	XrResult attachSessionActionSets(XrSession& session, std::vector<XrActionSet>& actionSets)
+	{
+		XrSessionActionSetsAttachInfo info = { XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO };
+		info.countActionSets = actionSets.size();
+		info.actionSets = actionSets.data();
+
+		return xrAttachSessionActionSets(session, &info);
+	}
+	XrResult syncActions(XrSession& session, std::vector<XrActionSet>& actionSets)
+	{
+		std::vector<XrActiveActionSet> activeActionSets;
+		for (XrActionSet set : actionSets)
+		{
+			activeActionSets.push_back({ set, XR_NULL_PATH });
+		}
+
+		XrActionsSyncInfo info = { XR_TYPE_ACTIONS_SYNC_INFO };
+		info.countActiveActionSets = activeActionSets.size();
+		info.activeActionSets = activeActionSets.data();
+		return xrSyncActions(session, &info);
+	}
+
 	XrResult destroyInstance(XrInstance& instance)
 	{
 		if (instance == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
@@ -212,6 +268,20 @@ namespace utils
 		if (space == XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
 		XrResult destroyed = destroyReferenceSpace(space);
 		space = XR_NULL_HANDLE;
+		return destroyed;
+	}
+	XrResult destroyActionSet(XrActionSet& actionSet)
+	{
+		if (actionSet != XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
+		XrResult destroyed = xrDestroyActionSet(actionSet);
+		actionSet = XR_NULL_HANDLE;
+		return destroyed;
+	}
+	XrResult destroyAction(XrAction& action)
+	{
+		if (action != XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
+		XrResult destroyed = xrDestroyAction(action);
+		action = XR_NULL_HANDLE;
 		return destroyed;
 	}
 }

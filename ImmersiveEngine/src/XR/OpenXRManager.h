@@ -2,6 +2,7 @@
 #define OPEN_XR_MANAGER_CLASS_H
 
 #include"OpenXRUtils.h"
+#include"OpenXRInputHandler.h"
 
 namespace ImmersiveEngine::XR
 {
@@ -39,6 +40,8 @@ namespace ImmersiveEngine::XR
 			~OpenXRManager();
 
 			bool sessionRunning = false;
+
+			OpenXRInputHandler input;
 
 			void establishConnection();
 			void pollEvents();

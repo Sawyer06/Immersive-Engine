@@ -1,5 +1,6 @@
 #include<iostream>
 #include<memory>
+
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<stb/stb_image.h>
@@ -236,7 +237,6 @@ int main()
 		{
 			cam.space->translate(-cam.space->getRight() * camSpeed * deltaTime);
 		}
-
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
 			cam.space->translate(ImmersiveEngine::Math::Vector3::up * camSpeed * deltaTime);

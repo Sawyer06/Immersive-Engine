@@ -178,8 +178,10 @@
     <ClCompile Include="src\Rendering\Texture.cpp" />
     <ClCompile Include="src\Rendering\VAO.cpp" />
     <ClCompile Include="src\Rendering\VBO.cpp" />
+    <ClCompile Include="src\XR\OpenXRInputHandler.cpp" />
     <ClCompile Include="src\XR\OpenXRManager.cpp" />
     <ClCompile Include="src\XR\OpenXRUtils.cpp" />
+    <ClCompile Include="src\XR\OpenXRInputAction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Components\Camera.h" />
@@ -200,6 +202,8 @@
     <ClInclude Include="src\Rendering\VAO.h" />
     <ClInclude Include="src\Rendering\VBO.h" />
     <ClInclude Include="src\Settings.h" />
+    <ClInclude Include="src\XR\OpenXRInputAction.h" />
+    <ClInclude Include="src\XR\OpenXRInputHandler.h" />
     <ClInclude Include="src\XR\OpenXRManager.h" />
     <ClInclude Include="src\XR\OpenXRUtils.h" />
   </ItemGroup>

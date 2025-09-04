@@ -30,6 +30,7 @@ namespace utils
 	};
 
 	XrApplicationInfo generateApplicationInfo(std::string appName, uint32_t appVersion, std::string engineName, uint32_t engineVersion);
+	XrActionSuggestedBinding generateSuggestedBindings(XrPath& interactionProfile, XrActionSuggestedBinding& bindings);
 
 	XrResult getInstanceProperties(XrInstance& instance, XrInstanceProperties* o_properties);
 	XrResult getGraphicsRequirements(XrInstance& instance, XrSystemId& systemID, XrGraphicsRequirementsOpenGLKHR* o_graphicsRequirements);
@@ -44,6 +45,9 @@ namespace utils
 	XrResult createSession(XrInstance& instance, XrSystemId& systemID, XrSession* o_session);
 	XrResult createSwapchain(XrSwapchainUsageFlags& flags, uint64_t& format, XrViewConfigurationView& view, XrSession& session, XrSwapchain* o_swapchain);
 	XrResult createReferenceSpace(XrReferenceSpaceType& type, XrSession& session, XrSpace* o_referenceSpace);
+	XrResult createActionSet(XrInstance& instance, const char* name, uint32_t& priority, XrActionSet* o_actionSet);
+	XrResult createAction(XrActionSet& actionSet, const char* name, XrActionType& type, std::vector<XrPath> subactionPaths, XrAction* o_action);
+	XrResult createPath(XrInstance& instance, const char* pathString, XrPath* o_path);
 
 	XrResult enumerateSwapchainFormats(XrSession& session, std::vector<int64_t>* o_formats);
 	XrResult acquireSwapchainImage(XrSwapchain& swapchain, uint32_t* o_index);
@@ -51,9 +55,15 @@ namespace utils
 	XrResult waitSwapchainImage(XrSwapchain& swapchain);
 	XrResult releaseSwapchainImage(XrSwapchain& swapchain);
 
+	XrResult suggestBindings(XrInstance& instance, XrPath& interactionProfile, std::vector<XrActionSuggestedBinding>& bindings);
+	XrResult attachSessionActionSets(XrSession& session, std::vector<XrActionSet>& actionSets);
+	XrResult syncActions(XrSession& session, std::vector<XrActionSet>& actionSets);
+
 	XrResult destroyInstance(XrInstance& instance);
 	XrResult destroySession(XrSession& session);
 	XrResult destroySwapchain(XrSwapchain& swapchain);
 	XrResult destroyReferenceSpace(XrSpace& space);
+	XrResult destroyActionSet(XrActionSet& actionSet);
+	XrResult destroyAction(XrAction& action);
 }
 #endif
