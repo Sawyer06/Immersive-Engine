@@ -49,6 +49,12 @@
     <Filter Include="Header Files\XR">
       <UniqueIdentifier>{306e852f-05e5-4e34-8e5e-f4d729bb9853}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Managers">
+      <UniqueIdentifier>{300565c3-9078-473c-8347-ac759ba5a1f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Managers">
+      <UniqueIdentifier>{60323119-cb58-467c-8ff6-8d93f5372c44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -123,6 +129,9 @@
     <ClCompile Include="src\XR\OpenXRInputAction.cpp">
       <Filter>Source Files\XR</Filter>
     </ClCompile>
+    <ClCompile Include="src\Managers\LightingManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">
@@ -190,6 +199,12 @@
     </ClInclude>
     <ClInclude Include="src\XR\OpenXRInputAction.h">
       <Filter>Header Files\XR</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Managers\LightingManager.h">
+      <Filter>Header Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Managers\Manager.h">
+      <Filter>Header Files\Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

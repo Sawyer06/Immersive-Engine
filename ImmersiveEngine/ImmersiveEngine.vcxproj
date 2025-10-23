@@ -164,6 +164,7 @@
     <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Components\Space.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Managers\LightingManager.cpp" />
     <ClCompile Include="src\Math\Math.cpp" />
     <ClCompile Include="src\Math\Quaternion.cpp" />
     <ClCompile Include="src\Math\Vector2.cpp" />
@@ -188,6 +189,8 @@
     <ClInclude Include="src\Components\Component.h" />
     <ClInclude Include="src\Components\Light.h" />
     <ClInclude Include="src\Components\Space.h" />
+    <ClInclude Include="src\Managers\LightingManager.h" />
+    <ClInclude Include="src\Managers\Manager.h" />
     <ClInclude Include="src\Math\Math.h" />
     <ClInclude Include="src\Math\Quaternion.h" />
     <ClInclude Include="src\Math\Vector2.h" />

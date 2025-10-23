@@ -41,8 +41,6 @@ namespace ImmersiveEngine::XR
 
 			bool sessionRunning = false;
 
-			OpenXRInputHandler input;
-
 			void establishConnection();
 			void pollEvents();
 			

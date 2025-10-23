@@ -2,7 +2,7 @@
 
 namespace ImmersiveEngine::XR
 {
-	OpenXRManager::OpenXRManager() : input()
+	OpenXRManager::OpenXRManager()
 	{
 		m_requestedExtensions.push_back(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME);
 	}

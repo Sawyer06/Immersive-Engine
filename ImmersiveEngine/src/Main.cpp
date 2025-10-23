@@ -23,6 +23,7 @@
 #include"Rendering/Mesh.h"
 #include"Components/Space.h"
 #include"Rendering/FBO.h"
+#include"Managers/LightingManager.h"
 
 #include"XR/OpenXRManager.h"
 
@@ -68,7 +69,7 @@ int main()
 	gladLoadGL();
 	glfwSwapInterval(0); // vsync off
 
-	bool openInVR = true;
+	bool openInVR = false;
 	std::vector<FBO> eyeFBO;
 	ImmersiveEngine::XR::OpenXRManager xr;
 	if (openInVR)
@@ -128,6 +129,7 @@ int main()
 	lightA.space->position.y += -0.2f;
 	lightA.space->position.x += 1;
 	lightA.space->position.z += 1;
+	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompA);
 
 	ImmersiveEngine::cbs::Present primitive("Prim", primitiveMesh);
 	primitive.mesh->setTexture(sand);
@@ -257,7 +259,6 @@ int main()
 
 		if (openInVR && xr.sessionRunning)
 		{
-
 			//std::cout << "Session is running.\n";
 			xr.waitFrame();
 			xr.beginFrame();
@@ -332,8 +333,7 @@ int main()
 
 		camComp->refreshViewProjection(shaderProgram, (float)width / height);
 
-		lightA.space->refreshTransforms(shaderProgram);
-		lightCompA->refreshLight(shaderProgram, spaceComp->position);
+		ImmersiveEngine::cbs::LightingManager::getInstance().refreshLights(shaderProgram);
 
 		cam.space->refreshTransforms(shaderProgram);
 

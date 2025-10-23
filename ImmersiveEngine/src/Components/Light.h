@@ -31,7 +31,7 @@ namespace ImmersiveEngine::cbs
 			LightProperty diffuse;
 			LightProperty specular;
 
-			void refreshLight(Shader& shaderProgram, const ImmersiveEngine::Math::Vector3 position);
+			void refreshLight(Shader& shaderProgram, const int index);
 	};
 }
 #endif

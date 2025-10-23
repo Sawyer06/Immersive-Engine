@@ -1,4 +1,7 @@
 #version 330 core
+
+#define MAX_LIGHTS 8
+
 out vec4 FragColor;
 
 in vec3 color;
@@ -13,45 +16,55 @@ uniform bool textured;
 
 uniform vec3 camPos;
 
-uniform vec3 lightColor;
-uniform vec3 lightPos;
-
-// Light attenuation
-uniform float constant;
-uniform float linear;
-uniform float quadratic;
-
 struct LightProperty
 {
 	vec3 color;
 	vec3 intensity;
 };
-  
-uniform LightProperty ambient;
-uniform LightProperty diffuse;
-uniform LightProperty specular;
+
+struct Light
+{
+	vec3 position;
+
+	// attenuation
+	float constant;
+	float linear;
+	float quadratic;
+
+	LightProperty ambient;
+	LightProperty diffuse;
+	LightProperty specular;
+};
+uniform Light lights[MAX_LIGHTS];
 
 uniform float shininess;
 
 void main()
 {
 	vec3 norm = normalize(normal);
-	vec3 lightDir = normalize(lightPos - worldPos);
 	vec3 viewDir = normalize(camPos - worldPos);
-	vec3 reflectionDir = reflect(-lightDir, norm);
 
-	float distance = length(lightPos - worldPos);
-	float attenuationFactor = 1.0f / (constant + linear * distance * quadratic * (distance * distance)); // Light attenuation formula.
+	vec3 lightSum;
+	for (int i = 0; i < lights.MAX_SIZE; ++i)
+	{
+		vec3 lightDir = normalize(lights[i].position - worldPos);
+		vec3 reflectionDir = reflect(-lightDir, norm);
 
-	vec3 amb = ambient.color * ambient.intensity * attenuationFactor;;
+		float distance = length(lights[i].position - worldPos);
+		float attenuationFactor = 1.0f / (lights[i].constant + lights[i].linear * distance * lights[i].quadratic * (distance * distance)); // Light attenuation formula.
 
-	float diffAmount = max(dot(norm, lightDir), 0.0f);
-	vec3 diff = diffuse.color * diffuse.intensity * diffAmount * lightColor * attenuationFactor;;
+		vec3 amb = lights[i].ambient.color * lights[i].ambient.intensity * attenuationFactor;;
+
+		float diffAmount = max(dot(norm, lightDir), 0.0f);
+		vec3 diff = lights[i].diffuse.color * lights[i].diffuse.intensity * diffAmount * lights[i].color * attenuationFactor;;
 	
-	float specAmount = pow(max(dot(viewDir, reflectionDir), 0.0f), shininess);
-	vec3 spec = specular.color * specular.intensity * specAmount * lightColor * attenuationFactor;
+		float specAmount = pow(max(dot(viewDir, reflectionDir), 0.0f), shininess);
+		vec3 spec = lights[i].specular.color * lights[i].specular.intensity * specAmount * lights[i].color * attenuationFactor;
 	
-	vec3 phong = (amb + diff + spec);
+		vec3 phong = (amb + diff + spec);
+		lightSum += phong;
+	}
+
 
 	if (textured)
 	{
@@ -60,10 +73,10 @@ void main()
 		{
             discard;
 		}
-        FragColor = vec4(phong * textureColor.rgb, textureColor.a);
+        FragColor = vec4(lightSum * textureColor.rgb, textureColor.a);
 	}
 	else
 	{
-		FragColor = vec4(color * phong, 1.0f);
+		FragColor = vec4(color * lightSum, 1.0f);
 	}
 }
