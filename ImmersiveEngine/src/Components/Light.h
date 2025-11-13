@@ -13,7 +13,7 @@ namespace ImmersiveEngine::cbs
 			struct LightProperty
 			{
 				ImmersiveEngine::Math::Vector3 color;
-				float intensity;
+				float intensity = 1.0f;
 
 				LightProperty(ImmersiveEngine::Math::Vector3 color, float intensity) : color(color), intensity(intensity) { }
 			};
@@ -22,16 +22,13 @@ namespace ImmersiveEngine::cbs
 			Light(Object* obj, const ImmersiveEngine::Math::Vector3 mainColor, const float intensity);
 			~Light() = default;
 
-			ImmersiveEngine::Math::Vector3 mainColor;
-			float intensity;
 			float shininess = 32.0f;
-			bool useGlobalLight = true;
 
 			LightProperty ambient;
 			LightProperty diffuse;
 			LightProperty specular;
 
-			void refreshLight(Shader& shaderProgram, const int index);
+			void refreshLight(Shader& shaderProgram, bool useGlobalLight, const int index);
 	};
 }
 #endif

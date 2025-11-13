@@ -19,6 +19,8 @@ namespace ImmersiveEngine::cbs
 			LightingManager() = default;
 			~LightingManager() = default;
 		public:
+			bool useGlobalLight = true;
+
 			void addLight(Light& light);
 			void removeLight(uint32_t index);
 			Light& getLight(uint32_t index);

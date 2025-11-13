@@ -3,16 +3,14 @@
 namespace ImmersiveEngine::cbs
 {
 	Light::Light(Object* obj) :
-		Component(obj), mainColor(ImmersiveEngine::Math::Vector3(255, 255, 255)), intensity(1.0f),
-		ambient(mainColor, 0.2f), diffuse(mainColor, 1.0f), specular(mainColor, 0.3f)
+		Component(obj), ambient(ImmersiveEngine::Math::Vector3(255,255,255), 0.2f), diffuse(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f), specular(ImmersiveEngine::Math::Vector3(255, 255, 255), 0.3f)
 	{ }
 	Light::Light(Object* obj, const ImmersiveEngine::Math::Vector3 mainColor, const float intensity) : 
-		Component(obj), mainColor(mainColor), intensity(intensity),
-		ambient(mainColor, 0.2f), diffuse(mainColor, 1.0f), specular(mainColor, 0.3f)
+		Component(obj), ambient(mainColor, 0.2f), diffuse(mainColor, 1.0f), specular(mainColor, 0.3f)
 	{ }
 
 	/// Update lighting vales on the shader.
-	void Light::refreshLight(Shader& shaderProgram, const int index)
+	void Light::refreshLight(Shader& shaderProgram, bool useGlobalLight, const int index)
 	{
 		std::string prefix = "lights[" + std::to_string(index) + "].";
 
@@ -30,20 +28,20 @@ namespace ImmersiveEngine::cbs
 			ImmersiveEngine::Math::Vector3 gColor = ImmersiveEngine::Settings::g_ambientLightColor;
 			float gIntensity = ImmersiveEngine::Settings::g_ambientLightIntensity;
 			shaderProgram.setVec3(prefix + "ambient.color", glm::vec3(gColor.x / 255.0f, gColor.y / 255.0f, gColor.z / 255.0f));
-			shaderProgram.setVec3(prefix + "ambient.intensity", glm::vec3(gIntensity));
+			shaderProgram.setFloat(prefix + "ambient.intensity", gIntensity);
 		}
 		else
 		{
 			shaderProgram.setVec3(prefix + "ambient.color", glm::vec3(ambient.color.x / 255.0f, ambient.color.y / 255.0f, ambient.color.z / 255.0f));
-			shaderProgram.setVec3(prefix + "ambient.intensity", glm::vec3(ambient.intensity));
+			shaderProgram.setFloat(prefix + "ambient.intensity", ambient.intensity);
 		}
 
 		// Diffuse light
 		shaderProgram.setVec3(prefix + "diffuse.color", glm::vec3(diffuse.color.x / 255.0f, diffuse.color.y / 255.0f, diffuse.color.z / 255.0f));
-		shaderProgram.setVec3(prefix + "diffuse.intensity", glm::vec3(diffuse.intensity));
+		shaderProgram.setFloat(prefix + "diffuse.intensity", diffuse.intensity);
 
 		// Specular light
 		shaderProgram.setVec3(prefix + "specular.color", glm::vec3(specular.color.x / 255.0f, specular.color.y / 255.0f, specular.color.z / 255.0f));
-		shaderProgram.setVec3(prefix + "specular.intensity", glm::vec3(specular.intensity));
+		shaderProgram.setFloat(prefix + "specular.intensity", specular.intensity);
 	}
 }

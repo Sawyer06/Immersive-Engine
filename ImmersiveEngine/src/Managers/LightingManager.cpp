@@ -4,7 +4,7 @@ namespace ImmersiveEngine::cbs
 {
 	void LightingManager::addLight(Light& light)
 	{
-		m_lights.push_back(light);
+		if (m_lights.size() < MAX_LIGHTS) m_lights.push_back(light);
 	}
 	void LightingManager::removeLight(uint32_t index)
 	{
@@ -17,9 +17,10 @@ namespace ImmersiveEngine::cbs
 
 	void LightingManager::refreshLights(Shader& shaderProgram)
 	{
+		shaderProgram.setInt("activeLights", m_lights.size());
 		for (int i = 0; i < m_lights.size(); ++i)
 		{
-			m_lights[i].refreshLight(shaderProgram, i);
+			m_lights[i].refreshLight(shaderProgram, useGlobalLight, i);
 		}
 	}
 }

@@ -127,9 +127,19 @@ int main()
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
 	ImmersiveEngine::cbs::Light* lightCompA = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightA.space->position.y += -0.2f;
-	lightA.space->position.x += 1;
-	lightA.space->position.z += 1;
+	lightA.space->position.x += 5;
+	lightA.space->position.z -= 3;
+	lightCompA->diffuse.color = ImmersiveEngine::Math::Vector3(0, 255, 10);
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompA);
+	
+	ImmersiveEngine::cbs::Present lightB;
+	ImmersiveEngine::cbs::Light* lightCompB = lightB.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
+	lightB.space->position.y += 1.0f;
+	lightB.space->position.x -= 2;
+	lightB.space->position.z += 1;
+	lightCompB->diffuse.color = ImmersiveEngine::Math::Vector3(230, 10, 0);
+	lightCompB->diffuse.intensity = 5;
+	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompB);
 
 	ImmersiveEngine::cbs::Present primitive("Prim", primitiveMesh);
 	primitive.mesh->setTexture(sand);

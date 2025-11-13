@@ -16,10 +16,12 @@ uniform bool textured;
 
 uniform vec3 camPos;
 
+uniform int activeLights;
+
 struct LightProperty
 {
 	vec3 color;
-	vec3 intensity;
+	float intensity;
 };
 
 struct Light
@@ -45,21 +47,21 @@ void main()
 	vec3 viewDir = normalize(camPos - worldPos);
 
 	vec3 lightSum;
-	for (int i = 0; i < lights.MAX_SIZE; ++i)
+	for (int i = 0; i < activeLights; ++i)
 	{
 		vec3 lightDir = normalize(lights[i].position - worldPos);
 		vec3 reflectionDir = reflect(-lightDir, norm);
 
 		float distance = length(lights[i].position - worldPos);
-		float attenuationFactor = 1.0f / (lights[i].constant + lights[i].linear * distance * lights[i].quadratic * (distance * distance)); // Light attenuation formula.
+		float attenuationFactor = 1.0 / (lights[i].constant + lights[i].linear * distance + lights[i].quadratic * (distance * distance)); // Light attenuation formula.
 
-		vec3 amb = lights[i].ambient.color * lights[i].ambient.intensity * attenuationFactor;;
+		vec3 amb = lights[i].ambient.color * lights[i].ambient.intensity * attenuationFactor;
 
-		float diffAmount = max(dot(norm, lightDir), 0.0f);
-		vec3 diff = lights[i].diffuse.color * lights[i].diffuse.intensity * diffAmount * lights[i].color * attenuationFactor;;
+		float diffAmount = max(dot(norm, lightDir), 0.0);
+		vec3 diff = lights[i].diffuse.color * lights[i].diffuse.intensity * diffAmount * attenuationFactor;
 	
-		float specAmount = pow(max(dot(viewDir, reflectionDir), 0.0f), shininess);
-		vec3 spec = lights[i].specular.color * lights[i].specular.intensity * specAmount * lights[i].color * attenuationFactor;
+		float specAmount = pow(max(dot(viewDir, reflectionDir), 0.0), shininess);
+		vec3 spec = lights[i].specular.color * lights[i].specular.intensity * specAmount * attenuationFactor;
 	
 		vec3 phong = (amb + diff + spec);
 		lightSum += phong;
@@ -77,6 +79,6 @@ void main()
 	}
 	else
 	{
-		FragColor = vec4(color * lightSum, 1.0f);
+		FragColor = vec4(color * lightSum, 1.0);
 	}
 }
