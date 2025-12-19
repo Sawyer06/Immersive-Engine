@@ -320,6 +320,65 @@ Mesh Mesh::generateSquarePyramid(const float length, const float height)
     return Mesh(vertices, pyramidIndices);
 }
 
+Mesh Mesh::generateSphere(const float radius, uint32_t sectorCount, uint32_t stackCount)
+{
+    std::vector<Vertex> vertices;
+    std::vector<GLuint> indices;
+
+    if (sectorCount < 3) sectorCount = 3;
+    if (stackCount < 3) stackCount = 3;
+
+    float x, y, z;
+    float phi, theta;
+
+    float sectorStep = 2 * ImmersiveEngine::Math::PI / sectorCount;
+    float stackStep = ImmersiveEngine::Math::PI / stackCount;
+
+    for (int i = 0; i <= stackCount; ++i)
+    {
+        phi = ImmersiveEngine::Math::PI / 2 - i * stackStep; // Longitude/Stacks
+        z = std::sin(phi);
+        for (int j = 0; j <= sectorCount; ++j)
+        {
+            theta = j * sectorStep; // Latitude/Sectors
+
+            x = std::cos(phi) * std::cos(theta);
+            y = std::cos(phi) * std::sin(theta);
+
+            ImmersiveEngine::Math::Vector3 point(x, y, z);
+            ImmersiveEngine::Math::Vector2 uvOffset(-(float)j / sectorCount, (float)i / stackCount);
+            vertices.push_back(Vertex{ point * radius, point, defaultColor, uvOffset });
+        }
+    }
+
+    int k1, k2;
+    for (int i = 0; i < stackCount; ++i)
+    {
+        k1 = i * (sectorCount + 1);
+        k2 = k1 + sectorCount + 1;
+
+        for (int j = 0; j < sectorCount; ++j, ++k1, ++k2)
+        {
+            // Left triangle. Do not create if at the highest sector.
+            if (i != 0)
+            {
+                indices.push_back(k1);
+                indices.push_back(k2);
+                indices.push_back(k1 + 1);
+            }
+            // Right triangle. Do not create if at the lowest sector.
+            if (i != (stackCount - 1))
+            {
+                indices.push_back(k1 + 1);
+                indices.push_back(k2);
+                indices.push_back(k2 + 1);
+            }
+        }
+    }
+
+    return Mesh(vertices, indices);
+}
+
 void Mesh::dump()
 {
     m_VAO.Delete();

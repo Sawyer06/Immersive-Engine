@@ -38,6 +38,7 @@ class Mesh
 		static Mesh generatePlane(const float length, const float width);
 		static Mesh generateCube(const float length);
 		static Mesh generateSquarePyramid(const float length, const float height);
+		static Mesh generateSphere(const float radius, uint32_t sectorCount, uint32_t stackCount);
 
 		void dump();
 };

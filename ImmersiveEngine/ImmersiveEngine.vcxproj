@@ -213,6 +213,7 @@
   <ItemGroup>
     <Image Include="src\brick.png" />
     <Image Include="src\cheeki.jpg" />
+    <Image Include="src\earth.png" />
     <Image Include="src\sand.jpg" />
     <Image Include="src\stone.png" />
   </ItemGroup>

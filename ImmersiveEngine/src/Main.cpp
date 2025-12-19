@@ -102,6 +102,7 @@ int main()
 	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	Texture* stone = new Texture("stone.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	Texture* brick = new Texture("brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* earth = new Texture("earth.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
 	auto planeMesh = std::make_shared<Mesh>(Mesh::generatePlane(3, 5));
 	ImmersiveEngine::cbs::Present plane("Plane", planeMesh);
@@ -120,7 +121,7 @@ int main()
 	wallB.space->translate(ImmersiveEngine::Math::Vector3(-3.0f, -1.0f, -3.0f));
 	wallB.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::up);
 
-	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateCube(1));
+	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateSphere(2,64,64));
 	auto primitiveMeshB = std::make_shared<Mesh>(Mesh::generateSquarePyramid(0.5f, 0.5f));
 
 	ImmersiveEngine::cbs::Present lightA;
@@ -142,9 +143,10 @@ int main()
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompB);
 
 	ImmersiveEngine::cbs::Present primitive("Prim", primitiveMesh);
-	primitive.mesh->setTexture(sand);
+	primitive.mesh->setTexture(earth);
 	primitive.space->dialate(1.0f);
-	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 1.0f, -2.0f));
+	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 2.0f, -2.0f));
+	primitive.space->rotate(90, ImmersiveEngine::Math::Vector3::right);
 
 	//primitive.space->rotate(90, ImmersiveEngine::Math::Vector3::up);
 	//primitive.space->pivotPoint.x -= 0.5f;
@@ -264,8 +266,8 @@ int main()
 		}
 
 		//primitive.space->lookAt(cam.space->position);
-		primitive.space->rotate(15.0f * deltaTime, ImmersiveEngine::Math::Vector3::right);
-		primitive.space->rotate(20.0f * deltaTime, ImmersiveEngine::Math::Vector3::forward);
+		//primitive.space->rotate(15.0f * deltaTime, ImmersiveEngine::Math::Vector3::right);
+		primitive.space->rotate(20.0f * deltaTime, ImmersiveEngine::Math::Vector3::up);
 
 		if (openInVR && xr.sessionRunning)
 		{
@@ -377,6 +379,7 @@ int main()
 	sand->Delete();
 	stone->Delete();
 	brick->Delete();
+	earth->Delete();
 
 	shaderProgram.Delete();
 	screenShader.Delete();
