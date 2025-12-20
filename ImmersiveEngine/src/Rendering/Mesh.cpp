@@ -35,17 +35,6 @@ void Mesh::buildMesh()
     VBO.Unbind();
 }
 
-/// Return direct reference to vertex at a specific index in range.
-Vertex& Mesh::getVertexAtIndex(const uint32_t index)
-{
-    if (index >= m_vertices.size())
-    {
-        std::cerr << "INDEX_OUT_OF_BOUNDS_ERROR vertex at index " << index << " is not in range of mesh's vertices.";
-        return m_vertices.front();
-    }
-    return m_vertices[index];
-}
-
 /// Draw the object to the screen.
 void Mesh::draw(Shader& shaderProgram)
 {
@@ -95,6 +84,48 @@ void Mesh::setTexture(Texture* texture)
     m_texture = texture;
 }
 
+void Mesh::addUVOffset(ImmersiveEngine::Math::Vector2 offset)
+{
+    for (auto& v : m_vertices)
+    {
+        v.uvOffset += offset;
+    }
+}
+
+ImmersiveEngine::Math::Vector3 Mesh::getVertexPosition(const int index)
+{
+    ImmersiveEngine::Math::Vector3 vertexPos;
+    if (index < m_vertices.size()) vertexPos = m_vertices[index].position;
+
+    return vertexPos;
+}
+
+void Mesh::setVertexPosition(const int index, const ImmersiveEngine::Math::Vector3 pos)
+{
+    if (index >= m_vertices.size()) return;
+
+    m_vertices[index].position = pos;
+}
+
+ImmersiveEngine::Math::Vector3 Mesh::getNormalDirection(const int index)
+{
+    ImmersiveEngine::Math::Vector3 normalDir;
+    if (index < m_vertices.size()) normalDir = m_vertices[index].normal;
+
+    return normalDir;
+}
+
+void Mesh::dump()
+{
+    m_VAO.Delete();
+
+    if (m_texture)
+    {
+        //m_texture->Delete();
+        delete m_texture;
+        m_texture = nullptr;
+    };
+}
 
 /*================================================================
                 Primitive Shape Mesh Generators
@@ -377,16 +408,4 @@ Mesh Mesh::generateSphere(const float radius, uint32_t sectorCount, uint32_t sta
     }
 
     return Mesh(vertices, indices);
-}
-
-void Mesh::dump()
-{
-    m_VAO.Delete();
-
-    if (m_texture)
-    {
-        //m_texture->Delete();
-        delete m_texture;
-        m_texture = nullptr;
-    };
 }

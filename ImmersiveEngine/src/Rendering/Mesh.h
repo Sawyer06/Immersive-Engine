@@ -28,10 +28,17 @@ class Mesh
 		~Mesh();
 
 		void buildMesh();
-		Vertex& getVertexAtIndex(const uint32_t index);
 
 		void draw(Shader& shaderProgram);
 		void setTexture(Texture* texture);
+
+		void addUVOffset(ImmersiveEngine::Math::Vector2 offset);
+
+		ImmersiveEngine::Math::Vector3 getVertexPosition(const int index);
+		void setVertexPosition(const int index, const ImmersiveEngine::Math::Vector3 pos);
+		ImmersiveEngine::Math::Vector3 getNormalDirection(const int index);
+
+		void dump();
 
 		static Mesh generateSquare(const float length);
 		static Mesh generateCircle(const float radius, uint32_t segments);
@@ -39,7 +46,5 @@ class Mesh
 		static Mesh generateCube(const float length);
 		static Mesh generateSquarePyramid(const float length, const float height);
 		static Mesh generateSphere(const float radius, uint32_t sectorCount, uint32_t stackCount);
-
-		void dump();
 };
 #endif

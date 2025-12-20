@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/noise.hpp>
 #include <filesystem>
 #include <list>
 
@@ -121,7 +122,7 @@ int main()
 	wallB.space->translate(ImmersiveEngine::Math::Vector3(-3.0f, -1.0f, -3.0f));
 	wallB.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::up);
 
-	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateSphere(2,64,64));
+	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateSphere(1,24,24));
 	auto primitiveMeshB = std::make_shared<Mesh>(Mesh::generateSquarePyramid(0.5f, 0.5f));
 
 	ImmersiveEngine::cbs::Present lightA;
@@ -177,6 +178,7 @@ int main()
 	float x1 = 0;
 	float x2 = 0;
 
+	float offset = 0;
 	while (!glfwWindowShouldClose(window))
 	{
 		x2 = glfwGetTime();
@@ -267,7 +269,19 @@ int main()
 
 		//primitive.space->lookAt(cam.space->position);
 		//primitive.space->rotate(15.0f * deltaTime, ImmersiveEngine::Math::Vector3::right);
-		primitive.space->rotate(20.0f * deltaTime, ImmersiveEngine::Math::Vector3::up);
+		//primitive.space->rotate(20.0f * deltaTime, ImmersiveEngine::Math::Vector3::up);
+		primitive.mesh->addUVOffset(ImmersiveEngine::Math::Vector2(0.001f, 0.0f));
+		float amp = 0.5f;
+		for (int i = 0; i < 576; ++i)
+		{
+			ImmersiveEngine::Math::Vector3 normalDir = primitive.mesh->getNormalDirection(i);
+			glm::vec3 normal = glm::vec3(normalDir.x, normalDir.y, normalDir.z);
+			float disp = glm::perlin(glm::vec4(normal, offset));
+			primitive.mesh->setVertexPosition(i, normalDir * (1 + disp * amp));
+		}
+		primitive.mesh->buildMesh();
+		offset += 0.007f;
+		if (offset > 1000) offset = 0;
 
 		if (openInVR && xr.sessionRunning)
 		{
@@ -334,7 +348,7 @@ int main()
 		glfwGetWindowSize(window, &width, &height);
 
 		FBO.Bind();
-		glClearColor(0.0f, 0.5f, 0.4f, 1.0f); // Window background in decimal RGBA
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Window background in decimal RGBA
 		glEnable(GL_DEPTH_TEST);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, width, height);
