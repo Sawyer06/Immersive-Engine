@@ -269,19 +269,7 @@ int main()
 
 		//primitive.space->lookAt(cam.space->position);
 		//primitive.space->rotate(15.0f * deltaTime, ImmersiveEngine::Math::Vector3::right);
-		//primitive.space->rotate(20.0f * deltaTime, ImmersiveEngine::Math::Vector3::up);
-		primitive.mesh->addUVOffset(ImmersiveEngine::Math::Vector2(0.001f, 0.0f));
-		float amp = 0.5f;
-		for (int i = 0; i < 576; ++i)
-		{
-			ImmersiveEngine::Math::Vector3 normalDir = primitive.mesh->getNormalDirection(i);
-			glm::vec3 normal = glm::vec3(normalDir.x, normalDir.y, normalDir.z);
-			float disp = glm::perlin(glm::vec4(normal, offset));
-			primitive.mesh->setVertexPosition(i, normalDir * (1 + disp * amp));
-		}
-		primitive.mesh->buildMesh();
-		offset += 0.007f;
-		if (offset > 1000) offset = 0;
+		primitive.space->rotate(20.0f * deltaTime, ImmersiveEngine::Math::Vector3::up);
 
 		if (openInVR && xr.sessionRunning)
 		{

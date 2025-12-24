@@ -115,6 +115,11 @@ ImmersiveEngine::Math::Vector3 Mesh::getNormalDirection(const int index)
     return normalDir;
 }
 
+uint32_t Mesh::getVerticesCount()
+{
+    return m_vertices.size();
+}
+
 void Mesh::dump()
 {
     m_VAO.Delete();

@@ -38,6 +38,8 @@ class Mesh
 		void setVertexPosition(const int index, const ImmersiveEngine::Math::Vector3 pos);
 		ImmersiveEngine::Math::Vector3 getNormalDirection(const int index);
 
+		uint32_t getVerticesCount();
+
 		void dump();
 
 		static Mesh generateSquare(const float length);
