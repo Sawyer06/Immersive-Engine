@@ -123,9 +123,6 @@
     <ClCompile Include="src\XR\OpenXRUtils.cpp">
       <Filter>Source Files\XR</Filter>
     </ClCompile>
-    <ClCompile Include="src\XR\OpenXRInputHandler.cpp">
-      <Filter>Source Files\XR</Filter>
-    </ClCompile>
     <ClCompile Include="src\XR\OpenXRInputAction.cpp">
       <Filter>Source Files\XR</Filter>
     </ClCompile>
@@ -192,9 +189,6 @@
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\XR\OpenXRUtils.h">
-      <Filter>Header Files\XR</Filter>
-    </ClInclude>
-    <ClInclude Include="src\XR\OpenXRInputHandler.h">
       <Filter>Header Files\XR</Filter>
     </ClInclude>
     <ClInclude Include="src\XR\OpenXRInputAction.h">

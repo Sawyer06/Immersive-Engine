@@ -2,7 +2,6 @@
 #define OPEN_XR_MANAGER_CLASS_H
 
 #include"OpenXRUtils.h"
-#include"OpenXRInputHandler.h"
 
 namespace ImmersiveEngine::XR
 {
@@ -39,6 +38,34 @@ namespace ImmersiveEngine::XR
 			OpenXRManager();
 			~OpenXRManager();
 
+			class InputHandler
+			{
+				private:
+					OpenXRManager& manager;
+
+					std::vector<utils::input::ActionBinding> actionBindings;
+
+					XrSpace m_leftHandSpace = XR_NULL_HANDLE;
+					XrSpace m_rightHandSpace = XR_NULL_HANDLE;
+				public:
+					InputHandler(OpenXRManager& manager);
+
+					enum InputPath
+					{
+						leftGripPose,
+						rightGripPose,
+						leftAimPose,
+						rightAimPose,
+					};
+
+					float getFloatValue(InputPath path);
+					ImmersiveEngine::Math::Vector2 getVector2Value(InputPath path);
+					utils::input::Pose getPoseValue(InputPath path);
+			};
+			friend class InputHandler;
+
+			InputHandler input;
+
 			bool sessionRunning = false;
 
 			void establishConnection();
@@ -61,5 +88,7 @@ namespace ImmersiveEngine::XR
 			std::string toString();
 	};
 }
+
+using InputPath = ImmersiveEngine::XR::OpenXRManager::InputHandler::InputPath;
 #endif
 

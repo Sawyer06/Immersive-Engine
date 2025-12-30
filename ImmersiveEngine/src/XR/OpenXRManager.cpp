@@ -2,7 +2,7 @@
 
 namespace ImmersiveEngine::XR
 {
-	OpenXRManager::OpenXRManager()
+	OpenXRManager::OpenXRManager() : input(*this)
 	{
 		m_requestedExtensions.push_back(XR_KHR_OPENGL_ENABLE_EXTENSION_NAME);
 	}
@@ -16,13 +16,15 @@ namespace ImmersiveEngine::XR
 		}
 		utils::destroySession(m_session);
 		utils::destroyInstance(m_instance);
-		utils::destroyReferenceSpace(m_referenceSpace);
+		utils::destroySpace(m_referenceSpace);
 
 		m_colorSwapchainInfos.clear();
 		m_depthSwapchainInfos.clear();
 		m_views.clear();
 		m_viewConfigs.clear();
 	}
+
+	OpenXRManager::InputHandler::InputHandler(OpenXRManager& manager) : manager(manager) { }
 
 	/// Set up a connection with the headset.
 	void OpenXRManager::establishConnection()
