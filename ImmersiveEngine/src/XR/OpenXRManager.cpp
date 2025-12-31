@@ -9,6 +9,8 @@ namespace ImmersiveEngine::XR
 
 	OpenXRManager::~OpenXRManager()
 	{
+		input.~InputHandler();
+
 		for (uint32_t i = 0; i < m_viewConfigs.size(); ++i)
 		{
 			utils::destroySwapchain(m_colorSwapchainInfos[i].swapchain);
@@ -24,7 +26,24 @@ namespace ImmersiveEngine::XR
 		m_viewConfigs.clear();
 	}
 
-	OpenXRManager::InputHandler::InputHandler(OpenXRManager& manager) : manager(manager) { }
+	OpenXRManager::InputHandler::InputHandler(OpenXRManager& manager) : m_manager(manager) { }
+
+	OpenXRManager::InputHandler::~InputHandler()
+	{
+		for (XrActionSet& set : m_actionSets)
+		{
+			utils::input::destroyActionSet(set);
+		}
+		for (utils::input::ActionBinding& actionBinding : m_actionBindings)
+		{
+			utils::input::destroyAction(actionBinding.action);
+		}
+
+		utils::destroySpace(m_leftGripSpace);
+		utils::destroySpace(m_rightGripSpace);
+		utils::destroySpace(m_leftAimSpace);
+		utils::destroySpace(m_rightAimSpace);
+	}
 
 	/// Set up a connection with the headset.
 	void OpenXRManager::establishConnection()
@@ -186,6 +205,70 @@ namespace ImmersiveEngine::XR
 		std::cout << "[OPENXR] Established connection!\n";
 	}
 
+	/// Set up the input system with a pre-built list of all needed inputs.
+	void OpenXRManager::InputHandler::createActionBindings()
+	{
+		if (m_manager.m_instance == XR_NULL_HANDLE) return; // Do not proceed if no connection was established.
+
+		// Create action sets.
+		XrActionSet gameplaySet;
+		utils::input::createActionSet(m_manager.m_instance, "gameplay", 0, &gameplaySet);
+		m_actionSets.push_back(gameplaySet);
+		
+		// Create actions with their respective paths.
+		XrAction leftGripAction;
+		XrResult actionMade = utils::input::createAction(gameplaySet, "left_grip_pose", XR_ACTION_TYPE_POSE_INPUT, &leftGripAction);
+		XrPath leftGripPath;
+		utils::input::createPath(m_manager.m_instance, "/user/hand/left/input/grip/pose", &leftGripPath);
+		m_actionBindings.push_back({ leftGripAction, leftGripPath, XR_ACTION_TYPE_POSE_INPUT, "left_grip_pose" });
+		std::cout << "action made: " << actionMade << "\n";
+		XrAction rightGripAction;
+		utils::input::createAction(gameplaySet, "right_grip_pose", XR_ACTION_TYPE_POSE_INPUT, &rightGripAction);
+		XrPath rightGripPath;
+		utils::input::createPath(m_manager.m_instance, "/user/hand/right/input/grip/pose", &rightGripPath);
+		m_actionBindings.push_back({ rightGripAction, rightGripPath, XR_ACTION_TYPE_POSE_INPUT, "right_grip_pose" });
+
+		XrAction leftAimAction;
+		utils::input::createAction(gameplaySet, "left_aim_pose", XR_ACTION_TYPE_POSE_INPUT, &leftAimAction);
+		XrPath leftAimPath;
+		utils::input::createPath(m_manager.m_instance, "/user/hand/left/input/aim/pose", &leftAimPath);
+		m_actionBindings.push_back({ leftAimAction, leftAimPath, XR_ACTION_TYPE_POSE_INPUT, "left_aim_pose" });
+
+		XrAction rightAimAction;
+		utils::input::createAction(gameplaySet, "right_aim_pose", XR_ACTION_TYPE_POSE_INPUT, &rightAimAction);
+		XrPath rightAimPath;
+		utils::input::createPath(m_manager.m_instance, "/user/hand/right/input/aim/pose", &rightAimPath);
+		m_actionBindings.push_back({ rightAimAction, rightAimPath, XR_ACTION_TYPE_POSE_INPUT, "right_aim_pose" });
+
+		XrPath leftHandPath, rightHandPath;
+		utils::input::createPath(m_manager.m_instance, "/user/hand/left", &leftHandPath);
+		utils::input::createPath(m_manager.m_instance, "/user/hand/right", &rightHandPath);
+
+		// Create action spaces for left and right hands.
+		utils::input::createActionSpace(m_manager.m_session, m_actionBindings[0].action, leftHandPath, & m_leftGripSpace);
+		utils::input::createActionSpace(m_manager.m_session, m_actionBindings[1].action, rightHandPath, &m_rightGripSpace);
+		utils::input::createActionSpace(m_manager.m_session, m_actionBindings[2].action, leftHandPath, &m_leftAimSpace);
+		utils::input::createActionSpace(m_manager.m_session, m_actionBindings[3].action, rightHandPath, &m_rightAimSpace);
+
+		utils::input::createPath(m_manager.m_instance, "/interaction_profiles/khr/simple_controller", &m_interactionProfilePath);
+
+		std::vector<XrActionSuggestedBinding> suggestedBindings = utils::input::generateSuggestedBindings(m_actionBindings);
+
+		XrResult bindingsSuggested = utils::input::suggestBindings(m_manager.m_instance, m_interactionProfilePath, suggestedBindings);
+		if (bindingsSuggested != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR failed to suggest bindings: " << bindingsSuggested <<"\n";
+			return;
+		}
+
+		XrResult attachedActionSets = utils::input::attachSessionActionSets(m_manager.m_session, m_actionSets);
+		if (attachedActionSets != XR_SUCCESS)
+		{
+			std::cerr << "XR_INIT_ERROR failed to attach action sets to session.\n";
+			return;
+		}
+	}
+
 	/// Read the event queue of the runtime for the instance and session. React to these changes accordingly.
 	void OpenXRManager::pollEvents()
 	{
@@ -276,6 +359,16 @@ namespace ImmersiveEngine::XR
 				sessionRunning = false;
 				std::cerr << "XR_RUNTIME_ERROR instance loss pending at: " << instanceLossPendingEvent->lossTime << "\n";
 			}
+		}
+	}
+
+	/// Updates the current state of input actions.
+	void OpenXRManager::InputHandler::syncInputs()
+	{
+		XrResult syncedActions = utils::input::syncActions(m_manager.m_session, m_actionSets);
+		if (syncedActions != XR_SUCCESS)
+		{
+			std::cerr << "XR_RUNTIME_ERROR could not sync inputs: " << syncedActions << "\n";
 		}
 	}
 
@@ -514,6 +607,136 @@ namespace ImmersiveEngine::XR
 		}
 
 		return m_depthSwapchainInfos[eyeIndex].images[imageIndex].image; // Get image by current eye and next available image.
+	}
+
+	bool OpenXRManager::InputHandler::isPressed(InputPath path)
+	{
+		if (path >= m_actionBindings.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR invalid input path index.\n";
+			return false;
+		}
+		if (m_actionBindings[path].type == XR_ACTION_TYPE_BOOLEAN_INPUT)
+		{
+			XrActionStateBoolean boolState = { XR_TYPE_ACTION_STATE_BOOLEAN };
+			XrResult gotActionState = utils::input::getActionStateBoolean(m_manager.m_session, m_actionBindings[path].action, &boolState);
+			if (gotActionState != XR_SUCCESS)
+			{
+				std::cerr << "XR_RUNTIME_ERROR could not get boolean value from input path.\n";
+				return false;
+			}
+			return boolState.currentState;
+		}
+		else if (m_actionBindings[path].type == XR_ACTION_TYPE_FLOAT_INPUT)
+		{
+			return getFloatValue(path) > 0.0f ? true : false;
+		}
+		else
+		{
+			std::cerr << "XR_RUNTIME_ERROR type mismatch: could not get boolean value from input path.\n";
+			return false;
+		}
+	}
+	float OpenXRManager::InputHandler::getFloatValue(InputPath path)
+	{
+		if (path >= m_actionBindings.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR invalid input path index.\n";
+			return 0.0f;
+		}
+		if (m_actionBindings[path].type == XR_ACTION_TYPE_FLOAT_INPUT)
+		{
+			XrActionStateFloat floatState = { XR_TYPE_ACTION_STATE_FLOAT };
+			XrResult gotActionState = utils::input::getActionStateFloat(m_manager.m_session, m_actionBindings[path].action, &floatState);
+			if (gotActionState != XR_SUCCESS)
+			{
+				std::cerr << "XR_RUNTIME_ERROR could not get float value from input path.\n";
+				return 0;
+			}
+			return floatState.currentState;
+		}
+		else if (m_actionBindings[path].type == XR_ACTION_TYPE_BOOLEAN_INPUT)
+		{
+			return isPressed(path) ? 1.0f : 0.0f;
+		}
+		else
+		{
+			std::cerr << "XR_RUNTIME_ERROR type mismatch: could not get float value from input path.\n";
+			return 0.0f;
+		}
+	}
+	ImmersiveEngine::Math::Vector2 OpenXRManager::InputHandler::getVector2Value(InputPath path)
+	{
+		if (path >= m_actionBindings.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR invalid input path index.\n";
+			return ImmersiveEngine::Math::Vector2(0, 0);
+		}
+		if (m_actionBindings[path].type == XR_ACTION_TYPE_VECTOR2F_INPUT)
+		{
+			XrActionStateVector2f vector2State = { XR_TYPE_ACTION_STATE_VECTOR2F };
+			XrResult gotActionState = utils::input::getActionStateVector2f(m_manager.m_session, m_actionBindings[path].action, &vector2State);
+			if (gotActionState != XR_SUCCESS)
+			{
+				std::cerr << "XR_RUNTIME_ERROR could not get vector2 value from input path.\n";
+				return ImmersiveEngine::Math::Vector2(0, 0);
+			}
+			return ImmersiveEngine::Math::Vector2(vector2State.currentState.x, vector2State.currentState.y);
+		}
+		else
+		{
+			std::cerr << "XR_RUNTIME_ERROR type mismatch: could not get vector2 value from input path.\n";
+			return ImmersiveEngine::Math::Vector2(0, 0);
+		}
+	}
+	utils::input::Pose OpenXRManager::InputHandler::getPoseValue(InputPath path)
+	{
+		if (path >= m_actionBindings.size())
+		{
+			std::cerr << "XR_RUNTIME_ERROR invalid input path index.\n";
+			return utils::input::Pose{};
+		}
+		if (m_actionBindings[path].type == XR_ACTION_TYPE_POSE_INPUT)
+		{
+			XrSpace space;
+			if (path == InputPath::leftGripPose)
+			{
+				space = m_leftGripSpace;
+			}
+			else if (path == InputPath::rightGripPose)
+			{
+				space = m_rightGripSpace;
+			}
+			else if (path == InputPath::leftAimPose)
+			{
+				space = m_leftAimSpace;
+			}
+			else if (path == InputPath::rightAimPose)
+			{
+				space = m_rightAimSpace;
+			}
+			else
+			{
+				std::cerr << "XR_RUNTIME_ERROR type mismatch: could not get pose value from input path.\n";
+				return utils::input::Pose{ };
+			}
+
+			XrSpaceLocation location = { XR_TYPE_SPACE_LOCATION };
+			XrResult locatedSpace = utils::locateSpace(space, m_manager.m_referenceSpace, m_manager.m_frameState.predictedDisplayTime, &location);
+			if (locatedSpace != XR_SUCCESS)
+			{
+				std::cerr << "XR_RUNTIME_ERROR could not get pose value from input path.\n";
+				return utils::input::Pose{ };
+			}
+			ImmersiveEngine::Math::Vector3 position(location.pose.position.x, location.pose.position.y, location.pose.position.z);
+			ImmersiveEngine::Math::Quaternion orientation(location.pose.orientation.w, location.pose.orientation.x, location.pose.orientation.y, location.pose.orientation.z);
+			return utils::input::Pose{ position, orientation };
+		}
+		else
+		{
+			std::cerr << "XR_RUNTIME_ERROR type mismatch: could not get pose value from input path.\n";
+			return utils::input::Pose{ };
+		}
 	}
 
 	std::string OpenXRManager::toString()

@@ -41,14 +41,20 @@ namespace ImmersiveEngine::XR
 			class InputHandler
 			{
 				private:
-					OpenXRManager& manager;
+					OpenXRManager& m_manager;
 
-					std::vector<utils::input::ActionBinding> actionBindings;
+					std::vector<XrActionSet> m_actionSets;
+					std::vector<utils::input::ActionBinding> m_actionBindings;
 
-					XrSpace m_leftHandSpace = XR_NULL_HANDLE;
-					XrSpace m_rightHandSpace = XR_NULL_HANDLE;
+					XrPath m_interactionProfilePath = XR_NULL_PATH;
+
+					XrSpace m_leftGripSpace = XR_NULL_HANDLE;
+					XrSpace m_rightGripSpace = XR_NULL_HANDLE;
+					XrSpace m_leftAimSpace = XR_NULL_HANDLE;
+					XrSpace m_rightAimSpace = XR_NULL_HANDLE;
 				public:
 					InputHandler(OpenXRManager& manager);
+					~InputHandler();
 
 					enum InputPath
 					{
@@ -58,6 +64,10 @@ namespace ImmersiveEngine::XR
 						rightAimPose,
 					};
 
+					void createActionBindings();
+					void syncInputs();
+					
+					bool isPressed(InputPath path);
 					float getFloatValue(InputPath path);
 					ImmersiveEngine::Math::Vector2 getVector2Value(InputPath path);
 					utils::input::Pose getPoseValue(InputPath path);

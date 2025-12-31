@@ -70,13 +70,15 @@ int main()
 	gladLoadGL();
 	glfwSwapInterval(0); // vsync off
 
-	bool openInVR = false;
+	bool openInVR = true;
 	std::vector<FBO> eyeFBO;
 	ImmersiveEngine::XR::OpenXRManager xr;
 	if (openInVR)
 	{
 		xr.establishConnection();
 		eyeFBO.resize(xr.getEyeCount());
+		
+		xr.input.createActionBindings();
 	}
 
 	glEnable(GL_BLEND);
@@ -124,6 +126,7 @@ int main()
 
 	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateSphere(1,24,24));
 	auto primitiveMeshB = std::make_shared<Mesh>(Mesh::generateSquarePyramid(0.5f, 0.5f));
+	auto primitiveMeshC = std::make_shared<Mesh>(Mesh::generateSphere(0.06f, 8, 8));
 
 	ImmersiveEngine::cbs::Present lightA;
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
@@ -148,6 +151,9 @@ int main()
 	primitive.space->dialate(1.0f);
 	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 2.0f, -2.0f));
 	primitive.space->rotate(90, ImmersiveEngine::Math::Vector3::right);
+
+	ImmersiveEngine::cbs::Present leftHand("Left Hand", primitiveMeshC);
+	ImmersiveEngine::cbs::Present rightHand("Right Hand", primitiveMeshC);
 
 	//primitive.space->rotate(90, ImmersiveEngine::Math::Vector3::up);
 	//primitive.space->pivotPoint.x -= 0.5f;
@@ -185,7 +191,10 @@ int main()
 		float deltaTime = x2 - x1;
 		x1 = x2;
 
-		if (openInVR) xr.pollEvents();
+		if (openInVR)
+		{
+			xr.pollEvents();
+		}
 
 		crntTime = glfwGetTime();
 		timeDiff = crntTime - prevTime;
@@ -267,8 +276,6 @@ int main()
 			camSpeed = camWalkSpeed;
 		}
 
-		//primitive.space->lookAt(cam.space->position);
-		//primitive.space->rotate(15.0f * deltaTime, ImmersiveEngine::Math::Vector3::right);
 		primitive.space->rotate(20.0f * deltaTime, ImmersiveEngine::Math::Vector3::up);
 
 		if (openInVR && xr.sessionRunning)
@@ -277,13 +284,20 @@ int main()
 			xr.waitFrame();
 			xr.beginFrame();
 			
+			xr.input.syncInputs();
+			auto poseL = xr.input.getPoseValue(InputPath::leftGripPose);
+			leftHand.space->position = poseL.position + cam.space->position;
+			leftHand.space->orientation = poseL.orientation;
+
+			auto poseR = xr.input.getPoseValue(InputPath::rightGripPose);
+			rightHand.space->position = poseR.position + cam.space->position;
+			rightHand.space->orientation = poseR.orientation;
+
 			for (uint32_t i = 0; i < xr.getEyeCount(); ++i)
 			{
 				GLuint colorImage = xr.getFrameColorImage(i);
 				GLuint depthImage = xr.getFrameDepthImage(i);
 
-				//std::cout << "Rendering eye: " << i << "\n";
-				//std::cout << image << "\n";
 				xr.waitRenderToEye(i);
 
 				XrViewConfigurationView viewConfig = xr.getViewConfig(i);
@@ -299,10 +313,8 @@ int main()
 				glEnable(GL_CULL_FACE);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glViewport(0, 0, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
-				//FBO.Resize(viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 
 				shaderProgram.Activate();
-				//camComp->refreshViewProjection(shaderProgram, (float)viewConfig.recommendedImageRectWidth / viewConfig.recommendedImageRectHeight);
 				camComp->refreshViewProjection(shaderProgram, view);
 
 				plane.space->refreshTransforms(shaderProgram);
@@ -315,6 +327,12 @@ int main()
 												
 				primitive.space->refreshTransforms(shaderProgram);
 				primitive.mesh->draw(shaderProgram);
+
+				leftHand.space->refreshTransforms(shaderProgram);
+				leftHand.mesh->draw(shaderProgram);
+
+				rightHand.space->refreshTransforms(shaderProgram);
+				rightHand.mesh->draw(shaderProgram);
 
 				eyeFBO[i].Unbind();
 

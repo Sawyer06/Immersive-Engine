@@ -185,6 +185,10 @@ namespace ImmersiveEngine::XR::utils
 		XrSwapchainImageReleaseInfo info = { XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
 		return xrReleaseSwapchainImage(swapchain, &info);
 	}
+	XrResult locateSpace(XrSpace& space, XrSpace& baseSpace, XrTime& time, XrSpaceLocation* location)
+	{
+		return xrLocateSpace(space, baseSpace, time, location);
+	}
 
 	XrResult destroyInstance(XrInstance& instance)
 	{
@@ -217,6 +221,7 @@ namespace ImmersiveEngine::XR::utils
 
 	namespace input
 	{
+		/// Connect the action to a path.
 		std::vector<XrActionSuggestedBinding> generateSuggestedBindings(std::vector<ActionBinding>& actionBindings)
 		{
 			std::vector<XrActionSuggestedBinding> suggestedBindings;
@@ -227,7 +232,7 @@ namespace ImmersiveEngine::XR::utils
 			return suggestedBindings;
 		}
 
-		XrResult createActionSet(XrInstance& instance, const char* name, uint32_t& priority, XrActionSet* o_actionSet)
+		XrResult createActionSet(XrInstance& instance, const char* name, uint32_t priority, XrActionSet* o_actionSet)
 		{
 			XrActionSetCreateInfo info = { XR_TYPE_ACTION_SET_CREATE_INFO };
 			strcpy(info.actionSetName, name);
@@ -236,14 +241,12 @@ namespace ImmersiveEngine::XR::utils
 
 			return xrCreateActionSet(instance, &info, o_actionSet);
 		}
-		XrResult createAction(XrActionSet& actionSet, const char* name, XrActionType& type, std::vector<XrPath> subactionPaths, XrAction* o_action)
+		XrResult createAction(XrActionSet& actionSet, const char* name, XrActionType type, XrAction* o_action)
 		{
 			XrActionCreateInfo info = { XR_TYPE_ACTION_CREATE_INFO };
 			strcpy(info.actionName, name);
 			strcpy(info.localizedActionName, name);
 			info.actionType = type;
-			info.countSubactionPaths = subactionPaths.size();
-			info.subactionPaths = subactionPaths.data();
 
 			return xrCreateAction(actionSet, &info, o_action);
 		}
@@ -251,14 +254,39 @@ namespace ImmersiveEngine::XR::utils
 		{
 			return xrStringToPath(instance, pathString, o_path);
 		}
-		XrResult createActionSpace(XrSession& session, XrAction& action, XrSpace* o_space)
+		XrResult createActionSpace(XrSession& session, XrAction& action, XrPath& subactionPath, XrSpace* o_space)
 		{
 			XrActionSpaceCreateInfo info = { XR_TYPE_ACTION_SPACE_CREATE_INFO };
 			info.action = action;
-			info.poseInActionSpace = { {0, 0, 0, 1}, {0, 0, 0} };
+			info.subactionPath = subactionPath;
+			info.poseInActionSpace = { {1, 0, 0, 0}, {0, 0, 0} };
+			
 			return xrCreateActionSpace(session, &info, o_space);
 		}
 
+		XrResult getActionStateBoolean(XrSession& session, XrAction& action, XrActionStateBoolean* state)
+		{
+			XrActionStateGetInfo info = { XR_TYPE_ACTION_STATE_GET_INFO };
+			info.action = action;
+			
+			return xrGetActionStateBoolean(session, &info, state);
+		}
+		XrResult getActionStateFloat(XrSession& session, XrAction& action, XrActionStateFloat* state)
+		{
+			XrActionStateGetInfo info = { XR_TYPE_ACTION_STATE_GET_INFO };
+			info.action = action;
+			
+			return xrGetActionStateFloat(session, &info, state);
+		}
+		XrResult getActionStateVector2f(XrSession& session, XrAction& action, XrActionStateVector2f* state)
+		{
+			XrActionStateGetInfo info = { XR_TYPE_ACTION_STATE_GET_INFO };
+			info.action = action;
+			
+			return xrGetActionStateVector2f(session, &info, state);
+		}
+
+		/// Suggest mapping for actions and paths based on device.
 		XrResult suggestBindings(XrInstance& instance, XrPath& interactionProfile, std::vector<XrActionSuggestedBinding>& bindings)
 		{
 			XrInteractionProfileSuggestedBinding suggestedBindings = { XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
@@ -287,6 +315,7 @@ namespace ImmersiveEngine::XR::utils
 			XrActionsSyncInfo info = { XR_TYPE_ACTIONS_SYNC_INFO };
 			info.countActiveActionSets = activeActionSets.size();
 			info.activeActionSets = activeActionSets.data();
+			
 			return xrSyncActions(session, &info);
 		}
 		XrResult destroyActionSet(XrActionSet& actionSet)
@@ -294,6 +323,7 @@ namespace ImmersiveEngine::XR::utils
 			if (actionSet != XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
 			XrResult destroyed = xrDestroyActionSet(actionSet);
 			actionSet = XR_NULL_HANDLE;
+			
 			return destroyed;
 		}
 		XrResult destroyAction(XrAction& action)
@@ -301,6 +331,7 @@ namespace ImmersiveEngine::XR::utils
 			if (action != XR_NULL_HANDLE) return XR_ERROR_RUNTIME_FAILURE;
 			XrResult destroyed = xrDestroyAction(action);
 			action = XR_NULL_HANDLE;
+			
 			return destroyed;
 		}
 	}

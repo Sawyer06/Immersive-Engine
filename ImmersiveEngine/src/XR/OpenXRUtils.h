@@ -52,6 +52,7 @@ namespace ImmersiveEngine::XR::utils
 	XrResult enumerateSwapchainImages(XrSwapchain& swapchain, std::vector<XrSwapchainImageOpenGLKHR>* o_images);
 	XrResult waitSwapchainImage(XrSwapchain& swapchain);
 	XrResult releaseSwapchainImage(XrSwapchain& swapchain);
+	XrResult locateSpace(XrSpace& space, XrSpace& baseSpace, XrTime& time, XrSpaceLocation* location);
 
 	XrResult destroyInstance(XrInstance& instance);
 	XrResult destroySession(XrSession& session);
@@ -77,12 +78,17 @@ namespace ImmersiveEngine::XR::utils
 
 		std::vector<XrActionSuggestedBinding> generateSuggestedBindings(std::vector<ActionBinding>& actionBindings);
 
-		XrResult createActionSet(XrInstance& instance, const char* name, uint32_t& priority, XrActionSet* o_actionSet);
-		XrResult createAction(XrActionSet& actionSet, const char* name, XrActionType& type, std::vector<XrPath> subactionPaths, XrAction* o_action);
+		XrResult createActionSet(XrInstance& instance, const char* name, uint32_t priority, XrActionSet* o_actionSet);
+		XrResult createAction(XrActionSet& actionSet, const char* name, XrActionType type, XrAction* o_action);
 		XrResult createPath(XrInstance& instance, const char* pathString, XrPath* o_path);
-		XrResult createActionSpace(XrSession& session, XrAction& action, XrSpace* o_space);
+		XrResult createActionSpace(XrSession& session, XrAction& action, XrPath& subactionPath, XrSpace* o_space);
+
+		XrResult getActionStateBoolean(XrSession& session, XrAction& action, XrActionStateBoolean* state);
+		XrResult getActionStateFloat(XrSession& session, XrAction& action, XrActionStateFloat* state);
+		XrResult getActionStateVector2f(XrSession& session, XrAction& action, XrActionStateVector2f* state);
 
 		XrResult suggestBindings(XrInstance& instance, XrPath& interactionProfile, std::vector<XrActionSuggestedBinding>& bindings);
+		XrResult attachSessionActionSets(XrSession& session, std::vector<XrActionSet>& actionSets);
 		XrResult attachSessionActionSets(XrSession& session, std::vector<XrActionSet>& actionSets);
 		XrResult syncActions(XrSession& session, std::vector<XrActionSet>& actionSets);
 

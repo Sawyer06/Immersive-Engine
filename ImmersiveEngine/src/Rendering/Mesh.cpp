@@ -399,15 +399,15 @@ Mesh Mesh::generateSphere(const float radius, uint32_t sectorCount, uint32_t sta
             if (i != 0)
             {
                 indices.push_back(k1);
-                indices.push_back(k2);
                 indices.push_back(k1 + 1);
+                indices.push_back(k2);
             }
             // Right triangle. Do not create if at the lowest sector.
             if (i != (stackCount - 1))
             {
                 indices.push_back(k1 + 1);
-                indices.push_back(k2);
                 indices.push_back(k2 + 1);
+                indices.push_back(k2);
             }
         }
     }
