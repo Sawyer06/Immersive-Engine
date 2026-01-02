@@ -202,19 +202,31 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\cheeki.jpg">
+    <Image Include="src\dead-grass.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
-    <Image Include="src\sand.jpg">
+    <Image Include="src\cobblestone.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
-    <Image Include="src\brick.png">
-      <Filter>Resource Files</Filter>
+    <Image Include="src\abandoned-building1.png">
+      <Filter>Resource Files\Textures</Filter>
     </Image>
-    <Image Include="src\stone.png">
-      <Filter>Resource Files</Filter>
+    <Image Include="src\abandoned-building4.png">
+      <Filter>Resource Files\Textures</Filter>
     </Image>
-    <Image Include="src\earth.png">
+    <Image Include="src\abandoned-building5.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="src\abandoned-building6.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="src\abandoned-building7.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="src\abandoned-building2.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="src\abandoned-building3.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>

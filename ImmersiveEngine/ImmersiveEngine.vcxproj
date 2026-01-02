@@ -209,11 +209,15 @@
     <ClInclude Include="src\XR\OpenXRUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="src\brick.png" />
-    <Image Include="src\cheeki.jpg" />
-    <Image Include="src\earth.png" />
-    <Image Include="src\sand.jpg" />
-    <Image Include="src\stone.png" />
+    <Image Include="src\abandoned-building1.png" />
+    <Image Include="src\abandoned-building2.png" />
+    <Image Include="src\abandoned-building3.png" />
+    <Image Include="src\abandoned-building4.png" />
+    <Image Include="src\abandoned-building5.png" />
+    <Image Include="src\abandoned-building6.png" />
+    <Image Include="src\abandoned-building7.png" />
+    <Image Include="src\cobblestone.png" />
+    <Image Include="src\dead-grass.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -27,6 +27,9 @@ class Mesh
 		Mesh(const Mesh& mesh);
 		~Mesh();
 
+		float textureScale = 1.0f;
+		ImmersiveEngine::Math::Vector2 textureOffset;
+
 		void buildMesh();
 
 		void draw(Shader& shaderProgram);

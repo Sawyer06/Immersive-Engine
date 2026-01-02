@@ -70,7 +70,7 @@ int main()
 	gladLoadGL();
 	glfwSwapInterval(0); // vsync off
 
-	bool openInVR = true;
+	bool openInVR = false;
 	std::vector<FBO> eyeFBO;
 	ImmersiveEngine::XR::OpenXRManager xr;
 	if (openInVR)
@@ -102,31 +102,71 @@ int main()
 	//cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
 	//cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, -0.5f, 0));
 
-	Texture* sand = new Texture("sand.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* stone = new Texture("stone.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* brick = new Texture("brick.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* earth = new Texture("earth.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* deadGrassTex = new Texture("dead-grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* cobblestoneTex = new Texture("cobblestone.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* facadeATex = new Texture("abandoned-building1.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* facadeBTex = new Texture("abandoned-building2.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* facadeCTex = new Texture("abandoned-building3.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* facadeDTex = new Texture("abandoned-building4.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* facadeETex = new Texture("abandoned-building5.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* facadeFTex = new Texture("abandoned-building6.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* facadeGTex = new Texture("abandoned-building7.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	Texture* facadeHTex = new Texture("abandoned-building8.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
-	auto planeMesh = std::make_shared<Mesh>(Mesh::generatePlane(3, 5));
-	ImmersiveEngine::cbs::Present plane("Plane", planeMesh);
-	plane.mesh->setTexture(stone);
-	plane.space->dialate(5.0f);
-	plane.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, -6.0f));
+	auto planeMesh1 = std::make_shared<Mesh>(Mesh::generatePlane(15, 4));
+	ImmersiveEngine::cbs::Present planeA("Plane_1", planeMesh1);
+	planeA.mesh->setTexture(cobblestoneTex);
+	planeA.mesh->textureScale = 1.2f;
+	planeA.space->dialate(5.0f);
+	planeA.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, -10.0f));
 
-	auto wallMesh = std::make_shared<Mesh>(Mesh::generateSquare(3));
-	ImmersiveEngine::cbs::Present wallA("Wall", wallMesh);
-	wallA.mesh->setTexture(brick);
-	wallA.space->dialate(4.0f);
-	wallA.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -1.0f, -6.0f));
-	ImmersiveEngine::cbs::Present wallB("Wall", wallMesh);
-	wallB.mesh->setTexture(brick);
-	wallB.space->dialate(4.0f);
-	wallB.space->translate(ImmersiveEngine::Math::Vector3(-3.0f, -1.0f, -3.0f));
-	wallB.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::up);
+	auto planeMesh2 = std::make_shared<Mesh>(Mesh::generatePlane(15, 10));
+	ImmersiveEngine::cbs::Present planeB("Plane_2", planeMesh2);
+	planeB.mesh->setTexture(deadGrassTex);
+	planeB.mesh->textureScale = 0.6f;
+	planeB.space->dialate(5.0f);
+	planeB.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, 25.0f));
 
-	auto primitiveMesh = std::make_shared<Mesh>(Mesh::generateSphere(1,24,24));
-	auto primitiveMeshB = std::make_shared<Mesh>(Mesh::generateSquarePyramid(0.5f, 0.5f));
-	auto primitiveMeshC = std::make_shared<Mesh>(Mesh::generateSphere(0.06f, 8, 8));
+	auto wallMesh1 = std::make_shared<Mesh>(Mesh::generateSquare(1));
+	ImmersiveEngine::cbs::Present wallA("Facade_1", wallMesh1);
+	wallA.mesh->setTexture(facadeATex);
+	wallA.mesh->textureScale = 1.0f;
+	wallA.mesh->textureOffset.y -= 0.5f;
+	wallA.space->dialate(12.0f);
+	wallA.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 4.0f, -16.0f));
+
+	auto wallMesh2 = std::make_shared<Mesh>(Mesh::generateSquare(1));
+	ImmersiveEngine::cbs::Present wallB("Facade_2", wallMesh2);
+	wallB.mesh->setTexture(facadeDTex);
+	wallB.mesh->textureOffset.y -= 0.5f;
+	wallB.space->dialate(25.0f);
+	wallB.space->translate(ImmersiveEngine::Math::Vector3(18.5f, 10.0f, -16.0f));
+
+	auto wallMesh3 = std::make_shared<Mesh>(Mesh::generateSquare(1));
+	ImmersiveEngine::cbs::Present wallC("Facade_3", wallMesh3);
+	wallC.mesh->setTexture(facadeHTex);
+	wallC.mesh->textureOffset.y -= 0.5f;
+	wallC.mesh->textureOffset.x -= 0.5f;
+	wallC.space->dialate(20.0f);
+	wallC.space->translate(ImmersiveEngine::Math::Vector3(-16.0f, 8.0f, -16.0f));
+
+	auto wallMesh4 = std::make_shared<Mesh>(Mesh::generateCube(10));
+	ImmersiveEngine::cbs::Present wallD("Facade_4", wallMesh4);
+	wallD.mesh->setTexture(facadeCTex);
+	wallD.mesh->textureScale = 0.25f;
+	wallD.mesh->textureOffset.y -= 0.1f;
+	wallD.space->dialate(5.0f);
+	wallD.space->translate(ImmersiveEngine::Math::Vector3(-30.0f, 14.0f, 32.0f));
+
+	auto wallMesh5 = std::make_shared<Mesh>(Mesh::generateSquare(3));
+	ImmersiveEngine::cbs::Present wallE("Facade_5", wallMesh5);
+	wallE.mesh->setTexture(facadeCTex);
+	wallE.mesh->textureScale = 1.0f;
+	wallE.mesh->textureOffset.y -= 0.5f;
+	wallE.space->dialate(20.0f);
+	wallE.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 8.0f, 40.0f));
+
+	auto handMesh = std::make_shared<Mesh>(Mesh::generateSphere(0.06f, 8, 8));
 
 	ImmersiveEngine::cbs::Present lightA;
 	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
@@ -146,22 +186,8 @@ int main()
 	lightCompB->diffuse.intensity = 5;
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompB);
 
-	ImmersiveEngine::cbs::Present primitive("Prim", primitiveMesh);
-	primitive.mesh->setTexture(earth);
-	primitive.space->dialate(1.0f);
-	primitive.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 2.0f, -2.0f));
-	primitive.space->rotate(90, ImmersiveEngine::Math::Vector3::right);
-
-	ImmersiveEngine::cbs::Present leftHand("Left Hand", primitiveMeshC);
-	ImmersiveEngine::cbs::Present rightHand("Right Hand", primitiveMeshC);
-
-	//primitive.space->rotate(90, ImmersiveEngine::Math::Vector3::up);
-	//primitive.space->pivotPoint.x -= 0.5f;
-	//primitive.space->pivotPoint.y -= 0.5f;
-	//lightComp->specular.color = ImmersiveEngine::Math::Vector3(0, 0, 0);
-	//lightComp->diffuse.color = ImmersiveEngine::Math::Vector3(200, 255, 0);
-	//lightComp->specular.intensity = 1.0f;
-	//lightComp->diffuse.intensity = 0.6f;
+	ImmersiveEngine::cbs::Present leftHand("Left Hand", handMesh);
+	ImmersiveEngine::cbs::Present rightHand("Right Hand", handMesh);
 	
 	float camWalkSpeed = 10.0f;
 	float camSprintSpeed = 30.0f;
@@ -245,6 +271,7 @@ int main()
 			lastX = mouseX;
 			lastY = mouseY;
 		}
+		//cam.space->position.y = 0.5f;
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
@@ -275,8 +302,6 @@ int main()
 		{
 			camSpeed = camWalkSpeed;
 		}
-
-		primitive.space->rotate(20.0f * deltaTime, ImmersiveEngine::Math::Vector3::up);
 
 		if (openInVR && xr.sessionRunning)
 		{
@@ -317,16 +342,7 @@ int main()
 				shaderProgram.Activate();
 				camComp->refreshViewProjection(shaderProgram, view);
 
-				plane.space->refreshTransforms(shaderProgram);
-				plane.mesh->draw(shaderProgram);
 
-				wallA.space->refreshTransforms(shaderProgram);
-				wallA.mesh->draw(shaderProgram);
-				wallB.space->refreshTransforms(shaderProgram);
-				wallB.mesh->draw(shaderProgram);
-												
-				primitive.space->refreshTransforms(shaderProgram);
-				primitive.mesh->draw(shaderProgram);
 
 				leftHand.space->refreshTransforms(shaderProgram);
 				leftHand.mesh->draw(shaderProgram);
@@ -369,16 +385,26 @@ int main()
 
 		cam.space->refreshTransforms(shaderProgram);
 
-		plane.space->refreshTransforms(shaderProgram);
-		plane.mesh->draw(shaderProgram);
+		planeA.space->refreshTransforms(shaderProgram);
+		planeA.mesh->draw(shaderProgram);
+
+		planeB.space->refreshTransforms(shaderProgram);
+		planeB.mesh->draw(shaderProgram);
 
 		wallA.space->refreshTransforms(shaderProgram);
 		wallA.mesh->draw(shaderProgram);
+
 		wallB.space->refreshTransforms(shaderProgram);
 		wallB.mesh->draw(shaderProgram);
 
-		primitive.space->refreshTransforms(shaderProgram);
-		primitive.mesh->draw(shaderProgram);
+		wallC.space->refreshTransforms(shaderProgram);
+		wallC.mesh->draw(shaderProgram);
+
+		wallD.space->refreshTransforms(shaderProgram);
+		wallD.mesh->draw(shaderProgram);
+
+		wallE.space->refreshTransforms(shaderProgram);
+		wallE.mesh->draw(shaderProgram);
 
 		FBO.Unbind();
 
@@ -396,10 +422,15 @@ int main()
 	}
 	FBO.Delete();
 
-	sand->Delete();
-	stone->Delete();
-	brick->Delete();
-	earth->Delete();
+	deadGrassTex->Delete();
+	facadeATex->Delete();
+	facadeBTex->Delete();
+	facadeCTex->Delete();
+	facadeDTex->Delete();
+	facadeETex->Delete();
+	facadeFTex->Delete();
+	facadeGTex->Delete();
+	facadeHTex->Delete();
 
 	shaderProgram.Delete();
 	screenShader.Delete();

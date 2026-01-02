@@ -48,6 +48,8 @@ void Mesh::draw(Shader& shaderProgram)
     if (m_texture)
     {
         shaderProgram.setInt("tex0", 0);
+        shaderProgram.setFloat("scale", textureScale);
+        shaderProgram.setVec2("offset", glm::vec2(textureOffset.x, textureOffset.y));
         shaderProgram.setBool("textured", true);
         m_texture->Bind();
     }
