@@ -42,6 +42,11 @@ Texture::Texture(const char* image, GLenum texType, GLenum slot, GLenum pixelTyp
 	glBindTexture(texType, 0);
 }
 
+Texture::~Texture()
+{
+	Delete();
+}
+
 void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 {
 	GLuint texUni = glGetUniformLocation(shader.ID, uniform);

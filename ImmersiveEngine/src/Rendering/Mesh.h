@@ -19,7 +19,7 @@ class Mesh
 	private:
 		std::vector<Vertex> m_vertices;
 		std::vector<GLuint> m_indices;
-		Texture* m_texture;
+		std::shared_ptr<Texture> m_texture;
 		
 		VAO m_VAO;
 	public:
@@ -33,7 +33,7 @@ class Mesh
 		void buildMesh();
 
 		void draw(Shader& shaderProgram);
-		void setTexture(Texture* texture);
+		void setTexture(std::shared_ptr<Texture>& texture);
 
 		void addUVOffset(ImmersiveEngine::Math::Vector2 offset);
 

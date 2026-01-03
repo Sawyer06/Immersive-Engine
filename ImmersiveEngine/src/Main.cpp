@@ -102,16 +102,16 @@ int main()
 	//cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
 	//cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, -0.5f, 0));
 
-	Texture* deadGrassTex = new Texture("dead-grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* cobblestoneTex = new Texture("cobblestone.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* facadeATex = new Texture("abandoned-building1.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* facadeBTex = new Texture("abandoned-building2.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* facadeCTex = new Texture("abandoned-building3.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* facadeDTex = new Texture("abandoned-building4.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* facadeETex = new Texture("abandoned-building5.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* facadeFTex = new Texture("abandoned-building6.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* facadeGTex = new Texture("abandoned-building7.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-	Texture* facadeHTex = new Texture("abandoned-building8.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> deadGrassTex = std::make_shared<Texture>("dead-grass.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> cobblestoneTex = std::make_shared<Texture>("cobblestone.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> facadeATex = std::make_shared<Texture>("abandoned-building1.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> facadeBTex = std::make_shared<Texture>("abandoned-building2.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> facadeCTex = std::make_shared<Texture>("abandoned-building3.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> facadeDTex = std::make_shared<Texture>("abandoned-building4.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> facadeETex = std::make_shared<Texture>("abandoned-building5.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> facadeFTex = std::make_shared<Texture>("abandoned-building6.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> facadeGTex = std::make_shared<Texture>("abandoned-building7.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> facadeHTex = std::make_shared<Texture>("abandoned-building8.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
 	auto planeMesh1 = std::make_shared<Mesh>(Mesh::generatePlane(15, 4));
 	ImmersiveEngine::cbs::Present planeA("Plane_1", planeMesh1);
@@ -135,20 +135,20 @@ int main()
 	wallA.space->dialate(12.0f);
 	wallA.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 4.0f, -16.0f));
 
-	auto wallMesh2 = std::make_shared<Mesh>(Mesh::generateSquare(1));
+	auto wallMesh2 = std::make_shared<Mesh>(Mesh::generateCube(1));
 	ImmersiveEngine::cbs::Present wallB("Facade_2", wallMesh2);
 	wallB.mesh->setTexture(facadeDTex);
 	wallB.mesh->textureOffset.y -= 0.5f;
 	wallB.space->dialate(25.0f);
-	wallB.space->translate(ImmersiveEngine::Math::Vector3(18.5f, 10.0f, -16.0f));
+	wallB.space->translate(ImmersiveEngine::Math::Vector3(18.5f, 10.0f, -28.0f));
 
-	auto wallMesh3 = std::make_shared<Mesh>(Mesh::generateSquare(1));
+	auto wallMesh3 = std::make_shared<Mesh>(Mesh::generateCube(1));
 	ImmersiveEngine::cbs::Present wallC("Facade_3", wallMesh3);
 	wallC.mesh->setTexture(facadeHTex);
 	wallC.mesh->textureOffset.y -= 0.5f;
 	wallC.mesh->textureOffset.x -= 0.5f;
 	wallC.space->dialate(20.0f);
-	wallC.space->translate(ImmersiveEngine::Math::Vector3(-16.0f, 8.0f, -16.0f));
+	wallC.space->translate(ImmersiveEngine::Math::Vector3(-16.0f, 8.0f, -25.0f));
 
 	auto wallMesh4 = std::make_shared<Mesh>(Mesh::generateCube(10));
 	ImmersiveEngine::cbs::Present wallD("Facade_4", wallMesh4);
@@ -156,7 +156,7 @@ int main()
 	wallD.mesh->textureScale = 0.25f;
 	wallD.mesh->textureOffset.y -= 0.1f;
 	wallD.space->dialate(5.0f);
-	wallD.space->translate(ImmersiveEngine::Math::Vector3(-30.0f, 14.0f, 32.0f));
+	wallD.space->translate(ImmersiveEngine::Math::Vector3(-30.0f, 2.0f, 32.0f));
 
 	auto wallMesh5 = std::make_shared<Mesh>(Mesh::generateSquare(3));
 	ImmersiveEngine::cbs::Present wallE("Facade_5", wallMesh5);
@@ -164,7 +164,7 @@ int main()
 	wallE.mesh->textureScale = 1.0f;
 	wallE.mesh->textureOffset.y -= 0.5f;
 	wallE.space->dialate(20.0f);
-	wallE.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 8.0f, 40.0f));
+	wallE.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 5.0f, 40.0f));
 
 	auto handMesh = std::make_shared<Mesh>(Mesh::generateSphere(0.06f, 8, 8));
 
@@ -421,16 +421,6 @@ int main()
 		glfwPollEvents(); // Process window events.
 	}
 	FBO.Delete();
-
-	deadGrassTex->Delete();
-	facadeATex->Delete();
-	facadeBTex->Delete();
-	facadeCTex->Delete();
-	facadeDTex->Delete();
-	facadeETex->Delete();
-	facadeFTex->Delete();
-	facadeGTex->Delete();
-	facadeHTex->Delete();
 
 	shaderProgram.Delete();
 	screenShader.Delete();

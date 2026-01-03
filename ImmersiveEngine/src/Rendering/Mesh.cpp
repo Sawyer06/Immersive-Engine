@@ -76,11 +76,10 @@ void Mesh::draw(Shader& shaderProgram)
 
 
 /// Set image texture on mesh.
-void Mesh::setTexture(Texture* texture)
+void Mesh::setTexture(std::shared_ptr<Texture>& texture)
 {
     if (m_texture) // Texture already applied, replace it.
     {
-        //m_texture->Delete();
         m_texture = nullptr;
     }
     m_texture = texture;
@@ -125,13 +124,6 @@ uint32_t Mesh::getVerticesCount()
 void Mesh::dump()
 {
     m_VAO.Delete();
-
-    if (m_texture)
-    {
-        //m_texture->Delete();
-        delete m_texture;
-        m_texture = nullptr;
-    };
 }
 
 /*================================================================
@@ -267,16 +259,16 @@ Mesh Mesh::generateCube(const float length)
         Vertex{ImmersiveEngine::Math::Vector3(-offset, offset, -offset), ImmersiveEngine::Math::Vector3(0.0f, 1.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, -offset)}, // 7
 
         // Front face
-        Vertex{ImmersiveEngine::Math::Vector3(offset, -offset, offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, offset)}, // 8
-        Vertex{ImmersiveEngine::Math::Vector3(-offset, -offset, offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, offset)}, // 9
-        Vertex{ImmersiveEngine::Math::Vector3(offset, offset, offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, -offset)}, // 10
-        Vertex{ImmersiveEngine::Math::Vector3(-offset, offset, offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, -offset)}, // 11
+        Vertex{ImmersiveEngine::Math::Vector3(offset, -offset, offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, -offset)}, // 8
+        Vertex{ImmersiveEngine::Math::Vector3(-offset, -offset, offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, -offset)}, // 9
+        Vertex{ImmersiveEngine::Math::Vector3(offset, offset, offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, offset)}, // 10
+        Vertex{ImmersiveEngine::Math::Vector3(-offset, offset, offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, 1.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, offset)}, // 11
 
         // Back face
-        Vertex{ImmersiveEngine::Math::Vector3(offset, -offset, -offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, offset)}, // 12
-        Vertex{ImmersiveEngine::Math::Vector3(-offset, -offset, -offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, offset)}, // 13
-        Vertex{ImmersiveEngine::Math::Vector3(offset, offset, -offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, -offset)}, // 14
-        Vertex{ImmersiveEngine::Math::Vector3(-offset, offset, -offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, -offset)}, // 15
+        Vertex{ImmersiveEngine::Math::Vector3(offset, -offset, -offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, -offset)}, // 12
+        Vertex{ImmersiveEngine::Math::Vector3(-offset, -offset, -offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, -offset)}, // 13
+        Vertex{ImmersiveEngine::Math::Vector3(offset, offset, -offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, offset)}, // 14
+        Vertex{ImmersiveEngine::Math::Vector3(-offset, offset, -offset), ImmersiveEngine::Math::Vector3(0.0f, 0.0f, -1.0f), defaultColor, ImmersiveEngine::Math::Vector2(-offset, offset)}, // 15
 
         // Right face
         Vertex{ImmersiveEngine::Math::Vector3(offset, -offset, -offset), ImmersiveEngine::Math::Vector3(1.0f, 0.0f, 0.0f), defaultColor, ImmersiveEngine::Math::Vector2(offset, -offset)}, // 16
