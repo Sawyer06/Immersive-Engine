@@ -229,6 +229,9 @@
     <Image Include="src\abandoned-building3.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+    <Image Include="src\abandoned-building9.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\default.frag">

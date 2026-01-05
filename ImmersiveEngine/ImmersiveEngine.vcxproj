@@ -216,6 +216,7 @@
     <Image Include="src\abandoned-building5.png" />
     <Image Include="src\abandoned-building6.png" />
     <Image Include="src\abandoned-building7.png" />
+    <Image Include="src\abandoned-building9.png" />
     <Image Include="src\cobblestone.png" />
     <Image Include="src\dead-grass.png" />
   </ItemGroup>

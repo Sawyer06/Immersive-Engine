@@ -112,6 +112,7 @@ int main()
 	std::shared_ptr<Texture> facadeFTex = std::make_shared<Texture>("abandoned-building6.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<Texture> facadeGTex = std::make_shared<Texture>("abandoned-building7.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<Texture> facadeHTex = std::make_shared<Texture>("abandoned-building8.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+	std::shared_ptr<Texture> facadeITex = std::make_shared<Texture>("abandoned-building9.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
 	auto planeMesh1 = std::make_shared<Mesh>(Mesh::generatePlane(15, 4));
 	ImmersiveEngine::cbs::Present planeA("Plane_1", planeMesh1);
@@ -119,13 +120,17 @@ int main()
 	planeA.mesh->textureScale = 1.2f;
 	planeA.space->dialate(5.0f);
 	planeA.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, -10.0f));
+	ImmersiveEngine::cbs::Present planeB("Plane_2", planeMesh1);
+	planeB.space->dialate(5.0f);
+	planeB.space->translate(ImmersiveEngine::Math::Vector3(47.5f, -2.0f, 10.0f));
+	planeB.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::up);
 
 	auto planeMesh2 = std::make_shared<Mesh>(Mesh::generatePlane(15, 10));
-	ImmersiveEngine::cbs::Present planeB("Plane_2", planeMesh2);
-	planeB.mesh->setTexture(deadGrassTex);
-	planeB.mesh->textureScale = 0.6f;
-	planeB.space->dialate(5.0f);
-	planeB.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, 25.0f));
+	ImmersiveEngine::cbs::Present planeC("Plane_3", planeMesh2);
+	planeC.mesh->setTexture(deadGrassTex);
+	planeC.mesh->textureScale = 0.6f;
+	planeC.space->dialate(5.0f);
+	planeC.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, 25.0f));
 
 	auto wallMesh1 = std::make_shared<Mesh>(Mesh::generateSquare(1));
 	ImmersiveEngine::cbs::Present wallA("Facade_1", wallMesh1);
@@ -164,27 +169,87 @@ int main()
 	wallE.mesh->textureScale = 1.0f;
 	wallE.mesh->textureOffset.y -= 0.5f;
 	wallE.space->dialate(20.0f);
-	wallE.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 5.0f, 40.0f));
+	wallE.space->translate(ImmersiveEngine::Math::Vector3(7.0f, 5.0f, 40.0f));
+
+	auto wallMesh6 = std::make_shared<Mesh>(Mesh::generateCube(40));
+	ImmersiveEngine::cbs::Present wallF("Facade_6", wallMesh6);
+	wallF.mesh->setTexture(facadeBTex);
+	wallF.mesh->textureScale = 0.1f;
+	//wallF.mesh->textureOffset.y -= 0.9f;
+	wallF.space->scale.y = 5.0f;
+	wallF.space->translate(ImmersiveEngine::Math::Vector3(-40.0f, 30.0f, 50.0f));
+
+	auto wallMesh7 = std::make_shared<Mesh>(Mesh::generateCube(1));
+	ImmersiveEngine::cbs::Present wallG("Facade_7", wallMesh7);
+	wallG.mesh->setTexture(facadeETex);
+	wallG.mesh->textureOffset.y -= 0.5f;
+	wallG.mesh->textureOffset.x -= 0.5f;
+	wallG.space->dialate(28.0f);
+	wallG.space->translate(ImmersiveEngine::Math::Vector3(45.0f, 10.0f, -28.0f));
+
+	auto wallMesh8 = std::make_shared<Mesh>(Mesh::generateCube(1));
+	ImmersiveEngine::cbs::Present wallH("Facade_8", wallMesh8);
+	wallH.mesh->setTexture(facadeGTex);
+	wallH.mesh->textureOffset.y -= 0.3f;
+	wallH.mesh->textureOffset.x -= 0.4f;
+	wallH.mesh->textureScale = 1.6f;
+	wallH.space->dialate(25.0f);
+	wallH.space->translate(ImmersiveEngine::Math::Vector3(65.0f, 10.0f, -2.0f));
+
+	auto wallMesh9 = std::make_shared<Mesh>(Mesh::generateSquare(3));
+	ImmersiveEngine::cbs::Present wallI("Facade_9", wallMesh9);
+	wallI.mesh->setTexture(facadeFTex);
+	wallI.mesh->textureScale = 0.5f;
+	wallI.mesh->textureOffset.x -= 0.7f;
+	wallI.mesh->textureOffset.y -= 0.7f;
+	wallI.space->dialate(5.0f);
+	wallI.space->translate(ImmersiveEngine::Math::Vector3(55.0f, 1.0f, 18.0f));
+	wallI.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::up);
+
+	auto wallMesh10 = std::make_shared<Mesh>(Mesh::generateCube(1));
+	ImmersiveEngine::cbs::Present wallJ("Facade_10", wallMesh10);
+	wallJ.mesh->setTexture(facadeITex);
+	wallJ.mesh->textureOffset.y -= 0.7f;
+	wallJ.mesh->textureOffset.x -= 0.5f;
+	wallJ.mesh->textureScale = 1.3f;
+	wallJ.space->dialate(30.0f);
+	wallJ.space->translate(ImmersiveEngine::Math::Vector3(68.0f, 4.7f, 40.5f));
 
 	auto handMesh = std::make_shared<Mesh>(Mesh::generateSphere(0.06f, 8, 8));
 
 	ImmersiveEngine::cbs::Present lightA;
-	ImmersiveEngine::cbs::Space* spaceComp = lightA.getComponent<ImmersiveEngine::cbs::Space>();
+	lightA.space->translate(ImmersiveEngine::Math::Vector3(-10.0f, 3.0f, 5.0f));
 	ImmersiveEngine::cbs::Light* lightCompA = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
-	lightA.space->position.y += -0.2f;
-	lightA.space->position.x += 5;
-	lightA.space->position.z -= 3;
-	lightCompA->diffuse.color = ImmersiveEngine::Math::Vector3(0, 255, 10);
+	lightCompA->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
+	lightCompA->diffuse.intensity = 3.5f;
+	lightCompA->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompA);
 	
 	ImmersiveEngine::cbs::Present lightB;
+	lightB.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 3.0f, 5.0f));
 	ImmersiveEngine::cbs::Light* lightCompB = lightB.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
-	lightB.space->position.y += 1.0f;
-	lightB.space->position.x -= 2;
-	lightB.space->position.z += 1;
-	lightCompB->diffuse.color = ImmersiveEngine::Math::Vector3(230, 10, 0);
-	lightCompB->diffuse.intensity = 5;
+	lightCompB->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
+	lightCompB->diffuse.intensity = 3.5f;
+	lightCompB->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompB);
+
+	ImmersiveEngine::cbs::Present lightC;
+	lightC.space->translate(ImmersiveEngine::Math::Vector3(40.0f, 3.0f, 5.0f));
+	ImmersiveEngine::cbs::Light* lightCompC = lightC.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
+	lightCompC->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
+	lightCompC->diffuse.intensity = 3.5f;
+	lightCompC->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
+	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompC);
+
+	ImmersiveEngine::cbs::Present lightD;
+	lightD.space->translate(ImmersiveEngine::Math::Vector3(40.0f, 3.0f, 30.0f));
+	ImmersiveEngine::cbs::Light* lightCompD = lightD.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
+	lightCompD->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
+	lightCompD->diffuse.intensity = 3.5f;
+	lightCompD->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
+	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompD);
+
+	//ImmersiveEngine::cbs::LightingManager::getInstance().useGlobalLight = false;
 
 	ImmersiveEngine::cbs::Present leftHand("Left Hand", handMesh);
 	ImmersiveEngine::cbs::Present rightHand("Right Hand", handMesh);
@@ -391,6 +456,9 @@ int main()
 		planeB.space->refreshTransforms(shaderProgram);
 		planeB.mesh->draw(shaderProgram);
 
+		planeC.space->refreshTransforms(shaderProgram);
+		planeC.mesh->draw(shaderProgram);
+
 		wallA.space->refreshTransforms(shaderProgram);
 		wallA.mesh->draw(shaderProgram);
 
@@ -405,6 +473,21 @@ int main()
 
 		wallE.space->refreshTransforms(shaderProgram);
 		wallE.mesh->draw(shaderProgram);
+
+		wallF.space->refreshTransforms(shaderProgram);
+		wallF.mesh->draw(shaderProgram);
+
+		wallG.space->refreshTransforms(shaderProgram);
+		wallG.mesh->draw(shaderProgram);
+
+		wallH.space->refreshTransforms(shaderProgram);
+		wallH.mesh->draw(shaderProgram);
+
+		wallI.space->refreshTransforms(shaderProgram);
+		wallI.mesh->draw(shaderProgram);
+
+		wallJ.space->refreshTransforms(shaderProgram);
+		wallJ.mesh->draw(shaderProgram);
 
 		FBO.Unbind();
 

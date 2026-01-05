@@ -3,7 +3,7 @@
 namespace ImmersiveEngine::cbs
 {
 	Camera::Camera(Object* obj) :
-		Component(obj), fov(60.0f), nearPlane(0.1f), farPlane(100.0f),
+		Component(obj), fov(60.0f), nearPlane(0.1f), farPlane(1000.0f),
 		m_view(glm::mat4(1.0f)), m_proj(glm::mat4(1.0f)) 
 	{
 		auto owner = Component::getOwner();
