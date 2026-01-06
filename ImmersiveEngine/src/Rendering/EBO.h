@@ -4,17 +4,19 @@
 #include<glad/glad.h>
 #include<vector>
 
-class EBO
+namespace ImmersiveEngine::Rendering
 {
-	public:
-		GLuint ID;
-        
-		EBO(std::vector<GLuint>& indices);
-		~EBO();
+	class EBO
+	{
+		public:
+			GLuint ID;
 
-		void Bind();
-		void Unbind();
-		void Delete();
-};
+			EBO(std::vector<GLuint>& indices);
+			~EBO();
 
+			void Bind();
+			void Unbind();
+			void Delete();
+	};
+}
 #endif

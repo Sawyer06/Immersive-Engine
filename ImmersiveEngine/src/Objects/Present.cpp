@@ -8,7 +8,7 @@ namespace ImmersiveEngine::cbs
         initialize();
     }
 
-    Present::Present(const std::string& name, std::shared_ptr<Mesh> mesh) :
+    Present::Present(const std::string& name, std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh) :
         Object(name), mesh(mesh) 
     {
         initialize();

@@ -12,29 +12,32 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-std::string getFileContents(const char* filename);
-
-class Shader
+namespace ImmersiveEngine::Rendering
 {
-	public:
-		GLuint ID;
-		Shader(const char* vertexFile, const char* fragmentFile);
+    std::string getFileContents(const char* filename);
 
-		void Activate();
-		void Delete();
+    class Shader
+    {
+        public:
+            GLuint ID;
+            Shader(const char* vertexFile, const char* fragmentFile);
 
-        void setBool(const std::string& name, bool value);
-        void setInt(const std::string& name, int value);
-        void setFloat(const std::string& name, float value);
-        void setVec2(const std::string& name, glm::vec2 value);
-        void setVec3(const std::string& name, glm::vec3 value);
-        void setVec4(const std::string& name, glm::vec4 value);
-        void setMat4(const std::string& name, const glm::mat4 value);
-	private:
-        std::unordered_map<std::string, GLint> m_uniformLocationCache;
+            void Activate();
+            void Delete();
 
-        GLint getUniformLocation(const std::string& name);
-        void compileErrors(unsigned int shader, const char* type);
-};
+            void setBool(const std::string& name, bool value);
+            void setInt(const std::string& name, int value);
+            void setFloat(const std::string& name, float value);
+            void setVec2(const std::string& name, glm::vec2 value);
+            void setVec3(const std::string& name, glm::vec3 value);
+            void setVec4(const std::string& name, glm::vec4 value);
+            void setMat4(const std::string& name, const glm::mat4 value);
+        private:
+            std::unordered_map<std::string, GLint> m_uniformLocationCache;
+
+            GLint getUniformLocation(const std::string& name);
+            void compileErrors(unsigned int shader, const char* type);
+    };
+}
 
 #endif

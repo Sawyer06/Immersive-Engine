@@ -17,7 +17,7 @@ namespace ImmersiveEngine::cbs
 	}
 
 	/// Update the view and projection matrices of the camera (flatscreen).
-	void Camera::refreshViewProjection(Shader& shaderProgram, const float aspectRatio)
+	void Camera::refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, const float aspectRatio)
 	{
 		if (m_ownerSpace == nullptr)
 		{
@@ -58,7 +58,7 @@ namespace ImmersiveEngine::cbs
 	}
 
 	/// Update the view and projection matrices of the camera (XR).
-	void Camera::refreshViewProjection(Shader& shaderProgram, XrView view)
+	void Camera::refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, XrView view)
 	{
 		if (m_ownerSpace == nullptr)
 		{

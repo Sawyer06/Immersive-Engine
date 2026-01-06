@@ -25,7 +25,7 @@ namespace ImmersiveEngine::cbs
 			void removeLight(uint32_t index);
 			Light& getLight(uint32_t index);
 
-			void refreshLights(Shader& shaderProgram);
+			void refreshLights(ImmersiveEngine::Rendering::Shader& shaderProgram);
 	};
 }
 #endif

@@ -6,50 +6,53 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../Rendering/shaderClass.h"
-#include"../Rendering/VAO.h"
-#include"../Rendering/VBO.h"
-#include"../Rendering/EBO.h"
-#include"../Rendering/Texture.h"
+#include "shaderClass.h"
+#include"VAO.h"
+#include"VBO.h"
+#include"EBO.h"
+#include"Texture.h"
 #include"../Math/Math.h"
 #include"../Settings.h"
 
-class Mesh
+namespace ImmersiveEngine::Rendering
 {
-	private:
-		std::vector<Vertex> m_vertices;
-		std::vector<GLuint> m_indices;
-		std::shared_ptr<Texture> m_texture;
-		
-		VAO m_VAO;
-	public:
-		Mesh(std::vector<Vertex>& vertices, std::vector <GLuint>& indices);
-		Mesh(const Mesh& mesh);
-		~Mesh();
+	class Mesh
+	{
+		private:
+			std::vector<Vertex> m_vertices;
+			std::vector<GLuint> m_indices;
+			std::shared_ptr<Texture> m_texture;
 
-		float textureScale = 1.0f;
-		ImmersiveEngine::Math::Vector2 textureOffset;
+			VAO m_VAO;
+		public:
+			Mesh(std::vector<Vertex>& vertices, std::vector <GLuint>& indices);
+			Mesh(const ImmersiveEngine::Rendering::Mesh& mesh);
+			~Mesh();
 
-		void buildMesh();
+			float textureScale = 1.0f;
+			ImmersiveEngine::Math::Vector2 textureOffset;
 
-		void draw(Shader& shaderProgram);
-		void setTexture(std::shared_ptr<Texture>& texture);
+			void buildMesh();
 
-		void addUVOffset(ImmersiveEngine::Math::Vector2 offset);
+			void draw(Shader& shaderProgram);
+			void setTexture(std::shared_ptr<Texture>& texture);
 
-		ImmersiveEngine::Math::Vector3 getVertexPosition(const int index);
-		void setVertexPosition(const int index, const ImmersiveEngine::Math::Vector3 pos);
-		ImmersiveEngine::Math::Vector3 getNormalDirection(const int index);
+			void addUVOffset(ImmersiveEngine::Math::Vector2 offset);
 
-		uint32_t getVerticesCount();
+			ImmersiveEngine::Math::Vector3 getVertexPosition(const int index);
+			void setVertexPosition(const int index, const ImmersiveEngine::Math::Vector3 pos);
+			ImmersiveEngine::Math::Vector3 getNormalDirection(const int index);
 
-		void dump();
+			uint32_t getVerticesCount();
 
-		static Mesh generateSquare(const float length);
-		static Mesh generateCircle(const float radius, uint32_t segments);
-		static Mesh generatePlane(const float length, const float width);
-		static Mesh generateCube(const float length);
-		static Mesh generateSquarePyramid(const float length, const float height);
-		static Mesh generateSphere(const float radius, uint32_t sectorCount, uint32_t stackCount);
-};
+			void dump();
+
+			static Mesh generateSquare(const float length);
+			static Mesh generateCircle(const float radius, uint32_t segments);
+			static Mesh generatePlane(const float length, const float width);
+			static Mesh generateCube(const float length);
+			static Mesh generateSquarePyramid(const float length, const float height);
+			static Mesh generateSphere(const float radius, uint32_t sectorCount, uint32_t stackCount);
+	};
+}
 #endif

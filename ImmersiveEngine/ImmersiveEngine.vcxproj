@@ -171,6 +171,7 @@
     <ClCompile Include="src\Math\Vector3.cpp" />
     <ClCompile Include="src\Objects\Object.cpp" />
     <ClCompile Include="src\Objects\Present.cpp" />
+    <ClCompile Include="src\Rendering\Cubemap.cpp" />
     <ClCompile Include="src\Rendering\EBO.cpp" />
     <ClCompile Include="src\Rendering\FBO.cpp" />
     <ClCompile Include="src\Rendering\Mesh.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="src\Math\Vector3.h" />
     <ClInclude Include="src\Objects\Object.h" />
     <ClInclude Include="src\Objects\Present.h" />
+    <ClInclude Include="src\Rendering\Cubemap.h" />
     <ClInclude Include="src\Rendering\EBO.h" />
     <ClInclude Include="src\Rendering\FBO.h" />
     <ClInclude Include="src\Rendering\Mesh.h" />
@@ -226,6 +228,8 @@
     <None Include="src\default.vert" />
     <None Include="src\screen.frag" />
     <None Include="src\screen.vert" />
+    <None Include="src\skybox.frag" />
+    <None Include="src\skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LICENSE.txt" />

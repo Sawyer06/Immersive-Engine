@@ -7,7 +7,7 @@ namespace ImmersiveEngine::cbs
         scale(1, 1, 1), up(0, 1, 0), m_matrix(glm::mat4(1.0f)) { }
 
     /// Update the position, orientation, and scale of object based on its corresponding values.
-    void Space::refreshTransforms(Shader& shaderProgram)
+    void Space::refreshTransforms(ImmersiveEngine::Rendering::Shader& shaderProgram)
     {
         m_matrix = glm::mat4(1.0f);
 

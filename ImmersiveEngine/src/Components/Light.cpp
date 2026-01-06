@@ -10,7 +10,7 @@ namespace ImmersiveEngine::cbs
 	{ }
 
 	/// Update lighting vales on the shader.
-	void Light::refreshLight(Shader& shaderProgram, bool useGlobalLight, const int index)
+	void Light::refreshLight(ImmersiveEngine::Rendering::Shader& shaderProgram, bool useGlobalLight, const int index)
 	{
 		std::string prefix = "lights[" + std::to_string(index) + "].";
 

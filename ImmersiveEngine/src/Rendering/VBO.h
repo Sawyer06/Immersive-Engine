@@ -6,25 +6,27 @@
 #include"../Math/Vector3.h"
 #include"../Math/Vector2.h"
 
-struct Vertex
+namespace ImmersiveEngine::Rendering
 {
-	ImmersiveEngine::Math::Vector3 position;
-	ImmersiveEngine::Math::Vector3 normal;
-	ImmersiveEngine::Math::Vector3 color;
-	ImmersiveEngine::Math::Vector2 uvOffset;
-};
+	struct Vertex
+	{
+		ImmersiveEngine::Math::Vector3 position;
+		ImmersiveEngine::Math::Vector3 normal;
+		ImmersiveEngine::Math::Vector3 color;
+		ImmersiveEngine::Math::Vector2 uvOffset;
+	};
 
-class VBO
-{
-	public:
-		GLuint ID;
-        
-		VBO(std::vector<Vertex>& vertices);
-		~VBO();
-        
-		void Bind();
-		void Unbind();
-		void Delete();
-};
+	class VBO
+	{
+		public:
+			GLuint ID;
 
+			VBO(std::vector<Vertex>& vertices);
+			~VBO();
+
+			void Bind();
+			void Unbind();
+			void Delete();
+	};
+}
 #endif

@@ -31,7 +31,7 @@ namespace ImmersiveEngine::cbs
             ImmersiveEngine::Math::Vector3 scale;
             ImmersiveEngine::Math::Vector3 up;
 
-            void refreshTransforms(Shader& shaderProgram);
+            void refreshTransforms(ImmersiveEngine::Rendering::Shader& shaderProgram);
 
             void translate(ImmersiveEngine::Math::Vector3 deltaPos);
             void translate(ImmersiveEngine::Math::Vector2 deltaPos);

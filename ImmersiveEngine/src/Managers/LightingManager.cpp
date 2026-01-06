@@ -15,7 +15,7 @@ namespace ImmersiveEngine::cbs
 		return m_lights[index];
 	}
 
-	void LightingManager::refreshLights(Shader& shaderProgram)
+	void LightingManager::refreshLights(ImmersiveEngine::Rendering::Shader& shaderProgram)
 	{
 		shaderProgram.setInt("activeLights", m_lights.size());
 		for (int i = 0; i < m_lights.size(); ++i)

@@ -24,13 +24,13 @@ namespace ImmersiveEngine::cbs
             void initialize() override;
         public:
             Present();
-            Present(const std::string& name, std::shared_ptr<Mesh> mesh);
+            Present(const std::string& name, std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh);
             Present(const Present& other); // Clone constructor
             ~Present();
 
             Space* space;
             //Space space;
-            std::shared_ptr<Mesh> mesh;
+            std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh;
 
             std::unique_ptr<Present> clone() const;
             //bool isCollidingWith(const Present& obj);

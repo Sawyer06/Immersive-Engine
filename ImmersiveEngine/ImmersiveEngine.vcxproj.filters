@@ -129,6 +129,9 @@
     <ClCompile Include="src\Managers\LightingManager.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rendering\Cubemap.cpp">
+      <Filter>Source Files\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">
@@ -200,6 +203,9 @@
     <ClInclude Include="src\Managers\Manager.h">
       <Filter>Header Files\Managers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Rendering\Cubemap.h">
+      <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="src\dead-grass.png">
@@ -245,6 +251,12 @@
       <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="src\screen.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\skybox.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="src\skybox.frag">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

@@ -4,23 +4,26 @@
 #include<iostream>
 #include<glad/glad.h>
 
-class FBO
+namespace ImmersiveEngine::Rendering
 {
-	public:
-		GLuint ID;
-		FBO();
+	class FBO
+	{
+		public:
+			GLuint ID;
+			FBO();
 
-		void Resize(GLuint width, GLuint height);
-		void AttachExternalTexture(GLuint attachment, GLuint& image, GLuint width, GLuint height);
-		void DrawScreen();
-		void Bind();
-		void Unbind();
-		void Delete();
-	private:
-		GLuint m_width, m_height;
-		GLuint m_RBO, m_texColorBuffer;
-		GLuint m_screenVAO, m_screenVBO;
+			void Resize(GLuint width, GLuint height);
+			void AttachExternalTexture(GLuint attachment, GLuint& image, GLuint width, GLuint height);
+			void DrawScreen();
+			void Bind();
+			void Unbind();
+			void Delete();
+		private:
+			GLuint m_width, m_height;
+			GLuint m_RBO, m_texColorBuffer;
+			GLuint m_screenVAO, m_screenVBO;
 
-		void SetUp(GLuint width, GLuint height);
-};
+			void SetUp(GLuint width, GLuint height);
+	};
+}
 #endif

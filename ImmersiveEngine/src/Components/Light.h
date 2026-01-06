@@ -28,7 +28,7 @@ namespace ImmersiveEngine::cbs
 			LightProperty diffuse;
 			LightProperty specular;
 
-			void refreshLight(Shader& shaderProgram, bool useGlobalLight, const int index);
+			void refreshLight(ImmersiveEngine::Rendering::Shader& shaderProgram, bool useGlobalLight, const int index);
 	};
 }
 #endif

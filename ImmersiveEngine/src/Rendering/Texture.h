@@ -6,19 +6,22 @@
 
 #include"shaderClass.h"
 
-class Texture
+namespace ImmersiveEngine::Rendering
 {
-	public:
-		Texture(const char* image, GLenum texType, GLenum slot, GLenum pixelType);
-		~Texture();
+	class Texture
+	{
+		public:
+			Texture(const char* image, GLenum texType, GLenum slot, GLenum pixelType);
+			~Texture();
 
-		GLuint ID = 0;
-		GLenum type;
+			GLuint ID = 0;
+			GLenum type;
 
-		void texUnit(Shader& shader, const char* uniform, GLuint unit);
+			void texUnit(Shader& shader, const char* uniform, GLuint unit);
 
-		void Bind();
-		void Unbind();
-		void Delete();
-};
+			void Bind();
+			void Unbind();
+			void Delete();
+		};
+}
 #endif
