@@ -22,8 +22,8 @@ namespace ImmersiveEngine::cbs
 			float nearPlane;
 			float farPlane;
 
-			void refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, const float aspectRatio);
-			void refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, XrView view);
+			void refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, ImmersiveEngine::Rendering::Shader& skyboxShader, const float aspectRatio);
+			void refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, ImmersiveEngine::Rendering::Shader& skyboxShader, XrView view);
 
 			std::string toString() override;
 	};

@@ -14,7 +14,7 @@ namespace ImmersiveEngine::Rendering
 			std::cerr << "IMAGE_LOAD_ERROR failed to load texture: " << image << std::endl;
 			return;
 		}
-		GLenum format;
+		GLenum format = GL_RGB;
 		if (numColCh == 4) // Image includes alpha channel.
 		{
 			format = GL_RGBA;

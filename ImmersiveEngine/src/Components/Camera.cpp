@@ -3,7 +3,7 @@
 namespace ImmersiveEngine::cbs
 {
 	Camera::Camera(Object* obj) :
-		Component(obj), fov(60.0f), nearPlane(0.1f), farPlane(1000.0f),
+		Component(obj), fov(60.0f), nearPlane(0.1f), farPlane(250.0f),
 		m_view(glm::mat4(1.0f)), m_proj(glm::mat4(1.0f)) 
 	{
 		auto owner = Component::getOwner();
@@ -17,7 +17,7 @@ namespace ImmersiveEngine::cbs
 	}
 
 	/// Update the view and projection matrices of the camera (flatscreen).
-	void Camera::refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, const float aspectRatio)
+	void Camera::refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, ImmersiveEngine::Rendering::Shader& skyboxShader, const float aspectRatio)
 	{
 		if (m_ownerSpace == nullptr)
 		{
@@ -36,6 +36,9 @@ namespace ImmersiveEngine::cbs
 		glm::vec3 up(m_ownerSpace->up.x, m_ownerSpace->up.y, m_ownerSpace->up.z);
 		m_view = glm::lookAt(position, position + rot, up); // Position of the world.
 		m_proj = glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
+
+		skyboxShader.setMat4("view", m_view);
+		skyboxShader.setMat4("proj", m_proj);
 
 		shaderProgram.setMat4("view", m_view);
 		shaderProgram.setMat4("proj", m_proj);
@@ -58,7 +61,7 @@ namespace ImmersiveEngine::cbs
 	}
 
 	/// Update the view and projection matrices of the camera (XR).
-	void Camera::refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, XrView view)
+	void Camera::refreshViewProjection(ImmersiveEngine::Rendering::Shader& shaderProgram, ImmersiveEngine::Rendering::Shader& skyboxShader, XrView view)
 	{
 		if (m_ownerSpace == nullptr)
 		{
@@ -86,6 +89,9 @@ namespace ImmersiveEngine::cbs
 
 		glm::mat4 poseMatrix = createProjectionMatrixFromXrFovf(view.fov, nearPlane, farPlane);
 		m_proj = poseMatrix;
+
+		skyboxShader.setMat4("view", m_view);
+		skyboxShader.setMat4("proj", m_proj);
 
 		shaderProgram.setMat4("view", m_view);
 		shaderProgram.setMat4("proj", m_proj);

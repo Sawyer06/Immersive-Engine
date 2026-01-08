@@ -10,7 +10,7 @@ namespace ImmersiveEngine::Settings
 	inline const uint32_t g_screenHeight = 800;
 	
 	inline ImmersiveEngine::Math::Vector3 g_ambientLightColor(200, 170, 90);
-	inline float g_ambientLightIntensity = 2.0f;
+	inline float g_ambientLightIntensity = 1.0f;
 
 	inline bool g_showWireframe = false;
 }

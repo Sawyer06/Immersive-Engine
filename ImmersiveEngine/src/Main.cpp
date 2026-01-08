@@ -25,6 +25,7 @@
 #include"Components/Space.h"
 #include"Rendering/FBO.h"
 #include"Managers/LightingManager.h"
+#include"Rendering/Cubemap.h"
 
 #include"XR/OpenXRManager.h"
 
@@ -85,12 +86,25 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glFrontFace(GL_CW);
+	glFrontFace(GL_CCW);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	ImmersiveEngine::Rendering::Shader shaderProgram("default.vert", "default.frag");
 	ImmersiveEngine::Rendering::Shader screenShader("screen.vert", "screen.frag");
-	
+	ImmersiveEngine::Rendering::Shader skyboxShader("skybox.vert", "skybox.frag");
+
+	ImmersiveEngine::Rendering::Cubemap skybox({
+		"skybox-right.png",
+		"skybox-left.png",
+		"skybox-top.png",
+		"skybox-bottom.png",
+		"skybox-front.png",
+		"skybox-back.png"
+	});
+	skyboxShader.Activate();
+	skyboxShader.setInt("skybox", 0);
+	skyboxShader.setFloat("brightness", 0.3f);
+
 	//screenShader.Activate();
 
 	ImmersiveEngine::Rendering::FBO FBO;
@@ -170,6 +184,7 @@ int main()
 	wallE.mesh->textureOffset.y -= 0.5f;
 	wallE.space->dialate(20.0f);
 	wallE.space->translate(ImmersiveEngine::Math::Vector3(7.0f, 5.0f, 40.0f));
+	wallE.space->rotate(180, ImmersiveEngine::Math::Vector3::up);
 
 	auto wallMesh6 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(40));
 	ImmersiveEngine::cbs::Present wallF("Facade_6", wallMesh6);
@@ -204,7 +219,7 @@ int main()
 	wallI.mesh->textureOffset.y -= 0.7f;
 	wallI.space->dialate(5.0f);
 	wallI.space->translate(ImmersiveEngine::Math::Vector3(55.0f, 1.0f, 18.0f));
-	wallI.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::up);
+	wallI.space->rotate(-90.0f, ImmersiveEngine::Math::Vector3::up);
 
 	auto wallMesh10 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
 	ImmersiveEngine::cbs::Present wallJ("Facade_10", wallMesh10);
@@ -221,7 +236,7 @@ int main()
 	lightA.space->translate(ImmersiveEngine::Math::Vector3(-10.0f, 3.0f, 5.0f));
 	ImmersiveEngine::cbs::Light* lightCompA = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompA->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
-	lightCompA->diffuse.intensity = 3.5f;
+	lightCompA->diffuse.intensity = 2.0f;
 	lightCompA->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompA);
 	
@@ -229,7 +244,7 @@ int main()
 	lightB.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 3.0f, 5.0f));
 	ImmersiveEngine::cbs::Light* lightCompB = lightB.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompB->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
-	lightCompB->diffuse.intensity = 3.5f;
+	lightCompB->diffuse.intensity = 2.0f;
 	lightCompB->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompB);
 
@@ -237,7 +252,7 @@ int main()
 	lightC.space->translate(ImmersiveEngine::Math::Vector3(40.0f, 3.0f, 5.0f));
 	ImmersiveEngine::cbs::Light* lightCompC = lightC.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompC->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
-	lightCompC->diffuse.intensity = 3.5f;
+	lightCompC->diffuse.intensity = 2.0f;
 	lightCompC->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompC);
 
@@ -245,7 +260,7 @@ int main()
 	lightD.space->translate(ImmersiveEngine::Math::Vector3(40.0f, 3.0f, 30.0f));
 	ImmersiveEngine::cbs::Light* lightCompD = lightD.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompD->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
-	lightCompD->diffuse.intensity = 3.5f;
+	lightCompD->diffuse.intensity = 2.0f;
 	lightCompD->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompD);
 
@@ -405,7 +420,7 @@ int main()
 				glViewport(0, 0, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 
 				shaderProgram.Activate();
-				camComp->refreshViewProjection(shaderProgram, view);
+				camComp->refreshViewProjection(shaderProgram, skyboxShader, view);
 
 
 
@@ -437,14 +452,27 @@ int main()
 		FBO.Bind();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Window background in decimal RGBA
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CW);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, width, height);
 
 		FBO.Resize(width, height);
 
+		glDepthFunc(GL_LEQUAL);
+
+		skyboxShader.Activate();
+
+		camComp->refreshViewProjection(shaderProgram, skyboxShader, (float)width / height);
+
+		skybox.draw(skyboxShader);
+
+		glDepthFunc(GL_LESS);
+
 		shaderProgram.Activate();
 
-		camComp->refreshViewProjection(shaderProgram, (float)width / height);
+		camComp->refreshViewProjection(shaderProgram, skyboxShader, (float)width / height);
 
 		ImmersiveEngine::cbs::LightingManager::getInstance().refreshLights(shaderProgram);
 
@@ -507,6 +535,7 @@ int main()
 
 	shaderProgram.Delete();
 	screenShader.Delete();
+	skyboxShader.Delete();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();

@@ -221,6 +221,12 @@
     <Image Include="src\abandoned-building9.png" />
     <Image Include="src\cobblestone.png" />
     <Image Include="src\dead-grass.png" />
+    <Image Include="src\skybox-back.png" />
+    <Image Include="src\skybox-bottom.png" />
+    <Image Include="src\skybox-front.png" />
+    <Image Include="src\skybox-left.png" />
+    <Image Include="src\skybox-right.png" />
+    <Image Include="src\skybox-top.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
