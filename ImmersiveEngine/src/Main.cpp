@@ -233,7 +233,7 @@ int main()
 	auto handMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSphere(0.06f, 8, 8));
 
 	ImmersiveEngine::cbs::Present lightA;
-	lightA.space->translate(ImmersiveEngine::Math::Vector3(-10.0f, 3.0f, 5.0f));
+	lightA.space->translate(ImmersiveEngine::Math::Vector3(-10.0f, 3.0f, 0.0f));
 	ImmersiveEngine::cbs::Light* lightCompA = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompA->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
 	lightCompA->diffuse.intensity = 2.0f;
@@ -241,7 +241,7 @@ int main()
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompA);
 	
 	ImmersiveEngine::cbs::Present lightB;
-	lightB.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 3.0f, 5.0f));
+	lightB.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 3.0f, 0.0f));
 	ImmersiveEngine::cbs::Light* lightCompB = lightB.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompB->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
 	lightCompB->diffuse.intensity = 2.0f;
@@ -249,7 +249,7 @@ int main()
 	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompB);
 
 	ImmersiveEngine::cbs::Present lightC;
-	lightC.space->translate(ImmersiveEngine::Math::Vector3(40.0f, 3.0f, 5.0f));
+	lightC.space->translate(ImmersiveEngine::Math::Vector3(40.0f, 3.0f, 0.0f));
 	ImmersiveEngine::cbs::Light* lightCompC = lightC.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompC->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
 	lightCompC->diffuse.intensity = 2.0f;
@@ -419,10 +419,57 @@ int main()
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glViewport(0, 0, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
 
+				glDepthFunc(GL_LEQUAL);
+
+				skyboxShader.Activate();
+
+				camComp->refreshViewProjection(shaderProgram, skyboxShader, view);
+
+				skybox.draw(skyboxShader);
+
+				glDepthFunc(GL_LESS);
+
 				shaderProgram.Activate();
 				camComp->refreshViewProjection(shaderProgram, skyboxShader, view);
 
+				planeA.space->refreshTransforms(shaderProgram);
+				planeA.mesh->draw(shaderProgram);
 
+				planeB.space->refreshTransforms(shaderProgram);
+				planeB.mesh->draw(shaderProgram);
+
+				planeC.space->refreshTransforms(shaderProgram);
+				planeC.mesh->draw(shaderProgram);
+
+				wallA.space->refreshTransforms(shaderProgram);
+				wallA.mesh->draw(shaderProgram);
+
+				wallB.space->refreshTransforms(shaderProgram);
+				wallB.mesh->draw(shaderProgram);
+
+				wallC.space->refreshTransforms(shaderProgram);
+				wallC.mesh->draw(shaderProgram);
+
+				wallD.space->refreshTransforms(shaderProgram);
+				wallD.mesh->draw(shaderProgram);
+
+				wallE.space->refreshTransforms(shaderProgram);
+				wallE.mesh->draw(shaderProgram);
+
+				wallF.space->refreshTransforms(shaderProgram);
+				wallF.mesh->draw(shaderProgram);
+
+				wallG.space->refreshTransforms(shaderProgram);
+				wallG.mesh->draw(shaderProgram);
+
+				wallH.space->refreshTransforms(shaderProgram);
+				wallH.mesh->draw(shaderProgram);
+
+				wallI.space->refreshTransforms(shaderProgram);
+				wallI.mesh->draw(shaderProgram);
+
+				wallJ.space->refreshTransforms(shaderProgram);
+				wallJ.mesh->draw(shaderProgram);
 
 				leftHand.space->refreshTransforms(shaderProgram);
 				leftHand.mesh->draw(shaderProgram);

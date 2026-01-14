@@ -3,7 +3,7 @@
 
 
 A 3D game engine made for virtual reality (VR) applications.
-![VR Test](https://github.com/Sawyer06/Immersive-Engine/blob/main/Screenshots/vr-test1.gif)
+![VR Test](Screenshots/vr-test1.gif)
 
 ##### Features:
 
@@ -13,4 +13,4 @@ A 3D game engine made for virtual reality (VR) applications.
 * A component based system for objects.
 * A clean and modular object oriented design.
 
-![Lighting Test](https://github.com/Sawyer06/Immersive-Engine/blob/main/Screenshots/lighting-test1.png)
+![Lighting Test](Screenshots/lighting-test3.png)
