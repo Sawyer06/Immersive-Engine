@@ -6,17 +6,23 @@ This project uses the third-party libraries listed below. Each is governed by it
 ====================
 
 OPENXR SDK
-Copyright (c) 2017-2025 The Khronos Group Inc.
+Copyright 2017-2025 The Khronos Group Inc.
 License: MIT
 Source: https://github.com/KhronosGroup/OpenXR-SDK.git
 Files: 
-	includes/
-		openxr/
-			openxr.h
-			openxr_platform.h
-			openxr_platform_defines.h
-Comments: 
-	Unmodified, copy of OpenXR SDK version 1.1.46
+	ImmersiveEngine/
+		includes/
+			openxr/
+
+
+Jolt Physics Library
+Copyright 2021 Jorrit Rouwe
+License: MIT
+Source: https://github.com/jrouwe/JoltPhysics.git
+Files:
+	ImmersiveEngine/
+		includes/
+			Jolt/
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -11,6 +11,18 @@
 #include <filesystem>
 #include <list>
 
+#include <Jolt/Jolt.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
+
 #include"Settings.h"
 #include"Rendering/Texture.h"
 #include"Rendering/shaderClass.h"
@@ -42,6 +54,148 @@ extern "C"
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
+static void TraceImpl(const char* inFMT, ...)
+{
+	// Format the message
+	va_list list;
+	va_start(list, inFMT);
+	char buffer[1024];
+	vsnprintf(buffer, sizeof(buffer), inFMT, list);
+	va_end(list);
+
+	std::cout << buffer << std::endl;
+}
+
+#ifdef JPH_ENABLE_ASSERTS
+
+static bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, JPH::uint inLine)
+{
+	std::cout << inFile << ":" << inLine << ": (" << inExpression << ") " << (inMessage != nullptr ? inMessage : "") << std::endl;
+
+	return true;
+};
+
+#endif // JPH_ENABLE_ASSERTS
+
+namespace Layers
+{
+	static constexpr JPH::ObjectLayer NON_MOVING = 0;
+	static constexpr JPH::ObjectLayer MOVING = 1;
+	static constexpr JPH::ObjectLayer NUM_LAYERS = 2;
+}
+
+class ObjectLayerPairFilterImpl : public JPH::ObjectLayerPairFilter
+{
+	public:
+		virtual bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override
+		{
+			switch (inObject1)
+			{
+				case Layers::NON_MOVING:
+					return inObject2 == Layers::MOVING;
+				case Layers::MOVING:
+					return true;
+				default:
+					return false;
+			}
+		}
+};
+
+namespace BroadPhaseLayers
+{
+	static constexpr JPH::BroadPhaseLayer NON_MOVING(0);
+	static constexpr JPH::BroadPhaseLayer MOVING(1);
+	static constexpr uint32_t NUM_LAYERS(2);
+}
+
+class BPLayerInterfaceImpl final : public JPH::BroadPhaseLayerInterface
+{
+	public:
+		BPLayerInterfaceImpl()
+		{
+			m_objectToBroadPhase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
+			m_objectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
+		}
+
+		virtual uint32_t GetNumBroadPhaseLayers() const override
+		{
+			return BroadPhaseLayers::NUM_LAYERS;
+		}
+		virtual JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const override
+		{
+			return m_objectToBroadPhase[inLayer];
+		}
+#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
+		virtual const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override
+		{
+			switch ((JPH::BroadPhaseLayer::Type)inLayer)
+			{
+				case (JPH::BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:	
+					return "NON_MOVING";
+				case (JPH::BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:		
+					return "MOVING";
+				default:													
+					JPH_ASSERT(false); return "INVALID";
+			}
+		}
+#endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
+	private:
+		JPH::BroadPhaseLayer m_objectToBroadPhase[Layers::NUM_LAYERS];
+};
+
+class ObjectVsBroadPhaseLayerFilterImpl : public JPH::ObjectVsBroadPhaseLayerFilter
+{
+	public:
+		virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const override
+		{
+			switch (inLayer1)
+			{
+				case Layers::NON_MOVING:
+					return inLayer2 == BroadPhaseLayers::MOVING;
+				case Layers::MOVING:
+					return true;
+				default:
+					return false;
+			}
+		}
+};
+
+class ContactListenerImpl : public JPH::ContactListener
+{
+	public:
+		virtual JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollectionResult) override
+		{
+			return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
+		}
+		virtual void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+		{
+			std::cout << "A contact was added" << std::endl;
+		}
+		virtual void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+		{
+			std::cout << "A contact was persisted" << std::endl;
+		}
+
+		virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override
+		{
+			std::cout << "A contact was removed" << std::endl;
+		}
+
+};
+
+class BodyActivationListenerImpl : public JPH::BodyActivationListener
+{
+	virtual void OnBodyActivated(const JPH::BodyID& inBodyID, JPH::uint64 inBodyUserData) override
+	{
+		std::cout << "A body got activated" << std::endl;
+	}
+
+	virtual void OnBodyDeactivated(const JPH::BodyID& inBodyID, JPH::uint64 inBodyUserData) override
+	{
+		std::cout << "A body went to sleep" << std::endl;
+	}
+};
+
 int main()
 {
     glfwInit();
@@ -69,7 +223,7 @@ int main()
 		return -1;
 	}
 	gladLoadGL();
-	glfwSwapInterval(0); // vsync off
+	glfwSwapInterval(0); // vsync
 
 	bool openInVR = false;
 	std::vector<ImmersiveEngine::Rendering::FBO> eyeFBO;
@@ -127,6 +281,11 @@ int main()
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeGTex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building7.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeHTex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building8.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeITex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building9.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+
+	auto ballMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSphere(1, 24, 24));
+	ImmersiveEngine::cbs::Present ball("Ball", ballMesh);
+	ball.space->dialate(1.0f);
+	ball.space->translate(ImmersiveEngine::Math::Vector3(20.0f, 100.0f, -10.0f));
 
 	auto planeMesh1 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generatePlane(15, 4));
 	ImmersiveEngine::cbs::Present planeA("Plane_1", planeMesh1);
@@ -291,6 +450,53 @@ int main()
 	float x2 = 0;
 
 	float offset = 0;
+
+	JPH::RegisterDefaultAllocator();
+	JPH::Trace = TraceImpl;
+#ifdef JPH_ENABLE_ASSERTS
+	JPH::AssertFailed = AssertFailedImpl;
+#endif
+	JPH::Factory::sInstance = new JPH::Factory();
+	JPH::RegisterTypes();
+	JPH::TempAllocatorImpl tempAllocator(10 * 1024 * 1024);
+	JPH::JobSystemThreadPool jobSystem(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, JPH::thread::hardware_concurrency() - 1);
+	
+	const uint32_t maxBodies = 1024;
+	const uint32_t numBodyMutexes = 0;
+	const uint32_t maxBodyPairs = 1024;
+	const uint32_t maxContactConstraints = 1024;
+
+	BPLayerInterfaceImpl broadPhaseLayerInterface;
+	ObjectVsBroadPhaseLayerFilterImpl objectVsBroadphaseLayerFilter;
+	ObjectLayerPairFilterImpl objectVsObjectLayerFilter;
+
+	JPH::PhysicsSystem physicsSystem;
+	physicsSystem.Init(maxBodies, numBodyMutexes, maxBodyPairs, maxContactConstraints, broadPhaseLayerInterface, objectVsBroadphaseLayerFilter, objectVsObjectLayerFilter);
+
+	BodyActivationListenerImpl bodyActivationListener;
+	physicsSystem.SetBodyActivationListener(&bodyActivationListener);
+
+	ContactListenerImpl contactListener;
+	physicsSystem.SetContactListener(&contactListener);
+
+	JPH::BodyInterface& bodyInterface = physicsSystem.GetBodyInterface();
+
+	JPH::BoxShapeSettings floorShapeSettings(JPH::Vec3(100.0f, 1.0f, 100.0f));
+	floorShapeSettings.SetEmbedded();
+
+	JPH::ShapeSettings::ShapeResult floorShapeResult = floorShapeSettings.Create();
+	JPH::ShapeRefC floorShape = floorShapeResult.Get();
+
+	JPH::BodyCreationSettings floorSettings(floorShape, JPH::RVec3(0.0f, -2.0f, 0.0f), JPH::Quat::sIdentity(), JPH::EMotionType::Static, Layers::NON_MOVING);
+	JPH::Body* floor = bodyInterface.CreateBody(floorSettings);
+	bodyInterface.AddBody(floor->GetID(), JPH::EActivation::DontActivate);
+
+	JPH::BodyCreationSettings sphereSettings(new JPH::SphereShape(0.5f), JPH::RVec3(ball.space->position.x, ball.space->position.y, ball.space->position.z), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::MOVING);
+	sphereSettings.mRestitution = 0.5f;
+	JPH::BodyID sphereID = bodyInterface.CreateAndAddBody(sphereSettings, JPH::EActivation::Activate);
+
+	bodyInterface.SetLinearVelocity(sphereID, JPH::Vec3(0.0f, -5.0f, 2.0f));
+
 	while (!glfwWindowShouldClose(window))
 	{
 		x2 = glfwGetTime();
@@ -381,6 +587,14 @@ int main()
 		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 		{
 			camSpeed = camWalkSpeed;
+		}
+
+		if (bodyInterface.IsActive(sphereID))
+		{
+			JPH::RVec3 position = bodyInterface.GetCenterOfMassPosition(sphereID);
+			ball.space->position = ImmersiveEngine::Math::Vector3(position.GetX(), position.GetY(), position.GetZ());
+
+			physicsSystem.Update(deltaTime, 1, &tempAllocator, &jobSystem);
 		}
 
 		if (openInVR && xr.sessionRunning)
@@ -525,6 +739,9 @@ int main()
 
 		cam.space->refreshTransforms(shaderProgram);
 
+		ball.space->refreshTransforms(shaderProgram);
+		ball.mesh->draw(shaderProgram);
+
 		planeA.space->refreshTransforms(shaderProgram);
 		planeA.mesh->draw(shaderProgram);
 
@@ -578,6 +795,15 @@ int main()
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
+	bodyInterface.RemoveBody(sphereID);
+	bodyInterface.DestroyBody(sphereID);
+	bodyInterface.RemoveBody(floor->GetID());
+	bodyInterface.DestroyBody(floor->GetID());
+
+	JPH::UnregisterTypes();
+	delete JPH::Factory::sInstance;
+	JPH::Factory::sInstance = nullptr;
+
 	FBO.Delete();
 
 	shaderProgram.Delete();
