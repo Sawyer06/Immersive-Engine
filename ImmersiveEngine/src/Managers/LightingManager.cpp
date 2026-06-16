@@ -8,10 +8,14 @@ namespace ImmersiveEngine::cbs
 	}
 	void LightingManager::removeLight(uint32_t index)
 	{
+		if (index > m_lights.size()) return;
+
 		m_lights.erase(m_lights.begin() + index);
 	}
 	Light& LightingManager::getLight(uint32_t index)
 	{
+		//if (index > m_lights.size()) return;
+
 		return m_lights[index];
 	}
 

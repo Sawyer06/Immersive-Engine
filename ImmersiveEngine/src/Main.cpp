@@ -38,6 +38,7 @@
 #include"Rendering/FBO.h"
 #include"Managers/LightingManager.h"
 #include"Rendering/Cubemap.h"
+#include"Managers/PhysicsManager.h"
 
 #include"XR/OpenXRManager.h"
 
@@ -490,12 +491,12 @@ int main()
 	JPH::BodyCreationSettings floorSettings(floorShape, JPH::RVec3(0.0f, -2.0f, 0.0f), JPH::Quat::sIdentity(), JPH::EMotionType::Static, Layers::NON_MOVING);
 	JPH::Body* floor = bodyInterface.CreateBody(floorSettings);
 	bodyInterface.AddBody(floor->GetID(), JPH::EActivation::DontActivate);
-
 	JPH::BodyCreationSettings sphereSettings(new JPH::SphereShape(0.5f), JPH::RVec3(ball.space->position.x, ball.space->position.y, ball.space->position.z), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::MOVING);
 	sphereSettings.mRestitution = 0.5f;
-	JPH::BodyID sphereID = bodyInterface.CreateAndAddBody(sphereSettings, JPH::EActivation::Activate);
+	JPH::Body* sphere = bodyInterface.CreateBody(sphereSettings);
+	bodyInterface.AddBody(sphere->GetID(), JPH::EActivation::Activate);
 
-	bodyInterface.SetLinearVelocity(sphereID, JPH::Vec3(0.0f, -5.0f, 2.0f));
+	sphere->SetLinearVelocity(JPH::Vec3(0.0f, -5.0f, 2.0f));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -589,9 +590,9 @@ int main()
 			camSpeed = camWalkSpeed;
 		}
 
-		if (bodyInterface.IsActive(sphereID))
+		if (bodyInterface.IsActive(sphere->GetID()))
 		{
-			JPH::RVec3 position = bodyInterface.GetCenterOfMassPosition(sphereID);
+			JPH::RVec3 position = bodyInterface.GetCenterOfMassPosition(sphere->GetID());
 			ball.space->position = ImmersiveEngine::Math::Vector3(position.GetX(), position.GetY(), position.GetZ());
 
 			physicsSystem.Update(deltaTime, 1, &tempAllocator, &jobSystem);
@@ -795,8 +796,8 @@ int main()
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
-	bodyInterface.RemoveBody(sphereID);
-	bodyInterface.DestroyBody(sphereID);
+	bodyInterface.RemoveBody(sphere->GetID());
+	bodyInterface.DestroyBody(sphere->GetID());
 	bodyInterface.RemoveBody(floor->GetID());
 	bodyInterface.DestroyBody(floor->GetID());
 
