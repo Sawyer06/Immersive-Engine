@@ -11,8 +11,8 @@ namespace ImmersiveEngine::cbs
 #endif
 		JPH::Factory::sInstance = new JPH::Factory();
 		JPH::RegisterTypes();
-		JPH::TempAllocatorImpl tempAllocator(10 * 1024 * 1024);
-		JPH::JobSystemThreadPool jobSystem(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, JPH::thread::hardware_concurrency() - 1);
+		m_tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024);
+		m_jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, JPH::thread::hardware_concurrency() - 1);
 
 		m_physicsSystem.Init(maxBodies, numBodyMutexes, maxBodyPairs, maxContactConstraints, 
 			m_broadPhaseLayerInterface, m_objectVsBroadphaseLayerFilter, m_objectVsObjectLayerFilter);
@@ -23,12 +23,9 @@ namespace ImmersiveEngine::cbs
 		m_bodyInterface = &m_physicsSystem.GetBodyInterface();
 	}
 
-	void PhysicsManager::addRigidBody(RigidBody& rb)
+	void PhysicsManager::addRigidBody(RigidBody* rb)
 	{
-		JPH::BodyCreationSettings createSettings;
-
-		m_bodyInterface->CreateAndAddBody(createSettings, JPH::EActivation::Activate);
-		
+		rb->initialize(m_bodyInterface);
 		m_rigidBodies.push_back(rb);
 	}
 
@@ -36,25 +33,24 @@ namespace ImmersiveEngine::cbs
 	{
 		if (index > m_rigidBodies.size()) return;
 
-		m_bodyInterface->RemoveBody(m_rigidBodies[index].getBodyID());
+		m_bodyInterface->RemoveBody(m_rigidBodies[index]->getBodyID());
 		m_rigidBodies.erase(m_rigidBodies.begin() + index);
 	}
 
-	RigidBody& PhysicsManager::getRigidBody(uint32_t index)
+	RigidBody* PhysicsManager::getRigidBody(uint32_t index)
 	{
-		//if (index > m_rigidBodies.size()) return ;
+		//if (index > m_rigidBodies.size()) return;
 
 		return m_rigidBodies[index];
 	}
 
-	void PhysicsManager::refreshBodies()
+	void PhysicsManager::refreshBodies(float deltaTime)
 	{
-		for (RigidBody rb : m_rigidBodies)
+		for (RigidBody* rb : m_rigidBodies)
 		{
-			// Get center of mass
-			// Set space->position to center of mass pos
+			rb->refreshRigidBody();
 		}
 
-		// physicsSystem.update()
+		m_physicsSystem.Update(deltaTime, 1, m_tempAllocator.get(), m_jobSystem.get());
 	}
 }

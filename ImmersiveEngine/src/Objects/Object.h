@@ -65,7 +65,7 @@ namespace ImmersiveEngine::cbs
                 return nullptr; // No component of the type was found.
             }
 
-            const std::vector<std::unique_ptr<Component>> getAllComponents()
+            const std::vector<std::unique_ptr<Component>>& getAllComponents()
             {
                 return m_components;
             }

@@ -3,7 +3,7 @@
 
 #include<iostream>
 #include <cstdarg>
-#include <unordered_set>
+#include <map>
 
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
@@ -16,6 +16,8 @@
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 
 #include"Manager.h"
+#include"../Math/Vector3.h"
+#include"../Objects/Present.h"
 #include"../Components/RigidBody.h"
 
 namespace ImmersiveEngine::cbs
@@ -126,22 +128,6 @@ namespace ImmersiveEngine::cbs
 			}
 	};
 
-	class ContactHandler;
-
-	struct ContactInfo
-	{
-		Present* gameObject;
-		
-		ImmersiveEngine::Math::Vector3 baseOffset;
-		std::vector<ImmersiveEngine::Math::Vector3> relativeContactPointsPosition;
-		std::vector<ImmersiveEngine::Math::Vector3> worldContactPointsPosition;
-		
-		float penetrationDepth;
-	};
-
-	// Necessary to keep track of added contacts as they are inaccesible upon OnContactRemoved()
-	std::unordered_map<std::pair<JPH::BodyID, JPH::BodyID>, std::pair<const JPH::Body*, const JPH::Body*>> contactsCache = { };
-
 	class IEContactListener : public JPH::ContactListener
 	{
 		public:
@@ -149,48 +135,155 @@ namespace ImmersiveEngine::cbs
 			{
 				return JPH::ValidateResult::AcceptAllContactsForThisBodyPair;
 			}
+
 			virtual void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
 			{
 				Present* obj1 = reinterpret_cast<Present*>(inBody1.GetUserData());
 				Present* obj2 = reinterpret_cast<Present*>(inBody2.GetUserData());
 
+				if (!obj1 || !obj2)
+				{
+					std::cerr << "PHYSICS_ERROR Could not handle contact added. Unable to retrieve user data.\n";
+					return;
+				}
+
 				ImmersiveEngine::Math::Vector3 baseOffset(inManifold.mBaseOffset.GetX(), inManifold.mBaseOffset.GetY(), inManifold.mBaseOffset.GetZ());
 
-				std::vector<ImmersiveEngine::Math::Vector3> relativeContactPointsPosition = { };
-				std::vector<ImmersiveEngine::Math::Vector3> worldContactPointsPosition = { };
+				// Create contact info for inBody1 and call its contact handler functions.
+				std::vector<ImmersiveEngine::Math::Vector3> relativeContactPointsPosition1 = { };
+				std::vector<ImmersiveEngine::Math::Vector3> worldContactPointsPosition1 = { };
 				for (int i = 0; i < inManifold.mRelativeContactPointsOn1.size(); i++)
 				{
-					relativeContactPointsPosition.emplace_back(inManifold.mRelativeContactPointsOn1[i]);
-					worldContactPointsPosition.emplace_back(inManifold.GetWorldSpaceContactPointOn1(i));
+					JPH::Vec3 rContactPoint = inManifold.mRelativeContactPointsOn1[i];
+					relativeContactPointsPosition1.emplace_back(ImmersiveEngine::Math::Vector3(rContactPoint.GetX(), rContactPoint.GetY(), rContactPoint.GetZ()));
+					
+					JPH::Vec3 wContactPoint = inManifold.GetWorldSpaceContactPointOn1(i);
+					worldContactPointsPosition1.emplace_back(ImmersiveEngine::Math::Vector3(wContactPoint.GetX(), wContactPoint.GetY(), wContactPoint.GetZ()));
 				}
 				
-				ContactInfo contact1 = { obj2, baseOffset, relativeContactPointsPosition, worldContactPointsPosition, inManifold.mPenetrationDepth };
+				ImmersiveEngine::Physics::ContactInfo contact1 = { obj2, baseOffset, relativeContactPointsPosition1, worldContactPointsPosition1, inManifold.mPenetrationDepth };
 				
-				for (const auto& comp : obj1->getAllComponents())
+				std::vector<ImmersiveEngine::Physics::ContactHandler*> handlers1 = GetContactHandlers(obj1);
+				for (auto handler : handlers1)
+					handler->OnContactBegan(contact1);
+
+				// Create contact info for inBody2 and call its contact handler functions.
+				std::vector<ImmersiveEngine::Math::Vector3> relativeContactPointsPosition2 = { };
+				std::vector<ImmersiveEngine::Math::Vector3> worldContactPointsPosition2 = { };
+				for (int i = 0; i < inManifold.mRelativeContactPointsOn2.size(); i++)
 				{
-					auto* handler = dynamic_cast<ContactHandler*>(comp.get());
-					if (handler != nullptr) // Component also has a contact handler.
-					{
-						handler->OnContactBegan(contact1);
-					}
+					JPH::Vec3 rContactPoint = inManifold.mRelativeContactPointsOn2[i];
+					relativeContactPointsPosition2.emplace_back(ImmersiveEngine::Math::Vector3(rContactPoint.GetX(), rContactPoint.GetY(), rContactPoint.GetZ()));
+
+					JPH::Vec3 wContactPoint = inManifold.GetWorldSpaceContactPointOn2(i);
+					worldContactPointsPosition2.emplace_back(ImmersiveEngine::Math::Vector3(wContactPoint.GetX(), wContactPoint.GetY(), wContactPoint.GetZ()));
 				}
 
-				contactsCache.insert({ std::pair(inBody1.GetID(), inBody2.GetID()), std::pair(&inBody1, &inBody2) }); // Add the contact to the cache.
+				ImmersiveEngine::Physics::ContactInfo contact2 = { obj1, baseOffset, relativeContactPointsPosition2, worldContactPointsPosition2, inManifold.mPenetrationDepth };
+
+				std::vector<ImmersiveEngine::Physics::ContactHandler*> handlers2 = GetContactHandlers(obj2);
+				for (auto handler : handlers2)
+					handler->OnContactBegan(contact2);
+
+				m_contactsCache.insert({ std::pair(inBody1.GetID(), inBody2.GetID()), std::pair(&inBody1, &inBody2) }); // Add the contact to the cache.
 			}
+
 			virtual void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
 			{
-				//std::cout << "A contact was persisted" << std::endl;
+				Present* obj1 = reinterpret_cast<Present*>(inBody1.GetUserData());
+				Present* obj2 = reinterpret_cast<Present*>(inBody2.GetUserData());
+
+				if (!obj1 || !obj2)
+				{
+					std::cerr << "PHYSICS_ERROR Could not handle contact added. Unable to retrieve user data.\n";
+					return;
+				}
+
+				ImmersiveEngine::Math::Vector3 baseOffset(inManifold.mBaseOffset.GetX(), inManifold.mBaseOffset.GetY(), inManifold.mBaseOffset.GetZ());
+
+				// Create contact info for inBody1 and call its contact handler functions.
+				std::vector<ImmersiveEngine::Math::Vector3> relativeContactPointsPosition1 = { };
+				std::vector<ImmersiveEngine::Math::Vector3> worldContactPointsPosition1 = { };
+				for (int i = 0; i < inManifold.mRelativeContactPointsOn1.size(); i++)
+				{
+					JPH::Vec3 rContactPoint = inManifold.mRelativeContactPointsOn1[i];
+					relativeContactPointsPosition1.emplace_back(ImmersiveEngine::Math::Vector3(rContactPoint.GetX(), rContactPoint.GetY(), rContactPoint.GetZ()));
+
+					JPH::Vec3 wContactPoint = inManifold.GetWorldSpaceContactPointOn1(i);
+					worldContactPointsPosition1.emplace_back(ImmersiveEngine::Math::Vector3(wContactPoint.GetX(), wContactPoint.GetY(), wContactPoint.GetZ()));
+				}
+
+				ImmersiveEngine::Physics::ContactInfo contact1 = { obj2, baseOffset, relativeContactPointsPosition1, worldContactPointsPosition1, inManifold.mPenetrationDepth };
+
+				std::vector<ImmersiveEngine::Physics::ContactHandler*> handlers1 = GetContactHandlers(obj1);
+				for (auto handler : handlers1)
+					handler->OnContactPersisted(contact1);
+
+				// Create contact info for inBody2 and call its contact handler functions.
+				std::vector<ImmersiveEngine::Math::Vector3> relativeContactPointsPosition2 = { };
+				std::vector<ImmersiveEngine::Math::Vector3> worldContactPointsPosition2 = { };
+				for (int i = 0; i < inManifold.mRelativeContactPointsOn2.size(); i++)
+				{
+					JPH::Vec3 rContactPoint = inManifold.mRelativeContactPointsOn2[i];
+					relativeContactPointsPosition2.emplace_back(ImmersiveEngine::Math::Vector3(rContactPoint.GetX(), rContactPoint.GetY(), rContactPoint.GetZ()));
+
+					JPH::Vec3 wContactPoint = inManifold.GetWorldSpaceContactPointOn2(i);
+					worldContactPointsPosition2.emplace_back(ImmersiveEngine::Math::Vector3(wContactPoint.GetX(), wContactPoint.GetY(), wContactPoint.GetZ()));
+				}
+
+				ImmersiveEngine::Physics::ContactInfo contact2 = { obj1, baseOffset, relativeContactPointsPosition2, worldContactPointsPosition2, inManifold.mPenetrationDepth };
+
+				std::vector<ImmersiveEngine::Physics::ContactHandler*> handlers2 = GetContactHandlers(obj2);
+				for (auto handler : handlers2)
+					handler->OnContactPersisted(contact2);
+
 			}
 
 			virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override
 			{
-				auto contactToRemove = contactsCache.find(std::pair(inSubShapePair.GetBody1ID(), inSubShapePair.GetBody2ID()));
+				auto contactToRemove = m_contactsCache.find(std::pair(inSubShapePair.GetBody1ID(), inSubShapePair.GetBody2ID()));
+				if (contactToRemove != m_contactsCache.end()) // Make sure it is in the cache.
+				{
+					auto body1 = contactToRemove->second.first;
+					auto body2 = contactToRemove->second.second;
 
+					Present* obj1 = reinterpret_cast<Present*>(body1->GetUserData());
+					Present* obj2 = reinterpret_cast<Present*>(body2->GetUserData());
 
+					std::vector<ImmersiveEngine::Physics::ContactHandler*> handlers1 = GetContactHandlers(obj1);
+					for(auto handler : handlers1)
+						handler->OnContactRemoved();
 
-				contactsCache.erase(contactToRemove);
+					std::vector<ImmersiveEngine::Physics::ContactHandler*> handlers2 = GetContactHandlers(obj2);
+					for (auto handler : handlers2)
+						handler->OnContactRemoved();
+
+					m_contactsCache.erase(contactToRemove); // Remove the contact from the cache once used.
+				}
+				else
+				{
+					std::cerr << "PHYSICS_ERROR Contact to remove was not found in the cache.\n";
+				}
 			}
 
+		private:
+			std::vector<ImmersiveEngine::Physics::ContactHandler*> GetContactHandlers(Present* obj)
+			{
+				std::vector< ImmersiveEngine::Physics::ContactHandler*> contactHandlers;
+				for (const auto& comp : obj->getAllComponents())
+				{
+					auto* handler = dynamic_cast<ImmersiveEngine::Physics::ContactHandler*>(comp.get());
+					if (handler != nullptr) // Component also has a contact handler.
+					{
+						contactHandlers.push_back(handler);
+					}
+				}
+				
+				return contactHandlers;
+			}
+
+			// Necessary to keep track of added contacts as they are inaccesible upon OnContactRemoved()
+			std::map<std::pair<JPH::BodyID, JPH::BodyID>, std::pair<const JPH::Body*, const JPH::Body*>> m_contactsCache = { };
 	};
 
 	class IEBodyActivationListener : public JPH::BodyActivationListener
@@ -208,6 +301,8 @@ namespace ImmersiveEngine::cbs
 
 	class PhysicsManager : public Manager<PhysicsManager>
 	{
+		friend class Manager<PhysicsManager>;
+
 		private:
 			PhysicsManager() = default;
 			~PhysicsManager() = default;
@@ -215,8 +310,10 @@ namespace ImmersiveEngine::cbs
 			JPH::PhysicsSystem m_physicsSystem;
 			JPH::BodyInterface* m_bodyInterface;
 
-			std::vector<RigidBody> m_rigidBodies;
+			std::vector<RigidBody*> m_rigidBodies;
 			
+			std::unique_ptr<JPH::TempAllocatorImpl> m_tempAllocator;
+			std::unique_ptr<JPH::JobSystemThreadPool> m_jobSystem;
 			IEBPLayerInterface m_broadPhaseLayerInterface;
 			IEObjectVsBroadPhaseLayerFilter m_objectVsBroadphaseLayerFilter;
 			IEObjectLayerPairFilter m_objectVsObjectLayerFilter;
@@ -229,11 +326,11 @@ namespace ImmersiveEngine::cbs
 			uint32_t maxContactConstraints = 1024;
 
 			void initialize();
-			void addRigidBody(RigidBody& rb);
+			void addRigidBody(RigidBody* rb);
 			void removeRigidBody(uint32_t index);
-			RigidBody& getRigidBody(uint32_t index);
+			RigidBody* getRigidBody(uint32_t index);
 
-			void refreshBodies();
+			void refreshBodies(float deltaTime);
 	};
 }
 #endif

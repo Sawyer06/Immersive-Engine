@@ -81,7 +81,10 @@ namespace ImmersiveEngine::cbs
     std::string Space::toString()
     {
         std::ostringstream oss;
-        oss << Component::toString() << "\tposition: " << position.toString() << "\n\torientation: " << orientation.toString() << "\n\tscale: " << scale.toString() << "\n";
+        oss << Component::toString() << 
+            "\tposition: " << position.toString() << 
+            "\n\torientation: " << orientation.toString() << 
+            "\n\tscale: " << scale.toString() << "\n";
         return oss.str();
     }
 

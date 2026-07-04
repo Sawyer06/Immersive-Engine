@@ -201,6 +201,8 @@
     <ClInclude Include="src\Math\Vector3.h" />
     <ClInclude Include="src\Objects\Object.h" />
     <ClInclude Include="src\Objects\Present.h" />
+    <ClInclude Include="src\Physics\ColliderShape.h" />
+    <ClInclude Include="src\Physics\ContactHandler.h" />
     <ClInclude Include="src\Rendering\Cubemap.h" />
     <ClInclude Include="src\Rendering\EBO.h" />
     <ClInclude Include="src\Rendering\FBO.h" />

@@ -5,30 +5,24 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 
+#include"../Physics/ColliderShape.h"
+#include"../Physics/ContactHandler.h"
 #include"../Objects/Present.h"
 #include"Space.h"
 
 namespace ImmersiveEngine::cbs
 {
-	class ContactHandler
-	{
-		public:
-			virtual void OnContactBegan(ContactInfo& contact);
-			virtual void OnContactPersisted(ContactInfo& contact);
-			virtual void OnContactRemoved(ContactInfo& contact);
-	};
-
 	class RigidBody : public Component
 	{
 		private:
 			JPH::BodyID m_ID;
-			JPH::BodyInterface* m_bodyInterface;
+			JPH::BodyInterface* m_bodyInterface = nullptr;
+
+			JPH::BodyCreationSettings m_bodyCreationSettings;
+			std::shared_ptr<ImmersiveEngine::Physics::ColliderShape> m_colliderShape;
 
 			Space* m_ownerSpace;
 		public:
-			RigidBody(Object* obj);
-			~RigidBody() = default;
-
 			enum MotionType
 			{
 				Static,
@@ -36,10 +30,16 @@ namespace ImmersiveEngine::cbs
 				Dynamic
 			};
 
-			bool isSensor;
-			MotionType motionType;
-			float restitution;
+			RigidBody(Object* obj, std::shared_ptr<ImmersiveEngine::Physics::ColliderShape> colliderShape, MotionType motionType = MotionType::Static);
+			~RigidBody() = default;
 
+			bool isSensor = false;
+			MotionType motionType = MotionType::Static;
+			float restitution = 0.0f;
+			bool autoActivate = false; // Should stay false for physics optimazation unless necessary.
+
+			void initialize(JPH::BodyInterface* bodyInterface);
+			
 			bool isActive();
 			JPH::BodyID getBodyID();
 
@@ -52,9 +52,9 @@ namespace ImmersiveEngine::cbs
 			void addImpulse(ImmersiveEngine::Math::Vector3 amnt);
 			void addTorque(ImmersiveEngine::Math::Vector3 amnt);
 
-			void reset();
-
 			void refreshRigidBody();
+
+			void dump();
 
 			std::string toString() override;
 	};
