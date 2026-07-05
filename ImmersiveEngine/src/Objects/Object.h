@@ -17,10 +17,10 @@ namespace ImmersiveEngine::cbs
             std::vector<std::unique_ptr<Component>> m_components;
             
             //bool hasDependencies(std::vector<std::type_index> dependencies);
-        public:
+        protected:
             Object(std::string name);
             ~Object() = default;
-
+        public:
             static unsigned int nextId;
             unsigned int id;
 

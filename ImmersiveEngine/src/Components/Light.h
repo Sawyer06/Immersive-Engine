@@ -1,7 +1,7 @@
 #ifndef LIGHT_CLASS_H
 #define LIGHT_CLASS_H
 
-#include"../Objects/Present.h"
+#include"../Objects/GameObject.h"
 #include"Space.h"
 #include"../Settings.h"
 

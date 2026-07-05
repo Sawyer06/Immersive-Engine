@@ -138,7 +138,7 @@ namespace ImmersiveEngine::cbs
 		JPH::Quat orientation = m_bodyInterface->GetRotation(m_ID);
 
 		m_ownerSpace->position = ImmersiveEngine::Math::Vector3(position.GetX(), position.GetY(), position.GetZ()) - m_colliderShape->positionOffset;
-		m_ownerSpace->orientation = m_colliderShape->orientationOffset * 
+		m_ownerSpace->orientation = m_colliderShape->orientationOffset.conjugate() * 
 			ImmersiveEngine::Math::Quaternion(orientation.GetW(), orientation.GetX(), orientation.GetY(), orientation.GetZ()); // Rotate locally.
 	}
 

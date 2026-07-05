@@ -15,9 +15,8 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 
-#include"Manager.h"
 #include"../Math/Vector3.h"
-#include"../Objects/Present.h"
+#include"../Objects/GameObject.h"
 #include"../Components/RigidBody.h"
 
 namespace ImmersiveEngine::cbs
@@ -138,8 +137,8 @@ namespace ImmersiveEngine::cbs
 
 			virtual void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
 			{
-				Present* obj1 = reinterpret_cast<Present*>(inBody1.GetUserData());
-				Present* obj2 = reinterpret_cast<Present*>(inBody2.GetUserData());
+				GameObject* obj1 = reinterpret_cast<GameObject*>(inBody1.GetUserData());
+				GameObject* obj2 = reinterpret_cast<GameObject*>(inBody2.GetUserData());
 
 				if (!obj1 || !obj2)
 				{
@@ -190,8 +189,8 @@ namespace ImmersiveEngine::cbs
 
 			virtual void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
 			{
-				Present* obj1 = reinterpret_cast<Present*>(inBody1.GetUserData());
-				Present* obj2 = reinterpret_cast<Present*>(inBody2.GetUserData());
+				GameObject* obj1 = reinterpret_cast<GameObject* > (inBody1.GetUserData());
+				GameObject* obj2 = reinterpret_cast<GameObject*>(inBody2.GetUserData());
 
 				if (!obj1 || !obj2)
 				{
@@ -247,8 +246,8 @@ namespace ImmersiveEngine::cbs
 					auto body1 = contactToRemove->second.first;
 					auto body2 = contactToRemove->second.second;
 
-					Present* obj1 = reinterpret_cast<Present*>(body1->GetUserData());
-					Present* obj2 = reinterpret_cast<Present*>(body2->GetUserData());
+					GameObject* obj1 = reinterpret_cast<GameObject*>(body1->GetUserData());
+					GameObject* obj2 = reinterpret_cast<GameObject*>(body2->GetUserData());
 
 					std::vector<ImmersiveEngine::Physics::ContactHandler*> handlers1 = GetContactHandlers(obj1);
 					for(auto handler : handlers1)
@@ -267,7 +266,7 @@ namespace ImmersiveEngine::cbs
 			}
 
 		private:
-			std::vector<ImmersiveEngine::Physics::ContactHandler*> GetContactHandlers(Present* obj)
+			std::vector<ImmersiveEngine::Physics::ContactHandler*> GetContactHandlers(GameObject* obj)
 			{
 				std::vector< ImmersiveEngine::Physics::ContactHandler*> contactHandlers;
 				for (const auto& comp : obj->getAllComponents())
@@ -299,18 +298,13 @@ namespace ImmersiveEngine::cbs
 		}
 	};
 
-	class PhysicsManager : public Manager<PhysicsManager>
+	class PhysicsManager
 	{
-		friend class Manager<PhysicsManager>;
-
-		private:
-			PhysicsManager() = default;
-			~PhysicsManager() = default;
-
+		public:
 			JPH::PhysicsSystem m_physicsSystem;
 			JPH::BodyInterface* m_bodyInterface;
 
-			std::vector<RigidBody*> m_rigidBodies;
+			std::vector<ImmersiveEngine::cbs::RigidBody*> m_rigidBodies;
 			
 			std::unique_ptr<JPH::TempAllocatorImpl> m_tempAllocator;
 			std::unique_ptr<JPH::JobSystemThreadPool> m_jobSystem;
@@ -320,17 +314,23 @@ namespace ImmersiveEngine::cbs
 			IEBodyActivationListener m_bodyActivationListener;
 			IEContactListener m_contactListener;
 		public:
+			PhysicsManager();
+			~PhysicsManager();
+
 			uint32_t maxBodies = 1024;
 			uint32_t numBodyMutexes = 0;
 			uint32_t maxBodyPairs = 1024;
 			uint32_t maxContactConstraints = 1024;
 
 			void initialize();
-			void addRigidBody(RigidBody* rb);
+			void addRigidBody(ImmersiveEngine::cbs::RigidBody* rb);
 			void removeRigidBody(uint32_t index);
-			RigidBody* getRigidBody(uint32_t index);
+			ImmersiveEngine::cbs::RigidBody* getRigidBody(uint32_t index);
 
-			void refreshBodies(float deltaTime);
+			void refreshBodies();
+
+			void onStart();
+			void onUpdate(float deltaTime);
 	};
 }
 #endif

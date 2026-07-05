@@ -2,6 +2,21 @@
 
 namespace ImmersiveEngine::cbs
 {
+	PhysicsManager::PhysicsManager()
+	{
+		initialize();
+	}
+	PhysicsManager::~PhysicsManager()
+	{
+		for (ImmersiveEngine::cbs::RigidBody* rb : m_rigidBodies)
+		{
+			rb->dump();
+		}
+
+		JPH::UnregisterTypes();
+		delete JPH::Factory::sInstance;
+		JPH::Factory::sInstance = nullptr;
+	}
 	void PhysicsManager::initialize()
 	{
 		JPH::RegisterDefaultAllocator();
@@ -23,7 +38,7 @@ namespace ImmersiveEngine::cbs
 		m_bodyInterface = &m_physicsSystem.GetBodyInterface();
 	}
 
-	void PhysicsManager::addRigidBody(RigidBody* rb)
+	void PhysicsManager::addRigidBody(ImmersiveEngine::cbs::RigidBody* rb)
 	{
 		rb->initialize(m_bodyInterface);
 		m_rigidBodies.push_back(rb);
@@ -37,19 +52,29 @@ namespace ImmersiveEngine::cbs
 		m_rigidBodies.erase(m_rigidBodies.begin() + index);
 	}
 
-	RigidBody* PhysicsManager::getRigidBody(uint32_t index)
+	ImmersiveEngine::cbs::RigidBody* PhysicsManager::getRigidBody(uint32_t index)
 	{
 		//if (index > m_rigidBodies.size()) return;
 
 		return m_rigidBodies[index];
 	}
 
-	void PhysicsManager::refreshBodies(float deltaTime)
+	void PhysicsManager::refreshBodies()
 	{
-		for (RigidBody* rb : m_rigidBodies)
+		for (ImmersiveEngine::cbs::RigidBody* rb : m_rigidBodies)
 		{
 			rb->refreshRigidBody();
 		}
+	}
+
+	void PhysicsManager::onStart()
+	{
+
+	}
+
+	void PhysicsManager::onUpdate(float deltaTime)
+	{
+		refreshBodies();
 
 		m_physicsSystem.Update(deltaTime, 1, m_tempAllocator.get(), m_jobSystem.get());
 	}

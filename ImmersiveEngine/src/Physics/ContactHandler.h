@@ -1,13 +1,13 @@
 #ifndef CONTACTHANDLER_CLASS_H
 #define CONTACTHANDLER_CLASS_H
 
-#include"../Objects/Present.h"
+#include"../Objects/GameObject.h"
 
 namespace ImmersiveEngine::Physics
 {
 	struct ContactInfo
 	{
-		ImmersiveEngine::cbs::Present* gameObject;
+		ImmersiveEngine::cbs::GameObject* gameObject;
 
 		ImmersiveEngine::Math::Vector3 baseOffset;
 		std::vector<ImmersiveEngine::Math::Vector3> relativeContactPointsPosition;

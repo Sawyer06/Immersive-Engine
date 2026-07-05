@@ -27,4 +27,9 @@ namespace ImmersiveEngine::cbs
 			m_lights[i].refreshLight(shaderProgram, useGlobalLight, i);
 		}
 	}
+
+	void LightingManager::onUpdate(ImmersiveEngine::Rendering::Shader& shaderProgram)
+	{
+		refreshLights(shaderProgram);
+	}
 }

@@ -6,7 +6,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-//#include"../Objects/Present.h"
 #include"Component.h"
 #include "../Rendering/shaderClass.h"
 #include"../Math/Math.h"

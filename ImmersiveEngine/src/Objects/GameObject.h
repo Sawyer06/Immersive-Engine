@@ -1,5 +1,5 @@
-#ifndef PRESENT_CLASS_H
-#define PRESENT_CLASS_H
+#ifndef GAME_OBJECT_CLASS_H
+#define GAME_OBJECT_CLASS_H
 
 #include<glad/glad.h>
 #include <glm/glm.hpp>
@@ -18,21 +18,21 @@ namespace ImmersiveEngine::cbs
 {
     class Space;
 
-    class Present : public Object
+    class GameObject : public Object
     {
         private:
             void initialize() override;
         public:
-            Present();
-            Present(const std::string& name, std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh);
-            Present(const Present& other); // Clone constructor
-            ~Present();
+            GameObject();
+            GameObject(const std::string& name, std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh);
+            GameObject(const GameObject& other); // Clone constructor
+            ~GameObject();
 
             Space* space;
             //Space space;
             std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh;
 
-            std::unique_ptr<Present> clone() const;
+            std::unique_ptr<GameObject> clone() const;
             //bool isCollidingWith(const Present& obj);
 
             //void dump();

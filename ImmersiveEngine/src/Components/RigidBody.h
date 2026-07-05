@@ -7,7 +7,7 @@
 
 #include"../Physics/ColliderShape.h"
 #include"../Physics/ContactHandler.h"
-#include"../Objects/Present.h"
+#include"../Objects/GameObject.h"
 #include"Space.h"
 
 namespace ImmersiveEngine::cbs

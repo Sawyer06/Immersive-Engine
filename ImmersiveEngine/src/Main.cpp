@@ -26,13 +26,12 @@
 #include"Settings.h"
 #include"Rendering/Texture.h"
 #include"Rendering/shaderClass.h"
-#include"Objects/Present.h"
+#include"Objects/GameObject.h"
 #include"Components/Camera.h"
 #include"Components/Light.h"
 #include"Math/Vector2.h"
 #include"Math/Vector3.h"
 #include"Math/Quaternion.h"
-#include"Objects/Present.h"
 #include"Rendering/Mesh.h"
 #include"Components/Space.h"
 #include"Rendering/FBO.h"
@@ -84,15 +83,18 @@ int main()
 	gladLoadGL();
 	glfwSwapInterval(0); // vsync
 
+	ImmersiveEngine::XR::OpenXRManager xrManager;
+	ImmersiveEngine::cbs::PhysicsManager physicsManager;
+	ImmersiveEngine::cbs::LightingManager lightingManager;
+
 	bool openInVR = false;
 	std::vector<ImmersiveEngine::Rendering::FBO> eyeFBO;
-	ImmersiveEngine::XR::OpenXRManager xr;
 	if (openInVR)
 	{
-		xr.establishConnection();
-		eyeFBO.resize(xr.getEyeCount());
+		xrManager.establishConnection();
+		eyeFBO.resize(xrManager.getEyeCount());
 		
-		xr.input.createActionBindings();
+		xrManager.input.createActionBindings();
 	}
 
 	glEnable(GL_BLEND);
@@ -123,7 +125,7 @@ int main()
 	ImmersiveEngine::Rendering::FBO FBO;
 	FBO.Resize(ImmersiveEngine::Settings::g_screenWidth, ImmersiveEngine::Settings::g_screenHeight);
 
-	ImmersiveEngine::cbs::Present cam;
+	ImmersiveEngine::cbs::GameObject cam;
 	ImmersiveEngine::cbs::Camera* camComp = cam.addComponent<ImmersiveEngine::cbs::Camera>();
 	cam.space->position = ImmersiveEngine::Math::Vector3(0, 0, 2);
 	//cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
@@ -142,21 +144,19 @@ int main()
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeITex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building9.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
 	auto ballMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSphere(1, 24, 24));
-	ImmersiveEngine::cbs::Present ball("Ball", ballMesh);
+	ImmersiveEngine::cbs::GameObject ball("Ball", ballMesh);
 	ball.space->dialate(1.0f);
 	ball.space->translate(ImmersiveEngine::Math::Vector3(20.0f, 100.0f, -10.0f));
 
-	ImmersiveEngine::cbs::PhysicsManager::getInstance().initialize();
-
 	auto cubeMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
-	ImmersiveEngine::cbs::Present block("Block", cubeMesh);
+	ImmersiveEngine::cbs::GameObject block("Block", cubeMesh);
 	block.space->translate(ImmersiveEngine::Math::Vector3(15.0f, 100.0f, -10.0f));
 	std::shared_ptr<ImmersiveEngine::Physics::BoxShape> blockShape = std::make_shared<ImmersiveEngine::Physics::BoxShape>(ImmersiveEngine::Physics::BoxShape({ 1, 1, 1 }));
 	ImmersiveEngine::cbs::RigidBody* blockRb = block.addComponent<ImmersiveEngine::cbs::RigidBody>(blockShape, ImmersiveEngine::cbs::RigidBody::MotionType::Dynamic);
-	ImmersiveEngine::cbs::PhysicsManager::getInstance().addRigidBody(blockRb);
+	physicsManager.addRigidBody(blockRb);
 
 	auto planeMesh1 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generatePlane(15, 4));
-	ImmersiveEngine::cbs::Present planeA("Plane_1", planeMesh1);
+	ImmersiveEngine::cbs::GameObject planeA("Plane_1", planeMesh1);
 	planeA.mesh->setTexture(cobblestoneTex);
 	planeA.mesh->textureScale = 1.2f;
 	planeA.space->dialate(5.0f);
@@ -164,21 +164,21 @@ int main()
 	planeA.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, -10.0f));
 	std::shared_ptr<ImmersiveEngine::Physics::BoxShape> planeShape = std::make_shared<ImmersiveEngine::Physics::BoxShape>(ImmersiveEngine::Physics::BoxShape({ 20, 0.001f, 20 }));
 	ImmersiveEngine::cbs::RigidBody* planeRb = planeA.addComponent<ImmersiveEngine::cbs::RigidBody>(planeShape, ImmersiveEngine::cbs::RigidBody::MotionType::Static);
-	ImmersiveEngine::cbs::PhysicsManager::getInstance().addRigidBody(planeRb);
-	ImmersiveEngine::cbs::Present planeB("Plane_2", planeMesh1);
+	physicsManager.addRigidBody(planeRb);
+	ImmersiveEngine::cbs::GameObject planeB("Plane_2", planeMesh1);
 	planeB.space->dialate(5.0f);
 	planeB.space->translate(ImmersiveEngine::Math::Vector3(47.5f, -2.0f, 10.0f));
 	planeB.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::up);
 
 	auto planeMesh2 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generatePlane(15, 10));
-	ImmersiveEngine::cbs::Present planeC("Plane_3", planeMesh2);
+	ImmersiveEngine::cbs::GameObject planeC("Plane_3", planeMesh2);
 	planeC.mesh->setTexture(deadGrassTex);
 	planeC.mesh->textureScale = 0.6f;
 	planeC.space->dialate(5.0f);
 	planeC.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, 25.0f));
 
 	auto wallMesh1 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSquare(1));
-	ImmersiveEngine::cbs::Present wallA("Facade_1", wallMesh1);
+	ImmersiveEngine::cbs::GameObject wallA("Facade_1", wallMesh1);
 	wallA.mesh->setTexture(facadeATex);
 	wallA.mesh->textureScale = 1.0f;
 	wallA.mesh->textureOffset.y -= 0.5f;
@@ -186,14 +186,14 @@ int main()
 	wallA.space->translate(ImmersiveEngine::Math::Vector3(0.0f, 4.0f, -16.0f));
 
 	auto wallMesh2 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
-	ImmersiveEngine::cbs::Present wallB("Facade_2", wallMesh2);
+	ImmersiveEngine::cbs::GameObject wallB("Facade_2", wallMesh2);
 	wallB.mesh->setTexture(facadeDTex);
 	wallB.mesh->textureOffset.y -= 0.5f;
 	wallB.space->dialate(25.0f);
 	wallB.space->translate(ImmersiveEngine::Math::Vector3(18.5f, 10.0f, -28.0f));
 
 	auto wallMesh3 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
-	ImmersiveEngine::cbs::Present wallC("Facade_3", wallMesh3);
+	ImmersiveEngine::cbs::GameObject wallC("Facade_3", wallMesh3);
 	wallC.mesh->setTexture(facadeHTex);
 	wallC.mesh->textureOffset.y -= 0.5f;
 	wallC.mesh->textureOffset.x -= 0.5f;
@@ -201,7 +201,7 @@ int main()
 	wallC.space->translate(ImmersiveEngine::Math::Vector3(-16.0f, 8.0f, -25.0f));
 
 	auto wallMesh4 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(10));
-	ImmersiveEngine::cbs::Present wallD("Facade_4", wallMesh4);
+	ImmersiveEngine::cbs::GameObject wallD("Facade_4", wallMesh4);
 	wallD.mesh->setTexture(facadeCTex);
 	wallD.mesh->textureScale = 0.25f;
 	wallD.mesh->textureOffset.y -= 0.1f;
@@ -209,7 +209,7 @@ int main()
 	wallD.space->translate(ImmersiveEngine::Math::Vector3(-30.0f, 2.0f, 32.0f));
 
 	auto wallMesh5 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSquare(3));
-	ImmersiveEngine::cbs::Present wallE("Facade_5", wallMesh5);
+	ImmersiveEngine::cbs::GameObject wallE("Facade_5", wallMesh5);
 	wallE.mesh->setTexture(facadeCTex);
 	wallE.mesh->textureScale = 1.0f;
 	wallE.mesh->textureOffset.y -= 0.5f;
@@ -218,7 +218,7 @@ int main()
 	wallE.space->rotate(180, ImmersiveEngine::Math::Vector3::up);
 
 	auto wallMesh6 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(40));
-	ImmersiveEngine::cbs::Present wallF("Facade_6", wallMesh6);
+	ImmersiveEngine::cbs::GameObject wallF("Facade_6", wallMesh6);
 	wallF.mesh->setTexture(facadeBTex);
 	wallF.mesh->textureScale = 0.1f;
 	//wallF.mesh->textureOffset.y -= 0.9f;
@@ -226,7 +226,7 @@ int main()
 	wallF.space->translate(ImmersiveEngine::Math::Vector3(-40.0f, 30.0f, 50.0f));
 
 	auto wallMesh7 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
-	ImmersiveEngine::cbs::Present wallG("Facade_7", wallMesh7);
+	ImmersiveEngine::cbs::GameObject wallG("Facade_7", wallMesh7);
 	wallG.mesh->setTexture(facadeETex);
 	wallG.mesh->textureOffset.y -= 0.5f;
 	wallG.mesh->textureOffset.x -= 0.5f;
@@ -234,7 +234,7 @@ int main()
 	wallG.space->translate(ImmersiveEngine::Math::Vector3(45.0f, 10.0f, -28.0f));
 
 	auto wallMesh8 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
-	ImmersiveEngine::cbs::Present wallH("Facade_8", wallMesh8);
+	ImmersiveEngine::cbs::GameObject wallH("Facade_8", wallMesh8);
 	wallH.mesh->setTexture(facadeGTex);
 	wallH.mesh->textureOffset.y -= 0.3f;
 	wallH.mesh->textureOffset.x -= 0.4f;
@@ -243,7 +243,7 @@ int main()
 	wallH.space->translate(ImmersiveEngine::Math::Vector3(65.0f, 10.0f, -2.0f));
 
 	auto wallMesh9 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSquare(3));
-	ImmersiveEngine::cbs::Present wallI("Facade_9", wallMesh9);
+	ImmersiveEngine::cbs::GameObject wallI("Facade_9", wallMesh9);
 	wallI.mesh->setTexture(facadeFTex);
 	wallI.mesh->textureScale = 0.5f;
 	wallI.mesh->textureOffset.x -= 0.7f;
@@ -253,7 +253,7 @@ int main()
 	wallI.space->rotate(-90.0f, ImmersiveEngine::Math::Vector3::up);
 
 	auto wallMesh10 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
-	ImmersiveEngine::cbs::Present wallJ("Facade_10", wallMesh10);
+	ImmersiveEngine::cbs::GameObject wallJ("Facade_10", wallMesh10);
 	wallJ.mesh->setTexture(facadeITex);
 	wallJ.mesh->textureOffset.y -= 0.7f;
 	wallJ.mesh->textureOffset.x -= 0.5f;
@@ -263,42 +263,42 @@ int main()
 
 	auto handMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSphere(0.06f, 8, 8));
 
-	ImmersiveEngine::cbs::Present lightA;
+	ImmersiveEngine::cbs::GameObject lightA;
 	lightA.space->translate(ImmersiveEngine::Math::Vector3(-10.0f, 3.0f, 0.0f));
 	ImmersiveEngine::cbs::Light* lightCompA = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompA->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
 	lightCompA->diffuse.intensity = 2.0f;
 	lightCompA->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
-	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompA);
+	lightingManager.addLight(*lightCompA);
 	
-	ImmersiveEngine::cbs::Present lightB;
+	ImmersiveEngine::cbs::GameObject lightB;
 	lightB.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 3.0f, 0.0f));
 	ImmersiveEngine::cbs::Light* lightCompB = lightB.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompB->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
 	lightCompB->diffuse.intensity = 2.0f;
 	lightCompB->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
-	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompB);
+	lightingManager.addLight(*lightCompB);
 
-	ImmersiveEngine::cbs::Present lightC;
+	ImmersiveEngine::cbs::GameObject lightC;
 	lightC.space->translate(ImmersiveEngine::Math::Vector3(40.0f, 3.0f, 0.0f));
 	ImmersiveEngine::cbs::Light* lightCompC = lightC.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompC->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
 	lightCompC->diffuse.intensity = 2.0f;
 	lightCompC->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
-	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompC);
+	lightingManager.addLight(*lightCompC);
 
-	ImmersiveEngine::cbs::Present lightD;
+	ImmersiveEngine::cbs::GameObject lightD;
 	lightD.space->translate(ImmersiveEngine::Math::Vector3(40.0f, 3.0f, 30.0f));
 	ImmersiveEngine::cbs::Light* lightCompD = lightD.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
 	lightCompD->diffuse.color = ImmersiveEngine::Math::Vector3(250, 200, 90);
 	lightCompD->diffuse.intensity = 2.0f;
 	lightCompD->specular.color = ImmersiveEngine::Math::Vector3(250, 150, 90);
-	ImmersiveEngine::cbs::LightingManager::getInstance().addLight(*lightCompD);
+	lightingManager.addLight(*lightCompD);
 
 	//ImmersiveEngine::cbs::LightingManager::getInstance().useGlobalLight = false;
 
-	ImmersiveEngine::cbs::Present leftHand("Left Hand", handMesh);
-	ImmersiveEngine::cbs::Present rightHand("Right Hand", handMesh);
+	ImmersiveEngine::cbs::GameObject leftHand("Left Hand", handMesh);
+	ImmersiveEngine::cbs::GameObject rightHand("Right Hand", handMesh);
 	
 	float camWalkSpeed = 10.0f;
 	float camSprintSpeed = 30.0f;
@@ -331,7 +331,7 @@ int main()
 
 		if (openInVR)
 		{
-			xr.pollEvents();
+			xrManager.pollEvents();
 		}
 
 		crntTime = glfwGetTime();
@@ -349,7 +349,7 @@ int main()
 		processInput(window); // Get inputs.
 		if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
 		{
-			std::cout << xr.toString();
+			std::cout << xrManager.toString();
 			//std::cout << blockRb->toString();
 		}
 
@@ -418,32 +418,32 @@ int main()
 
 		blockRb->setLinearVelocity(ImmersiveEngine::Math::Vector3(0, -10, 0));
 		blockRb->addTorque(ImmersiveEngine::Math::Vector3(10000, 15000, 10000));
-		ImmersiveEngine::cbs::PhysicsManager::getInstance().refreshBodies(deltaTime);
+		physicsManager.onUpdate(deltaTime);
 
-		if (openInVR && xr.sessionRunning)
+		if (openInVR && xrManager.sessionRunning)
 		{
 			//std::cout << "Session is running.\n";
-			xr.waitFrame();
-			xr.beginFrame();
+			xrManager.waitFrame();
+			xrManager.beginFrame();
 			
-			xr.input.syncInputs();
-			auto poseL = xr.input.getPoseValue(InputPath::leftGripPose);
+			xrManager.input.syncInputs();
+			auto poseL = xrManager.input.getPoseValue(InputPath::leftGripPose);
 			leftHand.space->position = poseL.position + cam.space->position;
 			leftHand.space->orientation = poseL.orientation;
 
-			auto poseR = xr.input.getPoseValue(InputPath::rightGripPose);
+			auto poseR = xrManager.input.getPoseValue(InputPath::rightGripPose);
 			rightHand.space->position = poseR.position + cam.space->position;
 			rightHand.space->orientation = poseR.orientation;
 
-			for (uint32_t i = 0; i < xr.getEyeCount(); ++i)
+			for (uint32_t i = 0; i < xrManager.getEyeCount(); ++i)
 			{
-				GLuint colorImage = xr.getFrameColorImage(i);
-				GLuint depthImage = xr.getFrameDepthImage(i);
+				GLuint colorImage = xrManager.getFrameColorImage(i);
+				GLuint depthImage = xrManager.getFrameDepthImage(i);
 
-				xr.waitRenderToEye(i);
+				xrManager.waitRenderToEye(i);
 
-				XrViewConfigurationView viewConfig = xr.getViewConfig(i);
-				XrView view = xr.getView(i);
+				XrViewConfigurationView viewConfig = xrManager.getViewConfig(i);
+				XrView view = xrManager.getView(i);
 
 				eyeFBO[i].Bind();
 				eyeFBO[i].AttachExternalTexture(GL_COLOR_ATTACHMENT0, colorImage, viewConfig.recommendedImageRectWidth, viewConfig.recommendedImageRectHeight);
@@ -526,9 +526,9 @@ int main()
 				eyeFBO[i].DrawScreen();
 				glFlush();
 
-				xr.endRenderToEye(i);
+				xrManager.endRenderToEye(i);
 			}
-			xr.endFrame();
+			xrManager.endFrame();
 		}
 		int width, height;
 		glfwGetWindowSize(window, &width, &height);
@@ -558,7 +558,7 @@ int main()
 
 		camComp->refreshViewProjection(shaderProgram, skyboxShader, (float)width / height);
 
-		ImmersiveEngine::cbs::LightingManager::getInstance().refreshLights(shaderProgram);
+		lightingManager.onUpdate(shaderProgram);
 
 		cam.space->refreshTransforms(shaderProgram);
 
@@ -622,12 +622,6 @@ int main()
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
-
-	blockRb->dump();
-
-	JPH::UnregisterTypes();
-	delete JPH::Factory::sInstance;
-	JPH::Factory::sInstance = nullptr;
 
 	FBO.Delete();
 

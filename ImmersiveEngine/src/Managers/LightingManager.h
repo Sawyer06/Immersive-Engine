@@ -3,22 +3,19 @@
 
 #define MAX_LIGHTS 8
 
-#include"Manager.h"
 #include"../Objects/Object.h"
 #include"../Components/Light.h"
 
 namespace ImmersiveEngine::cbs
 {
-	class LightingManager : public Manager<LightingManager>
+	class LightingManager
 	{
-		friend class Manager<LightingManager>;
-
 		private:
 			std::vector<Light> m_lights;
-
+		public:
 			LightingManager() = default;
 			~LightingManager() = default;
-		public:
+
 			bool useGlobalLight = true;
 
 			void addLight(Light& light);
@@ -26,6 +23,8 @@ namespace ImmersiveEngine::cbs
 			Light& getLight(uint32_t index);
 
 			void refreshLights(ImmersiveEngine::Rendering::Shader& shaderProgram);
+
+			void onUpdate(ImmersiveEngine::Rendering::Shader& shaderProgram);
 	};
 }
 #endif
