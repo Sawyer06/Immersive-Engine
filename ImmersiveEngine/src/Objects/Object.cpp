@@ -2,13 +2,13 @@
 
 namespace ImmersiveEngine::cbs
 {
-    unsigned int Object::nextId = 0;
+    unsigned int Object::nextID = 0;
 
     Object::Object(std::string name) :
         name(name)
     {
-        id = nextId;
-        nextId++;
+        ID = nextID;
+        nextID++;
     }
 
     /*/// Check if the current object contains the required subset for the one being added (ex. camera component requires a space component).
@@ -36,7 +36,7 @@ namespace ImmersiveEngine::cbs
     std::string Object::toString()
     {
         std::ostringstream oss;
-        oss << name << " (" << id << ")";
+        oss << name << " (" << ID << ")";
         return oss.str();
     }
 }

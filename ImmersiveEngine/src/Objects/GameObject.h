@@ -29,13 +29,11 @@ namespace ImmersiveEngine::cbs
             ~GameObject();
 
             Space* space;
-            //Space space;
+            
             std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh;
 
             std::unique_ptr<GameObject> clone() const;
-            //bool isCollidingWith(const Present& obj);
 
-            //void dump();
             std::string toString() override;
     };
 }

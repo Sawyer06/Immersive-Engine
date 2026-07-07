@@ -127,6 +127,7 @@ int main()
 
 	ImmersiveEngine::cbs::GameObject cam;
 	ImmersiveEngine::cbs::Camera* camComp = cam.addComponent<ImmersiveEngine::cbs::Camera>();
+
 	cam.space->position = ImmersiveEngine::Math::Vector3(0, 0, 2);
 	//cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
 	//cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, -0.5f, 0));
@@ -151,9 +152,22 @@ int main()
 	auto cubeMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
 	ImmersiveEngine::cbs::GameObject block("Block", cubeMesh);
 	block.space->translate(ImmersiveEngine::Math::Vector3(15.0f, 100.0f, -10.0f));
-	std::shared_ptr<ImmersiveEngine::Physics::BoxShape> blockShape = std::make_shared<ImmersiveEngine::Physics::BoxShape>(ImmersiveEngine::Physics::BoxShape({ 1, 1, 1 }));
+	std::shared_ptr<ImmersiveEngine::Physics::BoxShape> blockShape = std::make_shared<ImmersiveEngine::Physics::BoxShape>(ImmersiveEngine::Physics::BoxShape({ 0.5f, 0.5f, 0.5f }));
 	ImmersiveEngine::cbs::RigidBody* blockRb = block.addComponent<ImmersiveEngine::cbs::RigidBody>(blockShape, ImmersiveEngine::cbs::RigidBody::MotionType::Dynamic);
 	physicsManager.addRigidBody(blockRb);
+
+	ImmersiveEngine::cbs::GameObject block1("Block1", cubeMesh);
+	block1.space->translate(ImmersiveEngine::Math::Vector3(12.0f, 100.0f, -10.0f));
+	ImmersiveEngine::cbs::RigidBody* blockRb1 = block1.addComponent<ImmersiveEngine::cbs::RigidBody>(blockShape, ImmersiveEngine::cbs::RigidBody::MotionType::Dynamic);
+	blockRb1->autoActivate = true;
+	blockRb1->restitution = 0.3f;
+	physicsManager.addRigidBody(blockRb1);
+
+	ImmersiveEngine::cbs::GameObject block2("Block2", cubeMesh);
+	block2.space->translate(ImmersiveEngine::Math::Vector3(12.0f, 30.0f, -10.0f));
+	ImmersiveEngine::cbs::RigidBody* blockRb2 = block2.addComponent<ImmersiveEngine::cbs::RigidBody>(blockShape, ImmersiveEngine::cbs::RigidBody::MotionType::Dynamic);
+	blockRb2->autoActivate = true;
+	physicsManager.addRigidBody(blockRb2);
 
 	auto planeMesh1 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generatePlane(15, 4));
 	ImmersiveEngine::cbs::GameObject planeA("Plane_1", planeMesh1);
@@ -415,8 +429,12 @@ int main()
 		{
 			camSpeed = camWalkSpeed;
 		}
+		
+		if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+		{
+			blockRb->addForce({ 0, 100000, 0 });
+		}
 
-		blockRb->setLinearVelocity(ImmersiveEngine::Math::Vector3(0, -10, 0));
 		blockRb->addTorque(ImmersiveEngine::Math::Vector3(10000, 15000, 10000));
 		physicsManager.onUpdate(deltaTime);
 
@@ -565,9 +583,14 @@ int main()
 		ball.space->refreshTransforms(shaderProgram);
 		ball.mesh->draw(shaderProgram);
 
-		blockRb->addForce(ImmersiveEngine::Math::Vector3(100, 0, 0));
 		block.space->refreshTransforms(shaderProgram);
 		block.mesh->draw(shaderProgram);
+
+		block1.space->refreshTransforms(shaderProgram);
+		block1.mesh->draw(shaderProgram);
+
+		block2.space->refreshTransforms(shaderProgram);
+		block2.mesh->draw(shaderProgram);
 
 		planeA.space->refreshTransforms(shaderProgram);
 		planeA.mesh->draw(shaderProgram);
@@ -622,6 +645,7 @@ int main()
 		glfwSwapBuffers(window); // Wait until next frame is rendered before switching to it.
 		glfwPollEvents(); // Process window events.
 	}
+	physicsManager.dump();
 
 	FBO.Delete();
 

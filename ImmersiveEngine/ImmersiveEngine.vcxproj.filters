@@ -84,9 +84,6 @@
     <ClCompile Include="src\Rendering\VBO.cpp">
       <Filter>Source Files\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="src\Objects\Present.cpp">
-      <Filter>Source Files\Objects</Filter>
-    </ClCompile>
     <ClCompile Include="src\Math\Vector2.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
@@ -141,6 +138,9 @@
     <ClCompile Include="src\Managers\PhysicsManager.cpp">
       <Filter>Source Files\Managers</Filter>
     </ClCompile>
+    <ClCompile Include="src\Objects\GameObject.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">
@@ -157,9 +157,6 @@
     </ClInclude>
     <ClInclude Include="src\Rendering\Texture.h">
       <Filter>Header Files\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Objects\Present.h">
-      <Filter>Header Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="src\Math\Vector2.h">
       <Filter>Header Files\Math</Filter>
@@ -226,6 +223,9 @@
     </ClInclude>
     <ClInclude Include="src\Physics\ContactHandler.h">
       <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Objects\GameObject.h">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

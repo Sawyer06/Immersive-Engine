@@ -315,7 +315,7 @@ namespace ImmersiveEngine::cbs
 			IEContactListener m_contactListener;
 		public:
 			PhysicsManager();
-			~PhysicsManager();
+			void dump();
 
 			uint32_t maxBodies = 1024;
 			uint32_t numBodyMutexes = 0;

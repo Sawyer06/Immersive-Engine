@@ -19,10 +19,11 @@ namespace ImmersiveEngine::cbs
             //bool hasDependencies(std::vector<std::type_index> dependencies);
         protected:
             Object(std::string name);
-            ~Object() = default;
         public:
-            static unsigned int nextId;
-            unsigned int id;
+            ~Object() = default;
+
+            static unsigned int nextID;
+            unsigned int ID;
 
             std::string name;
             bool enabled = true;

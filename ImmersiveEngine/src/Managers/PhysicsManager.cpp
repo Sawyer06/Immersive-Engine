@@ -6,7 +6,7 @@ namespace ImmersiveEngine::cbs
 	{
 		initialize();
 	}
-	PhysicsManager::~PhysicsManager()
+	void PhysicsManager::dump()
 	{
 		for (ImmersiveEngine::cbs::RigidBody* rb : m_rigidBodies)
 		{
@@ -38,6 +38,7 @@ namespace ImmersiveEngine::cbs
 		m_bodyInterface = &m_physicsSystem.GetBodyInterface();
 	}
 
+	/// Ideally set all properties of rigid body before adding.
 	void PhysicsManager::addRigidBody(ImmersiveEngine::cbs::RigidBody* rb)
 	{
 		rb->initialize(m_bodyInterface);

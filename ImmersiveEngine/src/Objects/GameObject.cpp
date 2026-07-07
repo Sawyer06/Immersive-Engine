@@ -20,20 +20,17 @@ namespace ImmersiveEngine::cbs
         initialize();
     }
     
-    GameObject::~GameObject()
-    {
-        //dump();
-    }
+    GameObject::~GameObject() { }
 
     void GameObject::initialize()
     {
         space = addComponent<Space>();
     }
 
-    std::unique_ptr<GameObject> GameObject::clone() const
+    /*std::unique_ptr<GameObject> GameObject::clone() const
     {
         return std::make_unique<GameObject>(*this);
-    }
+    }*/
 
     std::string GameObject::toString()
     {
