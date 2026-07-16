@@ -23,16 +23,14 @@ namespace ImmersiveEngine::cbs
         private:
             void initialize() override;
         public:
-            GameObject();
-            GameObject(const std::string& name, std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh);
-            GameObject(const GameObject& other); // Clone constructor
+            GameObject(const std::string& name = "Object", std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh = nullptr);
             ~GameObject();
 
             Space* space;
             
             std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh;
 
-            std::unique_ptr<GameObject> clone() const;
+            //std::unique_ptr<GameObject> clone() const;
 
             std::string toString() override;
     };

@@ -11,18 +11,6 @@
 #include <filesystem>
 #include <list>
 
-#include <Jolt/Jolt.h>
-#include <Jolt/RegisterTypes.h>
-#include <Jolt/Core/Factory.h>
-#include <Jolt/Core/TempAllocator.h>
-#include <Jolt/Core/JobSystemThreadPool.h>
-#include <Jolt/Physics/PhysicsSettings.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Physics/Collision/Shape/BoxShape.h>
-#include <Jolt/Physics/Collision/Shape/SphereShape.h>
-#include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <Jolt/Physics/Body/BodyActivationListener.h>
-
 #include"Settings.h"
 #include"Rendering/Texture.h"
 #include"Rendering/shaderClass.h"
@@ -127,6 +115,9 @@ int main()
 
 	ImmersiveEngine::cbs::GameObject cam;
 	ImmersiveEngine::cbs::Camera* camComp = cam.addComponent<ImmersiveEngine::cbs::Camera>();
+	std::shared_ptr<ImmersiveEngine::Physics::CapsuleShape> playerShape = std::make_shared<ImmersiveEngine::Physics::CapsuleShape>(ImmersiveEngine::Physics::CapsuleShape(1.0f, 0.5f));
+	ImmersiveEngine::cbs::RigidBody* camRb = cam.addComponent<ImmersiveEngine::cbs::RigidBody>(playerShape, ImmersiveEngine::cbs::RigidBody::Dynamic);
+	physicsManager.addRigidBody(camRb);
 
 	cam.space->position = ImmersiveEngine::Math::Vector3(0, 0, 2);
 	//cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
@@ -143,11 +134,6 @@ int main()
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeGTex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building7.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeHTex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building8.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeITex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building9.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-
-	auto ballMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSphere(1, 24, 24));
-	ImmersiveEngine::cbs::GameObject ball("Ball", ballMesh);
-	ball.space->dialate(1.0f);
-	ball.space->translate(ImmersiveEngine::Math::Vector3(20.0f, 100.0f, -10.0f));
 
 	auto cubeMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
 	ImmersiveEngine::cbs::GameObject block("Block", cubeMesh);
@@ -310,10 +296,28 @@ int main()
 	lightingManager.addLight(*lightCompD);
 
 	//ImmersiveEngine::cbs::LightingManager::getInstance().useGlobalLight = false;
+	std::shared_ptr<ImmersiveEngine::Physics::SphereShape> handShape = std::make_shared<ImmersiveEngine::Physics::SphereShape>(ImmersiveEngine::Physics::SphereShape(1));
 
-	ImmersiveEngine::cbs::GameObject leftHand("Left Hand", handMesh);
-	ImmersiveEngine::cbs::GameObject rightHand("Right Hand", handMesh);
+	ImmersiveEngine::cbs::GameObject leftHandAnchor("Left Hand_Anchor");
+	ImmersiveEngine::cbs::RigidBody* lAHandRb = leftHandAnchor.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape);
+	physicsManager.addRigidBody(lAHandRb);
+	ImmersiveEngine::cbs::GameObject leftHandPhysics("Left Hand_Physics", handMesh);
+	ImmersiveEngine::cbs::RigidBody* lPHandRb = leftHandPhysics.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape, ImmersiveEngine::cbs::RigidBody::Kinematic);
+	physicsManager.addRigidBody(lPHandRb);
+
+	ImmersiveEngine::Physics::FixedConstraint leftHandConstraint(lAHandRb, lPHandRb);
+	physicsManager.addConstraint(&leftHandConstraint);
+
+	ImmersiveEngine::cbs::GameObject rightHandAnchor("Right Hand_Anchor");
+	ImmersiveEngine::cbs::RigidBody* rAHandRb = rightHandAnchor.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape);
+	physicsManager.addRigidBody(rAHandRb);
+	ImmersiveEngine::cbs::GameObject rightHandPhysics("Right Hand_Physics", handMesh);
+	ImmersiveEngine::cbs::RigidBody* rPHandRb = rightHandPhysics.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape, ImmersiveEngine::cbs::RigidBody::Kinematic);
+	physicsManager.addRigidBody(rPHandRb);
 	
+	ImmersiveEngine::Physics::FixedConstraint rightHandConstraint(rAHandRb, rPHandRb);
+	physicsManager.addConstraint(&rightHandConstraint);
+
 	float camWalkSpeed = 10.0f;
 	float camSprintSpeed = 30.0f;
 	float camSpeed = 0;
@@ -336,6 +340,8 @@ int main()
 	float x2 = 0;
 
 	float offset = 0;
+
+	physicsManager.onStart();
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -378,6 +384,7 @@ int main()
 			clickIn = false;
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
+		ImmersiveEngine::Math::Quaternion playerOrientation = cam.space->orientation;
 		if (clickIn)
 		{
 			glfwGetCursorPos(window, &mouseX, &mouseY);
@@ -400,26 +407,29 @@ int main()
 		}
 		//cam.space->position.y = 0.5f;
 
+		ImmersiveEngine::Math::Vector3 playerPosition = cam.space->position;
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		{
-			cam.space->translate(-cam.space->getForward() * deltaTime * camSpeed);
+			playerPosition += -cam.space->getForward() * deltaTime * camSpeed;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 		{
-			cam.space->translate(cam.space->getForward() * camSpeed * deltaTime);
+			playerPosition += cam.space->getForward() * camSpeed * deltaTime;
 		}
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 		{
-			cam.space->translate(cam.space->getRight() * camSpeed * deltaTime);
+			playerPosition += cam.space->getRight() * camSpeed * deltaTime;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		{
-			cam.space->translate(-cam.space->getRight() * camSpeed * deltaTime);
+			playerPosition += -cam.space->getRight() * camSpeed * deltaTime;
 		}
 		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
-			cam.space->translate(ImmersiveEngine::Math::Vector3::up * camSpeed * deltaTime);
+			playerPosition += ImmersiveEngine::Math::Vector3::up * camSpeed * deltaTime;
 		}
+		camRb->setPositionAndOrientation(playerPosition, cam.space->orientation);
+
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		{
@@ -435,7 +445,7 @@ int main()
 			blockRb->addForce({ 0, 100000, 0 });
 		}
 
-		blockRb->addTorque(ImmersiveEngine::Math::Vector3(10000, 15000, 10000));
+		blockRb->addTorque(ImmersiveEngine::Math::Vector3(1000, 15000, 1000));
 		physicsManager.onUpdate(deltaTime);
 
 		if (openInVR && xrManager.sessionRunning)
@@ -445,13 +455,12 @@ int main()
 			xrManager.beginFrame();
 			
 			xrManager.input.syncInputs();
+			
 			auto poseL = xrManager.input.getPoseValue(InputPath::leftGripPose);
-			leftHand.space->position = poseL.position + cam.space->position;
-			leftHand.space->orientation = poseL.orientation;
+			leftHandAnchor.getComponent<ImmersiveEngine::cbs::RigidBody>()->setPositionAndOrientation(poseL.position, poseL.orientation);
 
 			auto poseR = xrManager.input.getPoseValue(InputPath::rightGripPose);
-			rightHand.space->position = poseR.position + cam.space->position;
-			rightHand.space->orientation = poseR.orientation;
+			rightHandAnchor.getComponent<ImmersiveEngine::cbs::RigidBody>()->setPositionAndOrientation(poseR.position, poseR.orientation);
 
 			for (uint32_t i = 0; i < xrManager.getEyeCount(); ++i)
 			{
@@ -526,11 +535,13 @@ int main()
 				wallJ.space->refreshTransforms(shaderProgram);
 				wallJ.mesh->draw(shaderProgram);
 
-				leftHand.space->refreshTransforms(shaderProgram);
-				leftHand.mesh->draw(shaderProgram);
+				leftHandAnchor.space->refreshTransforms(shaderProgram);
+				leftHandPhysics.space->refreshTransforms(shaderProgram);
+				leftHandPhysics.mesh->draw(shaderProgram);
 
-				rightHand.space->refreshTransforms(shaderProgram);
-				rightHand.mesh->draw(shaderProgram);
+				rightHandAnchor.space->refreshTransforms(shaderProgram);
+				rightHandPhysics.space->refreshTransforms(shaderProgram);
+				rightHandPhysics.mesh->draw(shaderProgram);
 
 				eyeFBO[i].Unbind();
 
@@ -579,9 +590,6 @@ int main()
 		lightingManager.onUpdate(shaderProgram);
 
 		cam.space->refreshTransforms(shaderProgram);
-
-		ball.space->refreshTransforms(shaderProgram);
-		ball.mesh->draw(shaderProgram);
 
 		block.space->refreshTransforms(shaderProgram);
 		block.mesh->draw(shaderProgram);

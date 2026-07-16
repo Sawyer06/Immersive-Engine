@@ -16,18 +16,23 @@ namespace ImmersiveEngine::cbs
 	{
 		private:
 			JPH::BodyID m_ID;
+
+			// Must call physics functions (addForce(), addTorque(), etc) from here as calling it from a Body will not wake it up from sleep.
 			JPH::BodyInterface* m_bodyInterface = nullptr;
 
 			JPH::BodyCreationSettings m_bodyCreationSettings;
 			std::shared_ptr<ImmersiveEngine::Physics::ColliderShape> m_colliderShape;
 
 			Space* m_ownerSpace;
+
+			JPH::BodyID getBodyID();
+			JPH::BodyCreationSettings getBodyCreationSettings();
 		public:
 			enum MotionType
 			{
-				Static,
-				Kinematic,
-				Dynamic
+				Static,		// Non movable.
+				Kinematic,	// Movable using velocities only, does not respond to forces.
+				Dynamic		// Responds to forces as a normal physics object.
 			};
 
 			RigidBody(Object* obj, std::shared_ptr<ImmersiveEngine::Physics::ColliderShape> colliderShape, MotionType motionType = MotionType::Static);
@@ -38,10 +43,11 @@ namespace ImmersiveEngine::cbs
 			float restitution = 0.0f;
 			bool autoActivate = false; // Should stay false for physics optimazation unless necessary.
 
-			void initialize(JPH::BodyInterface* bodyInterface);
+			void initialize(JPH::BodyInterface* bodyInterface, JPH::BodyID ID);
 			
 			bool isActive();
-			JPH::BodyID getBodyID();
+
+			void setPositionAndOrientation(ImmersiveEngine::Math::Vector3 position, ImmersiveEngine::Math::Quaternion orientation);
 
 			ImmersiveEngine::Math::Vector3 getLinearVelocity();
 			void setLinearVelocity(ImmersiveEngine::Math::Vector3 amnt);
@@ -57,6 +63,8 @@ namespace ImmersiveEngine::cbs
 			void dump();
 
 			std::string toString() override;
+
+			friend class PhysicsManager;
 	};
 }
 #endif

@@ -10,38 +10,55 @@ namespace ImmersiveEngine::cbs
 	}
 
 	/// Initialize function only to be called by PhysicsManager. RigidBody cannot be used if this has not been done.
-	void RigidBody::initialize(JPH::BodyInterface* bodyInterface)
+	void RigidBody::initialize(JPH::BodyInterface* bodyInterface, JPH::BodyID ID)
 	{
 		m_bodyInterface = bodyInterface;
+		m_ID = ID;
 
-		// Check which type collider shape is.
-		JPH::Shape* bodyShape = nullptr;
-		if (ImmersiveEngine::Physics::BoxShape* collider = dynamic_cast<ImmersiveEngine::Physics::BoxShape*>(m_colliderShape.get()))
-		{
-			bodyShape = new JPH::BoxShape({ collider->halfExtent.x * m_ownerSpace->scale.x, 
-				collider->halfExtent.y * m_ownerSpace->scale.y, 
-				collider->halfExtent.z * m_ownerSpace->scale.z }); // Scale collider by object's scale.
-		}
-		else if (ImmersiveEngine::Physics::SphereShape* collider = dynamic_cast<ImmersiveEngine::Physics::SphereShape*>(m_colliderShape.get()))
-		{
-			bodyShape = new JPH::SphereShape(collider->radius * (m_ownerSpace->scale.x + m_ownerSpace->scale.z) / 2); // Get average of X and Z of object's scale to get radius.
-		}
-		else if (ImmersiveEngine::Physics::CapsuleShape* collider = dynamic_cast<ImmersiveEngine::Physics::CapsuleShape*>(m_colliderShape.get()))
-		{
-			bodyShape = new JPH::CapsuleShape(collider->halfHeight * m_ownerSpace->scale.y, 
-				collider->radius * (m_ownerSpace->scale.x + m_ownerSpace->scale.z) / 2); // Get average of X and Z of object's scale to get radius.
-		}
-		else if (ImmersiveEngine::Physics::CylinderShape* collider = dynamic_cast<ImmersiveEngine::Physics::CylinderShape*>(m_colliderShape.get()))
-		{
-			bodyShape = new JPH::CylinderShape(collider->halfHeight * m_ownerSpace->scale.x, 
-				collider->radius * (m_ownerSpace->scale.x + m_ownerSpace->scale.z) / 2); // Get average of X and Z of object's scale to get radius.
-		}
+		m_bodyInterface->SetUserData(ID, reinterpret_cast<uintptr_t>(getOwner()));
 
-		if (!bodyShape) return;
+		m_bodyInterface->SetIsSensor(ID, isSensor);
+		m_bodyInterface->SetRestitution(ID, restitution);
+	}
 
-		JPH::EMotionType bodyType;
-		switch (motionType)
+	JPH::BodyID RigidBody::getBodyID()
+	{
+		if (m_bodyInterface == nullptr || m_ID.IsInvalid()) return JPH::BodyID();
+
+		return m_ID;
+	}
+
+	/// For initialization of the body with Jolt. For physics manager.
+	JPH::BodyCreationSettings RigidBody::getBodyCreationSettings()
+	{
+		if (m_bodyCreationSettings.GetShape() == nullptr)
 		{
+			// Check which type collider shape is.
+			JPH::Shape* bodyShape = nullptr;
+			if (ImmersiveEngine::Physics::BoxShape* collider = dynamic_cast<ImmersiveEngine::Physics::BoxShape*>(m_colliderShape.get()))
+			{
+				bodyShape = new JPH::BoxShape({ collider->halfExtent.x * m_ownerSpace->scale.x,
+					collider->halfExtent.y * m_ownerSpace->scale.y,
+					collider->halfExtent.z * m_ownerSpace->scale.z }); // Scale collider by object's scale.
+			}
+			else if (ImmersiveEngine::Physics::SphereShape* collider = dynamic_cast<ImmersiveEngine::Physics::SphereShape*>(m_colliderShape.get()))
+			{
+				bodyShape = new JPH::SphereShape(collider->radius * (m_ownerSpace->scale.x + m_ownerSpace->scale.z) / 2); // Get average of X and Z of object's scale to get radius.
+			}
+			else if (ImmersiveEngine::Physics::CapsuleShape* collider = dynamic_cast<ImmersiveEngine::Physics::CapsuleShape*>(m_colliderShape.get()))
+			{
+				bodyShape = new JPH::CapsuleShape(collider->halfHeight * m_ownerSpace->scale.y,
+					collider->radius * (m_ownerSpace->scale.x + m_ownerSpace->scale.z) / 2); // Get average of X and Z of object's scale to get radius.
+			}
+			else if (ImmersiveEngine::Physics::CylinderShape* collider = dynamic_cast<ImmersiveEngine::Physics::CylinderShape*>(m_colliderShape.get()))
+			{
+				bodyShape = new JPH::CylinderShape(collider->halfHeight * m_ownerSpace->scale.x,
+					collider->radius * (m_ownerSpace->scale.x + m_ownerSpace->scale.z) / 2); // Get average of X and Z of object's scale to get radius.
+			}
+
+			JPH::EMotionType bodyType;
+			switch (motionType)
+			{
 			case MotionType::Static:
 				bodyType = JPH::EMotionType::Static;
 				break;
@@ -50,23 +67,20 @@ namespace ImmersiveEngine::cbs
 				break;
 			default:
 				bodyType = JPH::EMotionType::Dynamic;
+			}
+
+			JPH::RVec3 bodyPosition(m_ownerSpace->position.x + m_colliderShape->positionOffset.x,
+				m_ownerSpace->position.y + m_colliderShape->positionOffset.y,
+				m_ownerSpace->position.z + m_colliderShape->positionOffset.z);
+
+			ImmersiveEngine::Math::Quaternion rot = m_colliderShape->orientationOffset * m_ownerSpace->orientation;
+
+			JPH::Quat bodyOrientation(rot.x, rot.y, rot.z, rot.w);
+
+			m_bodyCreationSettings = JPH::BodyCreationSettings(bodyShape, bodyPosition, bodyOrientation, bodyType, 1);
 		}
 
-		JPH::RVec3 bodyPosition(m_ownerSpace->position.x + m_colliderShape->positionOffset.x,
-			m_ownerSpace->position.y + m_colliderShape->positionOffset.y, 
-			m_ownerSpace->position.z + m_colliderShape->positionOffset.z);
-
-		ImmersiveEngine::Math::Quaternion rot = m_colliderShape->orientationOffset * m_ownerSpace->orientation;
-
-		JPH::Quat bodyOrientation(rot.x, rot.y, rot.z, rot.w);
-
-		m_bodyCreationSettings = JPH::BodyCreationSettings(bodyShape, bodyPosition, bodyOrientation, bodyType, 1);
-
-		m_ID = bodyInterface->CreateAndAddBody(m_bodyCreationSettings, autoActivate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
-		bodyInterface->SetUserData(m_ID, reinterpret_cast<uintptr_t>(getOwner()));
-
-		m_bodyInterface->SetIsSensor(m_ID, isSensor);
-		m_bodyInterface->SetRestitution(m_ID, restitution);
+		return m_bodyCreationSettings;
 	}
 
 	bool RigidBody::isActive()
@@ -75,11 +89,15 @@ namespace ImmersiveEngine::cbs
 		
 		return m_bodyInterface->IsActive(m_ID);
 	}
-	JPH::BodyID RigidBody::getBodyID()
-	{
-		if (m_bodyInterface == nullptr || m_ID.IsInvalid()) return JPH::BodyID();
 
-		return m_ID;
+	void RigidBody::setPositionAndOrientation(ImmersiveEngine::Math::Vector3 position, ImmersiveEngine::Math::Quaternion orientation)
+	{
+		if (m_bodyInterface == nullptr || m_ID.IsInvalid()) return;
+
+		m_bodyInterface->SetPositionAndRotation(m_ID, 
+												{ position.x, position.y, position.z }, 
+												{ orientation.x, orientation.y, orientation.z, orientation.w },
+												autoActivate ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
 	}
 
 	ImmersiveEngine::Math::Vector3 RigidBody::getLinearVelocity()

@@ -2,24 +2,11 @@
 
 namespace ImmersiveEngine::cbs
 {
-    GameObject::GameObject() : 
-        Object("Object"), mesh(nullptr) 
-    {
-        initialize();
-    }
-
     GameObject::GameObject(const std::string& name, std::shared_ptr<ImmersiveEngine::Rendering::Mesh> mesh) :
         Object(name), mesh(mesh) 
     {
         initialize();
     }
-
-    GameObject::GameObject(const GameObject& other) :
-        Object(other.name), mesh(other.mesh) 
-    {
-        initialize();
-    }
-    
     GameObject::~GameObject() { }
 
     void GameObject::initialize()

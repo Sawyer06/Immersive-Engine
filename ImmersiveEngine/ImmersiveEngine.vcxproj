@@ -202,7 +202,9 @@
     <ClInclude Include="src\Objects\GameObject.h" />
     <ClInclude Include="src\Objects\Object.h" />
     <ClInclude Include="src\Physics\ColliderShape.h" />
+    <ClInclude Include="src\Physics\Constraint.h" />
     <ClInclude Include="src\Physics\ContactHandler.h" />
+    <ClInclude Include="src\Physics\FixedConstraint.h" />
     <ClInclude Include="src\Rendering\Cubemap.h" />
     <ClInclude Include="src\Rendering\EBO.h" />
     <ClInclude Include="src\Rendering\FBO.h" />

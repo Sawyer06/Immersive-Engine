@@ -18,6 +18,7 @@
 #include"../Math/Vector3.h"
 #include"../Objects/GameObject.h"
 #include"../Components/RigidBody.h"
+#include"../Physics/FixedConstraint.h"
 
 namespace ImmersiveEngine::cbs
 {
@@ -300,11 +301,12 @@ namespace ImmersiveEngine::cbs
 
 	class PhysicsManager
 	{
-		public:
+		private:
 			JPH::PhysicsSystem m_physicsSystem;
 			JPH::BodyInterface* m_bodyInterface;
 
 			std::vector<ImmersiveEngine::cbs::RigidBody*> m_rigidBodies;
+			std::vector<ImmersiveEngine::Physics::Constraint*> m_constraints;
 			
 			std::unique_ptr<JPH::TempAllocatorImpl> m_tempAllocator;
 			std::unique_ptr<JPH::JobSystemThreadPool> m_jobSystem;
@@ -314,7 +316,7 @@ namespace ImmersiveEngine::cbs
 			IEBodyActivationListener m_bodyActivationListener;
 			IEContactListener m_contactListener;
 		public:
-			PhysicsManager();
+			PhysicsManager() = default;
 			void dump();
 
 			uint32_t maxBodies = 1024;
@@ -323,9 +325,12 @@ namespace ImmersiveEngine::cbs
 			uint32_t maxContactConstraints = 1024;
 
 			void initialize();
+			
 			void addRigidBody(ImmersiveEngine::cbs::RigidBody* rb);
 			void removeRigidBody(uint32_t index);
-			ImmersiveEngine::cbs::RigidBody* getRigidBody(uint32_t index);
+
+			void addConstraint(ImmersiveEngine::Physics::Constraint* constraint);
+			void removeConstraint(uint32_t index);
 
 			void refreshBodies();
 

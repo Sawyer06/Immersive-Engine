@@ -16,7 +16,7 @@ namespace ImmersiveEngine::Physics
 		float penetrationDepth;
 	};
 
-	/// Must be parent to the component in which you want to detect contacts.
+	/// Must be a parent to the component in which you want to detect contacts.
 	class ContactHandler
 	{
 		public:
