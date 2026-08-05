@@ -159,12 +159,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
+    <ClCompile Include="src\Application\Level.cpp" />
+    <ClCompile Include="src\Application\Window.cpp" />
     <ClCompile Include="src\Components\Camera.cpp" />
     <ClCompile Include="src\Components\Component.cpp" />
     <ClCompile Include="src\Components\Light.cpp" />
     <ClCompile Include="src\Components\RigidBody.cpp" />
     <ClCompile Include="src\Components\Space.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Managers\LevelManager.cpp" />
     <ClCompile Include="src\Managers\LightingManager.cpp" />
     <ClCompile Include="src\Managers\PhysicsManager.cpp" />
     <ClCompile Include="src\Math\Math.cpp" />
@@ -187,13 +190,15 @@
     <ClCompile Include="src\XR\OpenXRInputAction.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Application\Level.h" />
+    <ClInclude Include="src\Application\Window.h" />
     <ClInclude Include="src\Components\Camera.h" />
     <ClInclude Include="src\Components\Component.h" />
     <ClInclude Include="src\Components\Light.h" />
     <ClInclude Include="src\Components\RigidBody.h" />
     <ClInclude Include="src\Components\Space.h" />
+    <ClInclude Include="src\Managers\LevelManager.h" />
     <ClInclude Include="src\Managers\LightingManager.h" />
-    <ClInclude Include="src\Managers\Manager.h" />
     <ClInclude Include="src\Managers\PhysicsManager.h" />
     <ClInclude Include="src\Math\Math.h" />
     <ClInclude Include="src\Math\Quaternion.h" />

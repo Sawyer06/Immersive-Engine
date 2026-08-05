@@ -60,6 +60,7 @@ int main()
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
+	
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback); // Calls method when window is resized.
 
 	// Error check for GLAD.
@@ -75,7 +76,7 @@ int main()
 	ImmersiveEngine::cbs::PhysicsManager physicsManager;
 	ImmersiveEngine::cbs::LightingManager lightingManager;
 
-	bool openInVR = false;
+	bool openInVR = true;
 	std::vector<ImmersiveEngine::Rendering::FBO> eyeFBO;
 	if (openInVR)
 	{
@@ -170,6 +171,13 @@ int main()
 	planeB.space->translate(ImmersiveEngine::Math::Vector3(47.5f, -2.0f, 10.0f));
 	planeB.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::up);
 
+	auto tableMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(2));
+	ImmersiveEngine::cbs::GameObject table("Table", tableMesh);
+	table.space->translate(ImmersiveEngine::Math::Vector3(0, -1.5f, 0));
+	std::shared_ptr<ImmersiveEngine::Physics::BoxShape> tableShape = std::make_shared<ImmersiveEngine::Physics::BoxShape>(ImmersiveEngine::Physics::BoxShape({ 0.5f, 0.5f, 0.5f }));
+	ImmersiveEngine::cbs::RigidBody* tableRb = table.addComponent<ImmersiveEngine::cbs::RigidBody>(tableShape, ImmersiveEngine::cbs::RigidBody::MotionType::Static);
+	physicsManager.addRigidBody(tableRb);
+
 	auto planeMesh2 = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generatePlane(15, 10));
 	ImmersiveEngine::cbs::GameObject planeC("Plane_3", planeMesh2);
 	planeC.mesh->setTexture(deadGrassTex);
@@ -261,8 +269,6 @@ int main()
 	wallJ.space->dialate(30.0f);
 	wallJ.space->translate(ImmersiveEngine::Math::Vector3(68.0f, 4.7f, 40.5f));
 
-	auto handMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSphere(0.06f, 8, 8));
-
 	ImmersiveEngine::cbs::GameObject lightA;
 	lightA.space->translate(ImmersiveEngine::Math::Vector3(-10.0f, 3.0f, 0.0f));
 	ImmersiveEngine::cbs::Light* lightCompA = lightA.addComponent<ImmersiveEngine::cbs::Light>(ImmersiveEngine::Math::Vector3(255, 255, 255), 1.0f);
@@ -296,23 +302,29 @@ int main()
 	lightingManager.addLight(*lightCompD);
 
 	//ImmersiveEngine::cbs::LightingManager::getInstance().useGlobalLight = false;
-	std::shared_ptr<ImmersiveEngine::Physics::SphereShape> handShape = std::make_shared<ImmersiveEngine::Physics::SphereShape>(ImmersiveEngine::Physics::SphereShape(1));
+	auto handShape = std::make_shared<ImmersiveEngine::Physics::SphereShape>(ImmersiveEngine::Physics::SphereShape(0.05f));
+	auto handMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateSphere(0.05f, 8, 8));
+	auto anchorMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(0.05f));
 
-	ImmersiveEngine::cbs::GameObject leftHandAnchor("Left Hand_Anchor");
-	ImmersiveEngine::cbs::RigidBody* lAHandRb = leftHandAnchor.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape);
+	ImmersiveEngine::cbs::GameObject leftHandAnchor("Left Hand_Anchor", anchorMesh);
+	//leftHandAnchor.space->dialate(0.5f);
+	ImmersiveEngine::cbs::RigidBody* lAHandRb = leftHandAnchor.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape, ImmersiveEngine::cbs::RigidBody::Dynamic);
+	lAHandRb->autoActivate = true;
 	physicsManager.addRigidBody(lAHandRb);
 	ImmersiveEngine::cbs::GameObject leftHandPhysics("Left Hand_Physics", handMesh);
-	ImmersiveEngine::cbs::RigidBody* lPHandRb = leftHandPhysics.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape, ImmersiveEngine::cbs::RigidBody::Kinematic);
+	ImmersiveEngine::cbs::RigidBody* lPHandRb = leftHandPhysics.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape, ImmersiveEngine::cbs::RigidBody::Dynamic);
+	lPHandRb->autoActivate = true;
 	physicsManager.addRigidBody(lPHandRb);
 
 	ImmersiveEngine::Physics::FixedConstraint leftHandConstraint(lAHandRb, lPHandRb);
 	physicsManager.addConstraint(&leftHandConstraint);
 
-	ImmersiveEngine::cbs::GameObject rightHandAnchor("Right Hand_Anchor");
-	ImmersiveEngine::cbs::RigidBody* rAHandRb = rightHandAnchor.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape);
+	ImmersiveEngine::cbs::GameObject rightHandAnchor("Right Hand_Anchor", anchorMesh);
+	rightHandAnchor.space->dialate(0.5f);
+	ImmersiveEngine::cbs::RigidBody* rAHandRb = rightHandAnchor.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape, ImmersiveEngine::cbs::RigidBody::Static);
 	physicsManager.addRigidBody(rAHandRb);
 	ImmersiveEngine::cbs::GameObject rightHandPhysics("Right Hand_Physics", handMesh);
-	ImmersiveEngine::cbs::RigidBody* rPHandRb = rightHandPhysics.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape, ImmersiveEngine::cbs::RigidBody::Kinematic);
+	ImmersiveEngine::cbs::RigidBody* rPHandRb = rightHandPhysics.addComponent<ImmersiveEngine::cbs::RigidBody>(handShape, ImmersiveEngine::cbs::RigidBody::Dynamic);
 	physicsManager.addRigidBody(rPHandRb);
 	
 	ImmersiveEngine::Physics::FixedConstraint rightHandConstraint(rAHandRb, rPHandRb);
@@ -457,10 +469,10 @@ int main()
 			xrManager.input.syncInputs();
 			
 			auto poseL = xrManager.input.getPoseValue(InputPath::leftGripPose);
-			leftHandAnchor.getComponent<ImmersiveEngine::cbs::RigidBody>()->setPositionAndOrientation(poseL.position, poseL.orientation);
+			leftHandPhysics.getComponent<ImmersiveEngine::cbs::RigidBody>()->setPositionAndOrientation(poseL.position + cam.space->position, poseL.orientation * cam.space->orientation);
 
 			auto poseR = xrManager.input.getPoseValue(InputPath::rightGripPose);
-			rightHandAnchor.getComponent<ImmersiveEngine::cbs::RigidBody>()->setPositionAndOrientation(poseR.position, poseR.orientation);
+			rightHandAnchor.getComponent<ImmersiveEngine::cbs::RigidBody>()->setPositionAndOrientation(poseR.position + cam.space->position, poseR.orientation);
 
 			for (uint32_t i = 0; i < xrManager.getEyeCount(); ++i)
 			{
@@ -495,6 +507,15 @@ int main()
 
 				shaderProgram.Activate();
 				camComp->refreshViewProjection(shaderProgram, skyboxShader, view);
+
+				block.space->refreshTransforms(shaderProgram);
+				block.mesh->draw(shaderProgram);
+
+				block1.space->refreshTransforms(shaderProgram);
+				block1.mesh->draw(shaderProgram);
+
+				block2.space->refreshTransforms(shaderProgram);
+				block2.mesh->draw(shaderProgram);
 
 				planeA.space->refreshTransforms(shaderProgram);
 				planeA.mesh->draw(shaderProgram);
@@ -534,6 +555,9 @@ int main()
 
 				wallJ.space->refreshTransforms(shaderProgram);
 				wallJ.mesh->draw(shaderProgram);
+
+				table.space->refreshTransforms(shaderProgram);
+				table.mesh->draw(shaderProgram);
 
 				leftHandAnchor.space->refreshTransforms(shaderProgram);
 				leftHandPhysics.space->refreshTransforms(shaderProgram);
@@ -645,7 +669,7 @@ int main()
 		glDisable(GL_DEPTH_TEST);
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glViewport(0, 0, width, height);
+		//glViewport(0, 0, width, height);
 
 		screenShader.Activate();
 		FBO.DrawScreen();
@@ -669,7 +693,7 @@ int main()
 /// Stretch frame contents on window resize.
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-	glViewport(0, 0, width, height);
+	//glViewport(0, 0, width, height);
 }
 
 void processInput(GLFWwindow* window)

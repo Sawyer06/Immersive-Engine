@@ -58,6 +58,12 @@
     <Filter Include="Header Files\Physics">
       <UniqueIdentifier>{f37d12bf-459b-4632-900e-5f54af3592c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Application">
+      <UniqueIdentifier>{75a7bced-962b-452c-88dd-fb73a893f4f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Application">
+      <UniqueIdentifier>{87ed2243-88c5-42d1-80fb-042a7bc6b1c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -141,6 +147,15 @@
     <ClCompile Include="src\Objects\GameObject.cpp">
       <Filter>Source Files\Objects</Filter>
     </ClCompile>
+    <ClCompile Include="src\Application\Window.cpp">
+      <Filter>Source Files\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Application\Level.cpp">
+      <Filter>Source Files\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Managers\LevelManager.cpp">
+      <Filter>Source Files\Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Rendering\VAO.h">
@@ -206,9 +221,6 @@
     <ClInclude Include="src\Managers\LightingManager.h">
       <Filter>Header Files\Managers</Filter>
     </ClInclude>
-    <ClInclude Include="src\Managers\Manager.h">
-      <Filter>Header Files\Managers</Filter>
-    </ClInclude>
     <ClInclude Include="src\Rendering\Cubemap.h">
       <Filter>Header Files\Rendering</Filter>
     </ClInclude>
@@ -232,6 +244,15 @@
     </ClInclude>
     <ClInclude Include="src\Physics\FixedConstraint.h">
       <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Application\Window.h">
+      <Filter>Header Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Application\Level.h">
+      <Filter>Header Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Managers\LevelManager.h">
+      <Filter>Header Files\Managers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
