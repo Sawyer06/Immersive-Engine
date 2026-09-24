@@ -26,6 +26,7 @@
 #include"Managers/LightingManager.h"
 #include"Rendering/Cubemap.h"
 #include"Managers/PhysicsManager.h"
+#include"Managers/LevelManager.h"
 
 #include"XR/OpenXRManager.h"
 
@@ -75,6 +76,7 @@ int main()
 	ImmersiveEngine::XR::OpenXRManager xrManager;
 	ImmersiveEngine::cbs::PhysicsManager physicsManager;
 	ImmersiveEngine::cbs::LightingManager lightingManager;
+	ImmersiveEngine::LevelManager levelManager;
 
 	bool openInVR = true;
 	std::vector<ImmersiveEngine::Rendering::FBO> eyeFBO;
@@ -114,13 +116,15 @@ int main()
 	ImmersiveEngine::Rendering::FBO FBO;
 	FBO.Resize(ImmersiveEngine::Settings::g_screenWidth, ImmersiveEngine::Settings::g_screenHeight);
 
+	//ImmersiveEngine::Level* levelA = levelManager.createNewLevel("HelloWorld");
+
 	ImmersiveEngine::cbs::GameObject cam;
 	ImmersiveEngine::cbs::Camera* camComp = cam.addComponent<ImmersiveEngine::cbs::Camera>();
 	std::shared_ptr<ImmersiveEngine::Physics::CapsuleShape> playerShape = std::make_shared<ImmersiveEngine::Physics::CapsuleShape>(ImmersiveEngine::Physics::CapsuleShape(1.0f, 0.5f));
 	ImmersiveEngine::cbs::RigidBody* camRb = cam.addComponent<ImmersiveEngine::cbs::RigidBody>(playerShape, ImmersiveEngine::cbs::RigidBody::Dynamic);
 	physicsManager.addRigidBody(camRb);
-
 	cam.space->position = ImmersiveEngine::Math::Vector3(0, 0, 2);
+	
 	//cam.space->position = ImmersiveEngine::Math::Vector3(2.0f, 1.0f, 2);
 	//cam.space->rotate(ImmersiveEngine::Math::Vector3(-1.0f, -0.5f, 0));
 
