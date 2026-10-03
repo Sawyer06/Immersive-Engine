@@ -170,6 +170,7 @@
     <ClCompile Include="src\Managers\LevelManager.cpp" />
     <ClCompile Include="src\Managers\LightingManager.cpp" />
     <ClCompile Include="src\Managers\PhysicsManager.cpp" />
+    <ClCompile Include="src\Managers\ResourceManager.cpp" />
     <ClCompile Include="src\Math\Math.cpp" />
     <ClCompile Include="src\Math\Quaternion.cpp" />
     <ClCompile Include="src\Math\Vector2.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="src\Managers\LevelManager.h" />
     <ClInclude Include="src\Managers\LightingManager.h" />
     <ClInclude Include="src\Managers\PhysicsManager.h" />
+    <ClInclude Include="src\Managers\ResourceManager.h" />
     <ClInclude Include="src\Math\Math.h" />
     <ClInclude Include="src\Math\Quaternion.h" />
     <ClInclude Include="src\Math\Vector2.h" />

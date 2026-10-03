@@ -27,6 +27,7 @@
 #include"Rendering/Cubemap.h"
 #include"Managers/PhysicsManager.h"
 #include"Managers/LevelManager.h"
+#include"Managers/ResourceManager.h"
 
 #include"XR/OpenXRManager.h"
 
@@ -77,6 +78,7 @@ int main()
 	ImmersiveEngine::cbs::PhysicsManager physicsManager;
 	ImmersiveEngine::cbs::LightingManager lightingManager;
 	ImmersiveEngine::LevelManager levelManager;
+	ImmersiveEngine::ResourceManager resourceManager;
 
 	bool openInVR = true;
 	std::vector<ImmersiveEngine::Rendering::FBO> eyeFBO;
@@ -109,7 +111,7 @@ int main()
 	});
 	skyboxShader.Activate();
 	skyboxShader.setInt("skybox", 0);
-	skyboxShader.setFloat("brightness", 0.3f);
+	skyboxShader.setFloat("brightness", 0.5f);
 
 	//screenShader.Activate();
 
@@ -139,6 +141,8 @@ int main()
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeGTex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building7.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeHTex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building8.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeITex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building9.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+
+	auto modelMesh = resourceManager.loadFromModel("gun.fbx");
 
 	auto cubeMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
 	ImmersiveEngine::cbs::GameObject block("Block", cubeMesh);

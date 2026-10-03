@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <assimp/scene.h>
 
 #include "shaderClass.h"
 #include"VAO.h"
@@ -26,6 +27,7 @@ namespace ImmersiveEngine::Rendering
 			VAO m_VAO;
 		public:
 			Mesh(std::vector<Vertex>& vertices, std::vector <GLuint>& indices);
+			Mesh(aiMesh* mesh);
 			Mesh(const ImmersiveEngine::Rendering::Mesh& mesh);
 			~Mesh();
 

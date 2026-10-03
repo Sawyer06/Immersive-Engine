@@ -2,9 +2,35 @@
 
 namespace ImmersiveEngine::Rendering
 {
+    ImmersiveEngine::Math::Vector3 defaultColor(1.0f, 1.0f, 1.0f);
+    ImmersiveEngine::Math::Vector3 normalDir2D(0, 0, 1.0f);
+
     Mesh::Mesh(std::vector<Vertex>& vertices, std::vector <GLuint>& indices) :
         m_vertices(vertices), m_indices(indices), m_texture(nullptr)
     {
+        buildMesh();
+    }
+
+    /// Convert from assimp mesh to engine mesh.
+    Mesh::Mesh(aiMesh* mesh) : m_texture(nullptr)
+    {
+        for (int i = 0; i < mesh->mNumVertices; i++)
+        {
+            m_vertices.push_back(Vertex{
+                ImmersiveEngine::Math::Vector3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z),
+                ImmersiveEngine::Math::Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z),
+                defaultColor,
+                ImmersiveEngine::Math::Vector2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y) }
+            );
+        }
+
+        for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+        {
+            aiFace face = mesh->mFaces[i];
+            for (unsigned int j = 0; j < face.mNumIndices; j++)
+                m_indices.push_back(face.mIndices[j]);
+        }
+
         buildMesh();
     }
 
@@ -131,8 +157,6 @@ namespace ImmersiveEngine::Rendering
     /*================================================================
                     Primitive Shape Mesh Generators
     =================================================================*/
-    ImmersiveEngine::Math::Vector3 defaultColor(1.0f, 1.0f, 1.0f);
-    ImmersiveEngine::Math::Vector3 normalDir2D(0, 0, 1.0f);
 
     std::vector<GLuint> squareIndices =
     {
