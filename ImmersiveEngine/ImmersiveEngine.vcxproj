@@ -164,6 +164,7 @@
     <ClCompile Include="src\Components\Camera.cpp" />
     <ClCompile Include="src\Components\Component.cpp" />
     <ClCompile Include="src\Components\Light.cpp" />
+    <ClCompile Include="src\Components\MeshRenderer.cpp" />
     <ClCompile Include="src\Components\RigidBody.cpp" />
     <ClCompile Include="src\Components\Space.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -180,6 +181,7 @@
     <ClCompile Include="src\Rendering\Cubemap.cpp" />
     <ClCompile Include="src\Rendering\EBO.cpp" />
     <ClCompile Include="src\Rendering\FBO.cpp" />
+    <ClCompile Include="src\Rendering\Material.cpp" />
     <ClCompile Include="src\Rendering\Mesh.cpp" />
     <ClCompile Include="src\Rendering\shaderClass.cpp" />
     <ClCompile Include="src\Rendering\stb.cpp" />
@@ -192,10 +194,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application\Level.h" />
+    <ClInclude Include="src\Application\Resource.h" />
     <ClInclude Include="src\Application\Window.h" />
     <ClInclude Include="src\Components\Camera.h" />
     <ClInclude Include="src\Components\Component.h" />
     <ClInclude Include="src\Components\Light.h" />
+    <ClInclude Include="src\Components\MeshRenderer.h" />
     <ClInclude Include="src\Components\RigidBody.h" />
     <ClInclude Include="src\Components\Space.h" />
     <ClInclude Include="src\Managers\LevelManager.h" />
@@ -215,7 +219,9 @@
     <ClInclude Include="src\Rendering\Cubemap.h" />
     <ClInclude Include="src\Rendering\EBO.h" />
     <ClInclude Include="src\Rendering\FBO.h" />
+    <ClInclude Include="src\Rendering\Material.h" />
     <ClInclude Include="src\Rendering\Mesh.h" />
+    <ClInclude Include="src\Rendering\Model.h" />
     <ClInclude Include="src\Rendering\shaderClass.h" />
     <ClInclude Include="src\Rendering\Texture.h" />
     <ClInclude Include="src\Rendering\VAO.h" />

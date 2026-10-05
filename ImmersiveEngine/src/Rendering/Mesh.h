@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <assimp/scene.h>
 
+#include"../Application/Resource.h"
 #include "shaderClass.h"
 #include"VAO.h"
 #include"VBO.h"
@@ -17,7 +18,7 @@
 
 namespace ImmersiveEngine::Rendering
 {
-	class Mesh
+	class Mesh : public Resource
 	{
 		private:
 			std::vector<Vertex> m_vertices;

@@ -2,10 +2,11 @@
 #define LEVEL_CLASS_H
 
 #include"../Objects/Object.h"
+#include"../Application/Resource.h"
 
 namespace ImmersiveEngine
 {
-	class Level
+	class Level : public Resource
 	{
 		public:
 			Level() = default;

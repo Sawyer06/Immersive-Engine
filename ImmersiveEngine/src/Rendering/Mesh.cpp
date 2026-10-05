@@ -16,11 +16,22 @@ namespace ImmersiveEngine::Rendering
     {
         for (int i = 0; i < mesh->mNumVertices; i++)
         {
+            if (!mesh->mVertices)
+                return;
+
+            ImmersiveEngine::Math::Vector3 normals;
+            if (mesh->mNormals)
+                normals = { mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
+
+            ImmersiveEngine::Math::Vector2 uvCoords;
+            if (mesh->mTextureCoords[0])
+                uvCoords = { mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y };
+
             m_vertices.push_back(Vertex{
                 ImmersiveEngine::Math::Vector3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z),
-                ImmersiveEngine::Math::Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z),
+                normals,
                 defaultColor,
-                ImmersiveEngine::Math::Vector2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y) }
+                uvCoords } // Need to make check for missing uv coords.
             );
         }
 

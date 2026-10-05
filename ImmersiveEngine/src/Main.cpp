@@ -142,7 +142,10 @@ int main()
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeHTex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building8.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeITex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building9.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
-	auto modelMesh = resourceManager.loadFromModel("gun.fbx");
+	auto bunnyMesh = resourceManager.loadFromModel("stanford-bunny/bun_zipper.ply")[0];
+	ImmersiveEngine::cbs::GameObject bunny("Bunny", bunnyMesh);
+	bunny.space->translate(ImmersiveEngine::Math::Vector3(30.0f, -2.0f, -10.0f));
+	bunny.space->dialate(30.0f);
 
 	auto cubeMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
 	ImmersiveEngine::cbs::GameObject block("Block", cubeMesh);
@@ -670,6 +673,9 @@ int main()
 
 		wallJ.space->refreshTransforms(shaderProgram);
 		wallJ.mesh->draw(shaderProgram);
+
+		bunny.space->refreshTransforms(shaderProgram);
+		bunny.mesh->draw(shaderProgram);
 
 		FBO.Unbind();
 

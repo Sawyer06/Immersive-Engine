@@ -5,10 +5,11 @@
 #include<stb/stb_image.h>
 
 #include"shaderClass.h"
+#include"../Application/Resource.h"
 
 namespace ImmersiveEngine::Rendering
 {
-	class Texture
+	class Texture : public Resource
 	{
 		public:
 			Texture(const char* image, GLenum texType, GLenum slot, GLenum pixelType);
