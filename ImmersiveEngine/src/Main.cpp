@@ -22,6 +22,7 @@
 #include"Math/Quaternion.h"
 #include"Rendering/Mesh.h"
 #include"Components/Space.h"
+#include"Components/MeshRenderer.h"
 #include"Rendering/FBO.h"
 #include"Managers/LightingManager.h"
 #include"Rendering/Cubemap.h"
@@ -142,8 +143,11 @@ int main()
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeHTex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building8.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 	std::shared_ptr<ImmersiveEngine::Rendering::Texture> facadeITex = std::make_shared<ImmersiveEngine::Rendering::Texture>("abandoned-building9.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
-	auto bunnyMesh = resourceManager.loadFromModel("stanford-bunny/bun_zipper.ply")[0];
-	ImmersiveEngine::cbs::GameObject bunny("Bunny", bunnyMesh);
+	auto bunnyModel = resourceManager.loadFromModel(shaderProgram, "stanford-bunny/bun_zipper.ply", true);
+	bunnyModel->getRoot().children[0].pairs[0].material->diffuseTexture = nullptr;
+	//bunnyModel->getRoot().children[0].pairs[0].material->mainColor = ImmersiveEngine::Math::Vector3(1.0f, 0.0f, 0.0f);
+	ImmersiveEngine::cbs::GameObject bunny("Bunny");
+	auto bunMeshRenderer = bunny.addComponent<ImmersiveEngine::cbs::MeshRenderer>(bunnyModel);
 	bunny.space->translate(ImmersiveEngine::Math::Vector3(30.0f, -2.0f, -10.0f));
 	bunny.space->dialate(30.0f);
 
@@ -675,7 +679,8 @@ int main()
 		wallJ.mesh->draw(shaderProgram);
 
 		bunny.space->refreshTransforms(shaderProgram);
-		bunny.mesh->draw(shaderProgram);
+		//bunny.mesh->draw(shaderProgram);
+		bunMeshRenderer->onUpdate();
 
 		FBO.Unbind();
 

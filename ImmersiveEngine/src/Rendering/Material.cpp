@@ -2,8 +2,8 @@
 
 namespace ImmersiveEngine::Rendering
 {
-	Material::Material(Shader& shader, std::shared_ptr<Texture> texture = nullptr) :
-		shader(shader), texture(texture)
+	Material::Material(Shader& shader, std::shared_ptr<Texture> diffuseTexture = nullptr) :
+		shader(shader), diffuseTexture(diffuseTexture)
 	{
 
 	}

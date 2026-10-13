@@ -7,8 +7,11 @@
 #include <assimp/postprocess.h>
 
 #include"../Application/Resource.h"
-#include "../Rendering/Mesh.h"
+#include"../Rendering/Mesh.h"
+#include"../Rendering/Model.h"
 #include"../Rendering/Material.h"
+#include"../Settings.h"
+#include "../Rendering/shaderClass.h"
 
 namespace ImmersiveEngine
 {
@@ -18,11 +21,12 @@ namespace ImmersiveEngine
 			ResourceManager() = default;
 			~ResourceManager() = default;
 
-			std::vector<std::shared_ptr<Rendering::Mesh>> loadFromModel(std::string modelFile);
+			std::shared_ptr<Rendering::Model> loadFromModel(Rendering::Shader& shaderProgram, std::string modelFile, bool genNormals = false, bool flipFaces = false);
 		private:
 			std::unordered_map<std::string, std::shared_ptr<Resource>> m_loadedResources;
 
-			void processNode(aiNode* node, const aiScene* scene, std::vector<std::shared_ptr<Rendering::Mesh>>* o_meshes);
-	};
+			void processNode(Rendering::ModelNode& modelRootNode, aiNode* assimpRootNode, const aiScene* scene, Rendering::Shader& shaderProgram);
+			Rendering::Mesh assimpToEngineMesh(aiMesh* mesh);
+	};		
 }
 #endif

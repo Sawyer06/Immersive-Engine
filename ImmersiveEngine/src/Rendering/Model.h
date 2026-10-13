@@ -26,9 +26,10 @@ namespace ImmersiveEngine::Rendering
 	class Model : public Resource
 	{
 		public:
-			Model(aiScene* scene);
+			Model() = default;
 			~Model() = default;
 
+			ModelNode& getRoot() { return m_root; }
 		private:
 			ModelNode m_root;
 

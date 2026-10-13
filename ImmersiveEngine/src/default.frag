@@ -41,6 +41,8 @@ uniform Light lights[MAX_LIGHTS];
 
 uniform float shininess;
 
+uniform vec3 mainColor;
+
 void main()
 {
 	vec3 norm = normalize(normal);
@@ -75,10 +77,10 @@ void main()
 		{
             discard;
 		}
-        FragColor = vec4(lightSum * textureColor.rgb, textureColor.a);
+        FragColor = vec4(lightSum * textureColor.rgb * mainColor, textureColor.a);
 	}
 	else
 	{
-		FragColor = vec4(color * lightSum, 1.0);
+		FragColor = vec4(mainColor * lightSum, 1.0);
 	}
 }

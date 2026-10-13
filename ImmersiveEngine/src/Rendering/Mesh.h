@@ -28,7 +28,7 @@ namespace ImmersiveEngine::Rendering
 			VAO m_VAO;
 		public:
 			Mesh(std::vector<Vertex>& vertices, std::vector <GLuint>& indices);
-			Mesh(aiMesh* mesh);
+			//Mesh(aiMesh* mesh);
 			Mesh(const ImmersiveEngine::Rendering::Mesh& mesh);
 			~Mesh();
 
@@ -47,6 +47,9 @@ namespace ImmersiveEngine::Rendering
 			ImmersiveEngine::Math::Vector3 getNormalDirection(const int index);
 
 			uint32_t getVerticesCount();
+			uint32_t getIndicesCount();
+
+			void bind();
 
 			void dump();
 

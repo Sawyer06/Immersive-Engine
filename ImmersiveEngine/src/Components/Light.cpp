@@ -16,7 +16,7 @@ namespace ImmersiveEngine::cbs
 
 		ImmersiveEngine::Math::Vector3 position = getOwner()->getComponent<Space>()->position;
 		shaderProgram.setVec3(prefix + "position", glm::vec3(position.x, position.y, position.z));
-		shaderProgram.setFloat("shininess", shininess);
+		//shaderProgram.setFloat("shininess", shininess);
 
 		shaderProgram.setFloat(prefix + "constant", 1.0f);
 		shaderProgram.setFloat(prefix + "linear", 1.0f);
