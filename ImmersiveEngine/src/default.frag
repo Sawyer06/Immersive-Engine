@@ -41,7 +41,7 @@ uniform Light lights[MAX_LIGHTS];
 
 uniform float shininess;
 
-uniform vec3 mainColor;
+uniform vec3 matColor;
 
 void main()
 {
@@ -77,10 +77,10 @@ void main()
 		{
             discard;
 		}
-        FragColor = vec4(lightSum * textureColor.rgb * mainColor, textureColor.a);
+        FragColor = vec4(lightSum * textureColor.rgb * matColor * color, textureColor.a);
 	}
 	else
 	{
-		FragColor = vec4(mainColor * lightSum, 1.0);
+		FragColor = vec4(matColor * color * lightSum, 1.0);
 	}
 }

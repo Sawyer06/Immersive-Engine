@@ -58,7 +58,7 @@ namespace ImmersiveEngine::cbs
             material->shader.setBool("textured", false);
         }
         material->shader.setFloat("shininess", material->shininess);
-        material->shader.setVec3("mainColor", glm::vec3(material->mainColor.x, material->mainColor.y, material->mainColor.z));
+        material->shader.setVec3("matColor", glm::vec3(material->mainColor.x, material->mainColor.y, material->mainColor.z));
 
         mesh->bind();
 
