@@ -161,6 +161,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="src\Application\Level.cpp" />
     <ClCompile Include="src\Application\Window.cpp" />
+    <ClCompile Include="src\Components\Animator.cpp" />
     <ClCompile Include="src\Components\Camera.cpp" />
     <ClCompile Include="src\Components\Component.cpp" />
     <ClCompile Include="src\Components\Light.cpp" />
@@ -178,6 +179,7 @@
     <ClCompile Include="src\Math\Vector3.cpp" />
     <ClCompile Include="src\Objects\GameObject.cpp" />
     <ClCompile Include="src\Objects\Object.cpp" />
+    <ClCompile Include="src\Rendering\AnimationClip.cpp" />
     <ClCompile Include="src\Rendering\Cubemap.cpp" />
     <ClCompile Include="src\Rendering\EBO.cpp" />
     <ClCompile Include="src\Rendering\FBO.cpp" />
@@ -196,6 +198,7 @@
     <ClInclude Include="src\Application\Level.h" />
     <ClInclude Include="src\Application\Resource.h" />
     <ClInclude Include="src\Application\Window.h" />
+    <ClInclude Include="src\Components\Animator.h" />
     <ClInclude Include="src\Components\Camera.h" />
     <ClInclude Include="src\Components\Component.h" />
     <ClInclude Include="src\Components\Light.h" />
@@ -216,6 +219,7 @@
     <ClInclude Include="src\Physics\Constraint.h" />
     <ClInclude Include="src\Physics\ContactHandler.h" />
     <ClInclude Include="src\Physics\FixedConstraint.h" />
+    <ClInclude Include="src\Rendering\AnimationClip.h" />
     <ClInclude Include="src\Rendering\Cubemap.h" />
     <ClInclude Include="src\Rendering\EBO.h" />
     <ClInclude Include="src\Rendering\FBO.h" />

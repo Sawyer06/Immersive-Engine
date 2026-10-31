@@ -10,6 +10,7 @@
 #include"../Rendering/Mesh.h"
 #include"../Rendering/Model.h"
 #include"../Rendering/Material.h"
+#include"../Rendering/AnimationClip.h"
 #include"../Settings.h"
 #include "../Rendering/shaderClass.h"
 
@@ -21,12 +22,13 @@ namespace ImmersiveEngine
 			ResourceManager() = default;
 			~ResourceManager() = default;
 
-			std::shared_ptr<Rendering::Model> loadFromModel(Rendering::Shader& shaderProgram, std::string modelFile, bool genNormals = false, bool flipFaces = false);
+			std::shared_ptr<Rendering::Model> loadFromModel(Rendering::Shader& shaderProgram, std::string modelFile, bool genNormals = false, bool flipFaces = false, bool boneless = false);
 		private:
 			std::unordered_map<std::string, std::shared_ptr<Resource>> m_loadedResources;
 
 			void processNode(Rendering::ModelNode& modelRootNode, aiNode* assimpRootNode, const aiScene* scene, Rendering::Shader& shaderProgram);
 			Rendering::Mesh assimpToEngineMesh(aiMesh* mesh);
+			Rendering::AnimationClip assimpToEngineAnimClip(std::shared_ptr<Rendering::Model> model, aiAnimation* anim);
 	};		
 }
 #endif

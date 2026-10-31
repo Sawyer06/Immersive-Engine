@@ -4,6 +4,7 @@
 #include<iostream>
 #include <vector>
 
+#include <glm/glm.hpp>
 #include"Mesh.h"
 #include"Material.h"
 
@@ -21,6 +22,10 @@ namespace ImmersiveEngine::Rendering
 
 		std::vector<MeshMatPair> pairs;
 		std::vector<ModelNode> children;
+
+		int boneID = -1;
+		glm::mat4 offset;
+		glm::mat4 localTransform;
 	};
 
 	class Model : public Resource
@@ -30,9 +35,25 @@ namespace ImmersiveEngine::Rendering
 			~Model() = default;
 
 			ModelNode& getRoot() { return m_root; }
+			ModelNode& findNode(std::string name) { return findNode(name, getRoot()); }
+
 		private:
 			ModelNode m_root;
 
+			ModelNode& findNode(std::string name, ModelNode& currNode)
+			{
+				if (currNode.name == name)
+				{
+					return currNode;
+				}
+				else
+				{
+					for (auto& node : currNode.children)
+					{
+						findNode(name, node);
+					}
+				}
+			}
 	};
 }
 #endif

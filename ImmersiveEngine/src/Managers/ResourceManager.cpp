@@ -2,15 +2,18 @@
 
 namespace ImmersiveEngine
 {
-	std::shared_ptr<Rendering::Model> ResourceManager::loadFromModel(Rendering::Shader& shaderProgram, std::string modelFile, bool genNormals, bool flipFaces)
+	std::shared_ptr<Rendering::Model> ResourceManager::loadFromModel(Rendering::Shader& shaderProgram, std::string modelFile, bool genNormals, bool flipFaces, bool boneless)
 	{
 		Assimp::Importer importer;
 
+		// Assign flags for model importing.
 		unsigned int flags = aiProcess_Triangulate;
 		if (genNormals)
 			flags |= aiProcess_GenNormals;
 		if (!flipFaces)
 			flags |= aiProcess_FlipWindingOrder;
+		if (boneless)
+			flags |= aiProcess_Debone;
 
 		const aiScene* scene = importer.ReadFile(modelFile, flags);
 
@@ -23,6 +26,14 @@ namespace ImmersiveEngine
 		std::shared_ptr<Rendering::Model> model = std::make_shared<Rendering::Model>();
 		processNode(model->getRoot(), scene->mRootNode, scene, shaderProgram);
 
+		// Create all animations on the model.
+		for (int i = 0; i < scene->mNumAnimations; i++)
+		{
+			std::shared_ptr<Rendering::AnimationClip> clip = std::make_shared<Rendering::AnimationClip>(assimpToEngineAnimClip(model, scene->mAnimations[i]));
+			m_loadedResources.insert({ scene->mAnimations[i]->mName.C_Str(), clip});
+		}
+
+		m_loadedResources.insert({ scene->mName.C_Str(), model });
 		return model;
 	}
 
@@ -30,7 +41,7 @@ namespace ImmersiveEngine
 	{
 		Rendering::ModelNode& currNode = modelRootNode.children.emplace_back();
 		currNode.name = assimpRootNode->mName.C_Str();
-
+		
 		// Create all the meshes, including their materials and textures, associated with a node.
 		for (unsigned int i = 0; i < assimpRootNode->mNumMeshes; i++)
 		{
@@ -83,11 +94,11 @@ namespace ImmersiveEngine
 				ImmersiveEngine::Math::Vector3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z),
 				normals,
 				Settings::g_defaultMeshColor,
-				uvCoords } // Need to make check for missing uv coords.
+				uvCoords }
 				);
 		}
 
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+		for (int i = 0; i < mesh->mNumFaces; i++)
 		{
 			aiFace face = mesh->mFaces[i];
 			for (unsigned int j = 0; j < face.mNumIndices; j++)
@@ -95,5 +106,57 @@ namespace ImmersiveEngine
 		}
 
 		return Rendering::Mesh(vertices, indices);
+	}
+
+	Rendering::AnimationClip ResourceManager::assimpToEngineAnimClip(std::shared_ptr<Rendering::Model> model, aiAnimation * anim)
+	{
+		Rendering::AnimationClip clip(anim->mDuration, anim->mTicksPerSecond);
+		
+		// Create keys for every node in model affected by animation.
+		for (int i = 0; i < anim->mNumChannels; i++)
+		{
+			aiNodeAnim* currChannel = anim->mChannels[i];
+
+			// Get the bone associated with channel.
+			int boneID = model->findNode(currChannel->mNodeName.C_Str()).boneID;
+
+			// Populate clip with position keys.
+			for (int posIndex = 0; posIndex < currChannel->mNumPositionKeys; posIndex++)
+			{
+				auto position = currChannel->mPositionKeys[posIndex].mValue;
+
+				clip.positionKeys.push_back(Rendering::Vector3Key{
+					(float)currChannel->mPositionKeys[posIndex].mTime,
+					boneID,
+					Math::Vector3(position.x, position.y, position.z)
+					});
+			}
+
+			// Populate clip with orientation keys.
+			for (int rotIndex = 0; rotIndex < currChannel->mNumRotationKeys; rotIndex++)
+			{
+				auto orientation = currChannel->mRotationKeys[rotIndex].mValue;
+
+				clip.orientationKeys.push_back(Rendering::QuaternionKey{
+					(float)currChannel->mPositionKeys[rotIndex].mTime,
+					boneID,
+					Math::Quaternion(orientation.w, orientation.x, orientation.y, orientation.z)
+					});
+			}
+
+			// Populate clip with scale keys.
+			for (int scaleIndex = 0; scaleIndex < currChannel->mNumScalingKeys; scaleIndex++)
+			{
+				auto scale = currChannel->mScalingKeys[scaleIndex].mValue;
+
+				clip.positionKeys.push_back(Rendering::Vector3Key{
+					(float)currChannel->mPositionKeys[scaleIndex].mTime,
+					boneID,
+					Math::Vector3(scale.x, scale.y, scale.z)
+					});
+			}
+		}
+
+		return clip;
 	}
 }

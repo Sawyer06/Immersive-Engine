@@ -81,7 +81,7 @@ int main()
 	ImmersiveEngine::LevelManager levelManager;
 	ImmersiveEngine::ResourceManager resourceManager;
 
-	bool openInVR = true;
+	bool openInVR = false;
 	std::vector<ImmersiveEngine::Rendering::FBO> eyeFBO;
 	if (openInVR)
 	{
