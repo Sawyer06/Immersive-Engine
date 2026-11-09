@@ -1,6 +1,7 @@
 #ifndef ANIMATION_CLIP_CLASS_H
 #define ANIMATION_CLIP_CLASS_H
 
+#include<iostream>
 #include<vector>
 #include<array>
 #include <glm/glm.hpp>
@@ -15,8 +16,6 @@ namespace ImmersiveEngine::Rendering
 	struct Key
 	{
 		float timeStamp;
-
-		int boneID = -1;
 	};
 
 	struct Vector3Key : Key
@@ -32,9 +31,9 @@ namespace ImmersiveEngine::Rendering
 	class AnimationClip : public Resource
 	{
 		private:
-			std::array<int, 2> getPositionKeyIndicesAtTime(int boneID, float elapsedTime);
-			std::array<int, 2> getOrientationKeyIndicesAtTime(int boneID, float elapsedTime);
-			std::array<int, 2> getScaleKeyIndicesAtTime(int boneID, float elapsedTime);
+			int getPositionKeyIndexAtTime(int boneID, float elapsedTime);
+			int getOrientationKeyIndexAtTime(int boneID, float elapsedTime);
+			int getScaleKeyIndexAtTime(int boneID, float elapsedTime);
 
 		public:
 			AnimationClip(float duration, float ticksPerSecond);
@@ -48,9 +47,10 @@ namespace ImmersiveEngine::Rendering
 			float duration;
 			float ticksPerSecond;
 			
-			std::vector<Vector3Key> positionKeys;
-			std::vector<QuaternionKey> orientationKeys;
-			std::vector<Vector3Key> scaleKeys;
+			// Grid of keys where row number is the associated bone ID for those keys.
+			std::vector<std::vector<Vector3Key>> positionKeys;
+			std::vector<std::vector<QuaternionKey>> orientationKeys;
+			std::vector<std::vector<Vector3Key>> scaleKeys;
 	};
 }
 #endif

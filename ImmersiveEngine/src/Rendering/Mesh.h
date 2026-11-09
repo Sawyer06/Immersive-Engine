@@ -49,6 +49,8 @@ namespace ImmersiveEngine::Rendering
 			uint32_t getVerticesCount();
 			uint32_t getIndicesCount();
 
+			void setBoneAssociation(int vertexIndex, int boneID, float weight);
+
 			void bind();
 
 			void dump();

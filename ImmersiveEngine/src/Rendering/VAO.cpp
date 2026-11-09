@@ -13,7 +13,11 @@ namespace ImmersiveEngine::Rendering
 	void VAO::LinkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset)
 	{
 		VBO.Bind();
-		glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
+		if (type == GL_INT)
+			glVertexAttribIPointer(layout, numComponents, type, stride, offset);
+		else
+			glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
+
 		glEnableVertexAttribArray(layout);
 		VBO.Unbind();
 	}

@@ -14,7 +14,9 @@ namespace ImmersiveEngine::cbs
 			MeshRenderer(Object* obj, std::shared_ptr<Rendering::Model> model);
 			~MeshRenderer() = default;
 
-			void onUpdate() override;
+			void onUpdate(float deltaTime) override;
+
+			std::shared_ptr<Rendering::Model> getModel();
 		private:
 			std::shared_ptr<Rendering::Model> m_model;
 

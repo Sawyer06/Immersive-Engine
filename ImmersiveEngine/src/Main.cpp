@@ -23,6 +23,7 @@
 #include"Rendering/Mesh.h"
 #include"Components/Space.h"
 #include"Components/MeshRenderer.h"
+#include"Components/Animator.h"
 #include"Rendering/FBO.h"
 #include"Managers/LightingManager.h"
 #include"Rendering/Cubemap.h"
@@ -150,6 +151,21 @@ int main()
 	auto bunMeshRenderer = bunny.addComponent<ImmersiveEngine::cbs::MeshRenderer>(bunnyModel);
 	bunny.space->translate(ImmersiveEngine::Math::Vector3(30.0f, -2.0f, -10.0f));
 	bunny.space->dialate(30.0f);
+
+	auto character1Model = resourceManager.loadFromModel(shaderProgram, "Character/Character.fbx", true);
+	ImmersiveEngine::cbs::GameObject guy1("Guy1");
+	guy1.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::right);
+	guy1.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 2.0f, -10.0f));
+	guy1.space->dialate(ImmersiveEngine::Math::Vector3(1.0, 0.5, 1.0f));
+	auto guy1MeshRenderer = guy1.addComponent<ImmersiveEngine::cbs::MeshRenderer>(character1Model);
+
+	auto character2Model = resourceManager.loadFromModel(shaderProgram, "Ymca Dance.fbx");
+	ImmersiveEngine::cbs::GameObject guy2("Guy2");
+	//guy2.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::right);
+	guy2.space->translate(ImmersiveEngine::Math::Vector3(0.0f, -2.0f, -10.0f));
+	guy2.space->dialate(ImmersiveEngine::Math::Vector3(0.03f, 0.03f, 0.03f));
+	auto guy2MeshRenderer = guy2.addComponent<ImmersiveEngine::cbs::MeshRenderer>(character2Model);
+	auto guy2Animator = guy2.addComponent<ImmersiveEngine::cbs::Animator>();
 
 	auto cubeMesh = std::make_shared<ImmersiveEngine::Rendering::Mesh>(ImmersiveEngine::Rendering::Mesh::generateCube(1));
 	ImmersiveEngine::cbs::GameObject block("Block", cubeMesh);
@@ -370,6 +386,7 @@ int main()
 
 	physicsManager.onStart();
 
+
 	while (!glfwWindowShouldClose(window))
 	{
 		x2 = glfwGetTime();
@@ -399,7 +416,10 @@ int main()
 			std::cout << xrManager.toString();
 			//std::cout << blockRb->toString();
 		}
-
+		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+		{
+			guy2Animator->playAnimation(character2Model->animations[0]);
+		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
 			clickIn = true;
@@ -680,7 +700,15 @@ int main()
 
 		bunny.space->refreshTransforms(shaderProgram);
 		//bunny.mesh->draw(shaderProgram);
-		bunMeshRenderer->onUpdate();
+		bunMeshRenderer->onUpdate(deltaTime);
+
+		guy1.space->refreshTransforms(shaderProgram);
+		guy1MeshRenderer->onUpdate(deltaTime);
+
+		guy2Animator->onUpdate(deltaTime);
+		guy2Animator->refreshRigTransforms(shaderProgram);
+		guy2.space->refreshTransforms(shaderProgram);
+		guy2MeshRenderer->onUpdate(deltaTime);
 
 		FBO.Unbind();
 

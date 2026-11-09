@@ -34,6 +34,9 @@ namespace ImmersiveEngine::Rendering
         m_VAO.LinkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float))); // Normal direction
         m_VAO.LinkAttrib(VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float))); // Vertex color (decimal RGB)
         m_VAO.LinkAttrib(VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float))); // Texture offset coordinates
+        
+        m_VAO.LinkAttrib(VBO, 4, 4, GL_INT, sizeof(Vertex), (void*)(11 * sizeof(float))); // Bone IDs
+        m_VAO.LinkAttrib(VBO, 5, 4, GL_FLOAT, sizeof(Vertex), (void*)(15 * sizeof(float))); // Bone weights
 
         m_VAO.Unbind();
         VBO.Unbind();
@@ -128,6 +131,21 @@ namespace ImmersiveEngine::Rendering
     uint32_t Mesh::getIndicesCount()
     {
         return m_indices.size();
+    }
+
+    /// Set a bone association for a vertex at an index.
+    void Mesh::setBoneAssociation(int vertexIndex, int boneID, float weight)
+    {
+        for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
+        {
+            // Find the next empty slot to put boneID and weight in for vertex.
+            if (m_vertices[vertexIndex].boneIDs[i] <= -1)
+            {
+                m_vertices[vertexIndex].boneIDs[i] = boneID;
+                m_vertices[vertexIndex].weights[i] = weight;
+                break;
+            }
+        }
     }
 
     void Mesh::bind()

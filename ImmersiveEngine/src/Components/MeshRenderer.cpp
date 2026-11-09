@@ -14,9 +14,15 @@ namespace ImmersiveEngine::cbs
 
 	}
 
-    void MeshRenderer::onUpdate()
+    void MeshRenderer::onUpdate(float deltaTime)
     {
-        drawNode(m_model->getRoot());
+        if (m_model)
+            drawNode(m_model->getRoot());
+    }
+
+    std::shared_ptr<Rendering::Model> MeshRenderer::getModel()
+    {
+        return m_model;
     }
 	
     /// Process through each node in the tree and draw recursively.
@@ -25,7 +31,8 @@ namespace ImmersiveEngine::cbs
         // Draw all meshes in this node.
         for (Rendering::MeshMatPair pair : root.pairs)
         {
-            drawPair(pair.mesh, pair.material);
+            if (pair.mesh != nullptr || pair.material != nullptr)
+                drawPair(pair.mesh, pair.material);
         }
 
         // Continue to draw child nodes.

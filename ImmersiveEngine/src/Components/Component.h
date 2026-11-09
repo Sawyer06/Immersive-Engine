@@ -29,7 +29,7 @@ namespace ImmersiveEngine::cbs
 			virtual std::string toString();
 
 			virtual void onStart() { }
-			virtual void onUpdate() { }
+			virtual void onUpdate(float deltaTime) { }
 	};
 }
 #endif

@@ -3,6 +3,8 @@
 #define MATH_CLASS_H
 
 #include <cmath>
+#include<glm/glm.hpp>
+#include <assimp/scene.h>
 
 #include"Vector3.h"
 #include"Vector2.h"
@@ -17,6 +19,8 @@ namespace ImmersiveEngine::Math
 	Vector2 coterminal(Vector2 angle);
 
 	float signum(float x);
+
+	glm::mat4 assimpToGLMMat4(aiMatrix4x4 assimpMat4);
 
 	Vector3 operator*(const Vector3& v, const Quaternion& q);
 }

@@ -22,7 +22,7 @@ namespace ImmersiveEngine::Rendering
 
 			std::shared_ptr<Texture> diffuseTexture;
 			float textureScale = 1.0f;
-			ImmersiveEngine::Math::Vector2 textureOffset;
+			Math::Vector2 textureOffset;
 
 			float shininess = 32.0f;
 	};

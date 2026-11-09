@@ -2,9 +2,11 @@
 #define RESOURCE_MANAGER_CLASS_H
 
 #include<iostream>
+#include <filesystem>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include"../Application/Resource.h"
 #include"../Rendering/Mesh.h"
@@ -26,9 +28,13 @@ namespace ImmersiveEngine
 		private:
 			std::unordered_map<std::string, std::shared_ptr<Resource>> m_loadedResources;
 
-			void processNode(Rendering::ModelNode& modelRootNode, aiNode* assimpRootNode, const aiScene* scene, Rendering::Shader& shaderProgram);
+			void processNode(Rendering::ModelNode& modelRootNode, aiNode* assimpRootNode, 
+							std::shared_ptr<Rendering::Model> model, const aiScene* scene, Rendering::Shader& shaderProgram);
+
 			Rendering::Mesh assimpToEngineMesh(aiMesh* mesh);
-			Rendering::AnimationClip assimpToEngineAnimClip(std::shared_ptr<Rendering::Model> model, aiAnimation* anim);
+			void associateMeshBones(aiMesh* mesh, std::shared_ptr<Rendering::Model> model, std::shared_ptr<Rendering::Mesh> engineMesh);
+
+			Rendering::AnimationClip assimpToEngineAnimClip(aiAnimation* anim, std::shared_ptr<Rendering::Model> model);
 	};		
 }
 #endif

@@ -16,15 +16,17 @@ namespace ImmersiveEngine::Rendering
 	/// Calculate position interpolated between the current and previous key frames.
 	Math::Vector3 ImmersiveEngine::Rendering::AnimationClip::getBonePositionAtTime(int boneID, float elapsedTime)
 	{
-		auto keyIndices = getPositionKeyIndicesAtTime(boneID, elapsedTime);
+		if (positionKeys[boneID].size() == 1)
+			return positionKeys[boneID][0].value;
 
-		if (keyIndices[1] == -1) // Reached end.
-			return positionKeys[keyIndices[0]].value;
+		int keyIndexA = getPositionKeyIndexAtTime(boneID, elapsedTime);
+		int keyIndexB = keyIndexA + 1;
 
-		glm::vec3 posA = { positionKeys[keyIndices[0]].value.x, positionKeys[keyIndices[0]].value.y, positionKeys[keyIndices[0]].value.z };
-		glm::vec3 posB = { positionKeys[keyIndices[1]].value.x, positionKeys[keyIndices[1]].value.y, positionKeys[keyIndices[1]].value.z };;
-		float interpolant = (elapsedTime - positionKeys[keyIndices[0]].timeStamp) /
-							(positionKeys[keyIndices[1]].timeStamp - positionKeys[keyIndices[0]].timeStamp);
+		glm::vec3 posA = { positionKeys[boneID][keyIndexA].value.x, positionKeys[boneID][keyIndexA].value.y, positionKeys[boneID][keyIndexA].value.z};
+		glm::vec3 posB = { positionKeys[boneID][keyIndexB].value.x, positionKeys[boneID][keyIndexB].value.y, positionKeys[boneID][keyIndexB].value.z};
+
+		float interpolant = (elapsedTime - positionKeys[boneID][keyIndexA].timeStamp) /
+			(positionKeys[boneID][keyIndexB].timeStamp - positionKeys[boneID][keyIndexA].timeStamp);
 
 		glm::vec3 interpPosition = glm::mix(posA, posB, interpolant);
 		return Math::Vector3(interpPosition.x, interpPosition.y, interpPosition.z);
@@ -33,17 +35,18 @@ namespace ImmersiveEngine::Rendering
 	/// Calculate orientation interpolated between the current and previous key frames.
 	Math::Quaternion ImmersiveEngine::Rendering::AnimationClip::getBoneOrientationAtTime(int boneID, float elapsedTime)
 	{
-		auto keyIndices = getOrientationKeyIndicesAtTime(boneID, elapsedTime);
+		if (orientationKeys[boneID].size() == 1)
+			return orientationKeys[boneID][0].value;
 
-		if (keyIndices[1] == -1) // Reached end.
-			return orientationKeys[keyIndices[0]].value;
+		int keyIndexA = getOrientationKeyIndexAtTime(boneID, elapsedTime);
+		int keyIndexB = keyIndexA + 1;
 
-		glm::quat rotA = { orientationKeys[keyIndices[0]].value.w, orientationKeys[keyIndices[0]].value.x, 
-			orientationKeys[keyIndices[0]].value.y, orientationKeys[keyIndices[0]].value.z};
-		glm::quat rotB = { orientationKeys[keyIndices[0]].value.w, orientationKeys[keyIndices[1]].value.x, 
-			orientationKeys[keyIndices[1]].value.y, orientationKeys[keyIndices[1]].value.z };;
-		float interpolant = (elapsedTime - positionKeys[keyIndices[0]].timeStamp) /
-			(positionKeys[keyIndices[1]].timeStamp - positionKeys[keyIndices[0]].timeStamp);
+		glm::quat rotA = { orientationKeys[boneID][keyIndexA].value.w, orientationKeys[boneID][keyIndexA].value.x,
+			orientationKeys[boneID][keyIndexA].value.y, orientationKeys[boneID][keyIndexA].value.z};
+		glm::quat rotB = { orientationKeys[boneID][keyIndexB].value.w, orientationKeys[boneID][keyIndexB].value.x,
+			orientationKeys[boneID][keyIndexB].value.y, orientationKeys[boneID][keyIndexB].value.z };;
+		float interpolant = (elapsedTime - orientationKeys[boneID][keyIndexA].timeStamp) /
+			(orientationKeys[boneID][keyIndexB].timeStamp - orientationKeys[boneID][keyIndexA].timeStamp);
 
 		glm::quat interpOrientation = glm::slerp(rotA, rotB, interpolant);
 		return Math::Quaternion(interpOrientation.w, interpOrientation.x, interpOrientation.y, interpOrientation.z);
@@ -52,82 +55,56 @@ namespace ImmersiveEngine::Rendering
 	/// Calculate scale interpolated between the current and previous key frames.
 	Math::Vector3 ImmersiveEngine::Rendering::AnimationClip::getBoneScaleAtTime(int boneID, float elapsedTime)
 	{
-		auto keyIndices = getScaleKeyIndicesAtTime(boneID, elapsedTime);
+		if (scaleKeys[boneID].size() == 1)
+			return scaleKeys[boneID][0].value;
 
-		if (keyIndices[1] == -1) // Reached end.
-			return scaleKeys[keyIndices[0]].value;
+		int keyIndexA = getScaleKeyIndexAtTime(boneID, elapsedTime);
+		int keyIndexB = keyIndexA + 1;
 
-		glm::vec3 posA = { positionKeys[keyIndices[0]].value.x, positionKeys[keyIndices[0]].value.y, positionKeys[keyIndices[0]].value.z };
-		glm::vec3 posB = { positionKeys[keyIndices[1]].value.x, positionKeys[keyIndices[1]].value.y, positionKeys[keyIndices[1]].value.z };;
-		float interpolant = (elapsedTime - positionKeys[keyIndices[0]].timeStamp) /
-			(positionKeys[keyIndices[1]].timeStamp - positionKeys[keyIndices[0]].timeStamp);
+		glm::vec3 posA = { scaleKeys[boneID][keyIndexA].value.x, scaleKeys[boneID][keyIndexA].value.y, scaleKeys[boneID][keyIndexA].value.z };
+		glm::vec3 posB = { scaleKeys[boneID][keyIndexB].value.x, scaleKeys[boneID][keyIndexB].value.y, scaleKeys[boneID][keyIndexB].value.z };;
+		float interpolant = (elapsedTime - scaleKeys[boneID][keyIndexA].timeStamp) /
+			(scaleKeys[boneID][keyIndexB].timeStamp - scaleKeys[boneID][keyIndexA].timeStamp);
 
 		glm::vec3 interpPosition = glm::mix(posA, posB, interpolant);
 		return Math::Vector3(interpPosition.x, interpPosition.y, interpPosition.z);
 	}
 
-	/// Get the current and next indices of the position keys associated with this bone at the given time.
-	std::array<int, 2> AnimationClip::getPositionKeyIndicesAtTime(int boneID, float elapsedTime)
+	/// Get the current index of the position keys associated with this bone at the given time.
+	int AnimationClip::getPositionKeyIndexAtTime(int boneID, float elapsedTime)
 	{
-		std::array<int, 2> indices = { -1, -1 };
-		for (int index = 0; index < positionKeys.size(); index++)
+		for (int index = 0; index < positionKeys[boneID].size() - 1; index++)
 		{
-			if (positionKeys[index].boneID == boneID && elapsedTime < positionKeys[index].timeStamp)
+			if (elapsedTime < positionKeys[boneID][index + 1].timeStamp)
 			{
-				if (indices[0] == -1)
-				{
-					indices[0] = index; // Current key index of bone.
-				}
-				else
-				{
-					indices[1] = index; // Next key index of bone.
-					return indices;
-				}
+				return index;
 			}
 		}
-		return indices;
+		return 0;
 	}
-	/// Get the current and next indices of the orientation keys associated with this bone at the given time.
-	std::array<int, 2> AnimationClip::getOrientationKeyIndicesAtTime(int boneID, float elapsedTime)
+	/// Get the current index of the orientation keys associated with this bone at the given time.
+	int AnimationClip::getOrientationKeyIndexAtTime(int boneID, float elapsedTime)
 	{
-		std::array<int, 2> indices = { -1, -1 };
-		for (int index = 0; index < orientationKeys.size(); index++)
+		for (int index = 0; index < orientationKeys[boneID].size() - 1; index++)
 		{
-			if (orientationKeys[index].boneID == boneID && elapsedTime < orientationKeys[index].timeStamp)
+			if (elapsedTime < orientationKeys[boneID][index + 1].timeStamp)
 			{
-				if (indices[0] == -1)
-				{
-					indices[0] = index; // Current key index of bone.
-				}
-				else
-				{
-					indices[1] = index; // Next key index of bone.
-					return indices;
-				}
+				return index;
 			}
 		}
-		return indices;
+		return 0;
 	}
-	/// Get the current and next indices of the scale keys associated with this bone at the given time.
-	std::array<int, 2> AnimationClip::getScaleKeyIndicesAtTime(int boneID, float elapsedTime)
+	/// Get the current index of the scale keys associated with this bone at the given time.
+	int AnimationClip::getScaleKeyIndexAtTime(int boneID, float elapsedTime)
 	{
-		std::array<int, 2> indices = { -1, -1 };
-		for (int index = 0; index < scaleKeys.size(); index++)
+		for (int index = 0; index < scaleKeys[boneID].size() - 1; index++)
 		{
-			if (scaleKeys[index].boneID == boneID && elapsedTime < scaleKeys[index].timeStamp)
+			if (elapsedTime < scaleKeys[boneID][index + 1].timeStamp)
 			{
-				if (indices[0] == -1)
-				{
-					indices[0] = index; // Current key index of bone.
-				}
-				else
-				{
-					indices[1] = index; // Next key index of bone.
-					return indices;
-				}
+				return index;
 			}
 		}
-		return indices;
+		return 0;
 	}
 
 }
