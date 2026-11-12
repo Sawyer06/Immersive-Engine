@@ -2,7 +2,7 @@
 
 namespace ImmersiveEngine
 {
-	std::shared_ptr<Rendering::Model> ResourceManager::loadFromModel(Rendering::Shader& shaderProgram, std::string modelFile, bool genNormals, bool flipFaces, bool boneless)
+	std::shared_ptr<Rendering::Model> ResourceManager::loadFromModel(Rendering::Shader& shaderProgram, std::string modelFile, bool genNormals, bool flipFaces)
 	{
 		Assimp::Importer importer;
 
@@ -12,8 +12,6 @@ namespace ImmersiveEngine
 			flags |= aiProcess_GenNormals;
 		if (!flipFaces)
 			flags |= aiProcess_FlipWindingOrder;
-		if (boneless)
-			flags |= aiProcess_Debone;
 
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false); // Needed to remove unnecessary nodes.
 		const aiScene* scene = importer.ReadFile(modelFile, flags);

@@ -152,12 +152,13 @@ int main()
 	bunny.space->translate(ImmersiveEngine::Math::Vector3(30.0f, -2.0f, -10.0f));
 	bunny.space->dialate(30.0f);
 
-	auto character1Model = resourceManager.loadFromModel(shaderProgram, "Character/Character.fbx", true);
+	auto character1Model = resourceManager.loadFromModel(shaderProgram, "Joe.fbx", true);
 	ImmersiveEngine::cbs::GameObject guy1("Guy1");
-	guy1.space->rotate(90.0f, ImmersiveEngine::Math::Vector3::right);
-	guy1.space->translate(ImmersiveEngine::Math::Vector3(10.0f, 2.0f, -10.0f));
-	guy1.space->dialate(ImmersiveEngine::Math::Vector3(1.0, 0.5, 1.0f));
+	guy1.space->translate(ImmersiveEngine::Math::Vector3(100.0f, -2.0f, -5.0f));
+	guy1.space->dialate(ImmersiveEngine::Math::Vector3(0.03f, 0.03f, 0.03f));
+	guy1.space->rotate(-90.0f, ImmersiveEngine::Math::Vector3::up);
 	auto guy1MeshRenderer = guy1.addComponent<ImmersiveEngine::cbs::MeshRenderer>(character1Model);
+	auto guy1Animator = guy1.addComponent<ImmersiveEngine::cbs::Animator>();
 
 	auto character2Model = resourceManager.loadFromModel(shaderProgram, "Ymca Dance.fbx");
 	ImmersiveEngine::cbs::GameObject guy2("Guy2");
@@ -385,7 +386,8 @@ int main()
 	float offset = 0;
 
 	physicsManager.onStart();
-
+	
+	guy1Animator->playAnimation(character1Model->animations[0]);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -419,6 +421,12 @@ int main()
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 		{
 			guy2Animator->playAnimation(character2Model->animations[0]);
+			//guy1.space->translate(guy1.space->getForward() * deltaTime * 1.5f);
+		}
+		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+		{
+			//guy2Animator->stopAnimation();
+			//guy1Animator->playAnimation(character1Model->animations[1]);
 		}
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
@@ -476,7 +484,7 @@ int main()
 			playerPosition += ImmersiveEngine::Math::Vector3::up * camSpeed * deltaTime;
 		}
 		camRb->setPositionAndOrientation(playerPosition, cam.space->orientation);
-
+		guy1.space->translate(guy1.space->getForward() * deltaTime * 3.0f);
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		{
@@ -702,6 +710,8 @@ int main()
 		//bunny.mesh->draw(shaderProgram);
 		bunMeshRenderer->onUpdate(deltaTime);
 
+		guy1Animator->onUpdate(deltaTime);
+		guy1Animator->refreshRigTransforms(shaderProgram);
 		guy1.space->refreshTransforms(shaderProgram);
 		guy1MeshRenderer->onUpdate(deltaTime);
 

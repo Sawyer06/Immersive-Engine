@@ -24,24 +24,23 @@ namespace ImmersiveEngine::cbs
 
 	void Animator::refreshRigTransforms(Rendering::Shader& shaderProgram)
 	{
+		for (int i = 0; i < m_boneTransformMats.size(); i++)
+		{
+			shaderProgram.setMat4("boneTransformMats[" + std::to_string(i) + "]", m_boneTransformMats[i]);
+		}
+
 		if (!m_currentAnimation)
 			return;
 
 		if (auto model = m_ownerMeshRenderer->getModel())
 		{
 			refreshBoneTransform(model->getRoot(), glm::mat4(1.0));
-			for (int i = 0; i < m_boneTransformMats.size(); i++)
-			{
-				shaderProgram.setMat4("boneTransformMats[" + std::to_string(i) + "]", m_boneTransformMats[i]);
-			}
 		}
 	}
 
 	/// Refresh all local transforms of bone nodes and convert them to global space.
 	void Animator::refreshBoneTransform(Rendering::ModelNode& node, glm::mat4 parentTransform)
 	{
-		//glm::mat4 globalTransform = parentTransform * node.localTransform;
-
 		if (node.boneID > -1) // Node is associated with bone, get animated transform at current time.
 		{
 			Math::Vector3 position;

@@ -16,7 +16,7 @@ out vec3 worldPos;
 uniform float scale;
 uniform vec2 offset;
 
-uniform mat4 transform;
+uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 
@@ -24,9 +24,10 @@ const int MAX_BONES = 100;
 const int MAX_BONE_INFLUENCE = 4;
 uniform mat4 boneTransformMats[MAX_BONES];
 
+// Calculate the transform based on which bones and weights are associated with the vertex.
 mat4 calculateAnimatedTransform()
 {
-    mat4 animatedTransform = mat4(0.0f);
+    mat4 animatedTransform = mat4(0.0);
     float totalWeight = 0.0;
     for (int i = 0; i < MAX_BONE_INFLUENCE; i++)
     {
@@ -36,18 +37,15 @@ mat4 calculateAnimatedTransform()
         animatedTransform += boneTransformMats[aBoneIDs[i]] * aBoneWeights[i];
         totalWeight += aBoneWeights[i];
     }
-    if (animatedTransform == mat4(0.0))
-        color = vec3(0.0);
-    else
-        color = vec3(1.0);
+
     return animatedTransform == mat4(0.0) ? mat4(1.0) : animatedTransform;
 }
 
 void main()
 {
-    mat4 transformation = transform * calculateAnimatedTransform();//vec4(aPos, 1.0f);
+    mat4 transformation = model * calculateAnimatedTransform();
     //worldPos = vec3(transform * vec4(aPos, 1.0f)); // Calculate the world space of the vertex.
-    normal = mat3(transpose(inverse(transform))) * aNormal; // Preserves the normal directions of the normals through object scaling (inverse) and rotation (transpose).
+    normal = mat3(transpose(inverse(transformation))) * aNormal; // Preserves the normal directions of the normals through object scaling (inverse) and rotation (transpose).
 
     gl_Position = (proj * view * transformation) * vec4(aPos, 1.0f);
 

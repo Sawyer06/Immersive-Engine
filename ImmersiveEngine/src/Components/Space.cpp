@@ -21,7 +21,7 @@ namespace ImmersiveEngine::cbs
 
         m_matrix = glm::scale(m_matrix, glm::vec3(scale.x, scale.y, scale.z)); // Scale x, y, z
 
-        shaderProgram.setMat4("transform", m_matrix);
+        shaderProgram.setMat4("model", m_matrix);
     }
 
     void Space::translate(ImmersiveEngine::Math::Vector3 deltaPos)

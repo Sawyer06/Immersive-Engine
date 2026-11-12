@@ -24,7 +24,7 @@ namespace ImmersiveEngine
 			ResourceManager() = default;
 			~ResourceManager() = default;
 
-			std::shared_ptr<Rendering::Model> loadFromModel(Rendering::Shader& shaderProgram, std::string modelFile, bool genNormals = false, bool flipFaces = false, bool boneless = false);
+			std::shared_ptr<Rendering::Model> loadFromModel(Rendering::Shader& shaderProgram, std::string modelFile, bool genNormals = false, bool flipFaces = false);
 		private:
 			std::unordered_map<std::string, std::shared_ptr<Resource>> m_loadedResources;
 
