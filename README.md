@@ -10,6 +10,8 @@ A 3D game engine made for virtual reality (VR) applications.
 * Engine core written in C++.
 * 3D rendering using the OpenGL API.
 * VR integration through OpenXR.
+* Physics system using Jolt.
+* Model loading and skeletal animation with Assimp.
 * A component based system for objects.
 * A clean and modular object oriented design.
 
