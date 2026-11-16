@@ -11,6 +11,7 @@ namespace ImmersiveEngine::cbs
 	{
 		private:
 			std::shared_ptr<Rendering::AnimationClip> m_currentAnimation;
+			bool m_shouldLoop = false;
 
 			float m_elapsedTime = 0;
 
@@ -29,7 +30,7 @@ namespace ImmersiveEngine::cbs
 			void onUpdate(float deltaTime) override;
 			void refreshRigTransforms(Rendering::Shader& shaderProgram);
 
-			void playAnimation(std::shared_ptr<Rendering::AnimationClip> anim);
+			void playAnimation(std::shared_ptr<Rendering::AnimationClip> anim, bool loop = true);
 			void stopAnimation();
 	};
 }

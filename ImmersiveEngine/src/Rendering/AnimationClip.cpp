@@ -16,7 +16,7 @@ namespace ImmersiveEngine::Rendering
 	/// Calculate position interpolated between the current and previous key frames.
 	Math::Vector3 ImmersiveEngine::Rendering::AnimationClip::getBonePositionAtTime(int boneID, float elapsedTime)
 	{
-		if (positionKeys[boneID].size() == 1)
+		if (positionKeys[boneID].size() == 1 || elapsedTime > duration)
 			return positionKeys[boneID][0].value;
 
 		int keyIndexA = getPositionKeyIndexAtTime(boneID, elapsedTime);
@@ -35,7 +35,7 @@ namespace ImmersiveEngine::Rendering
 	/// Calculate orientation interpolated between the current and previous key frames.
 	Math::Quaternion ImmersiveEngine::Rendering::AnimationClip::getBoneOrientationAtTime(int boneID, float elapsedTime)
 	{
-		if (orientationKeys[boneID].size() == 1)
+		if (orientationKeys[boneID].size() == 1 || elapsedTime > duration)
 			return orientationKeys[boneID][0].value;
 
 		int keyIndexA = getOrientationKeyIndexAtTime(boneID, elapsedTime);
@@ -55,7 +55,7 @@ namespace ImmersiveEngine::Rendering
 	/// Calculate scale interpolated between the current and previous key frames.
 	Math::Vector3 ImmersiveEngine::Rendering::AnimationClip::getBoneScaleAtTime(int boneID, float elapsedTime)
 	{
-		if (scaleKeys[boneID].size() == 1)
+		if (scaleKeys[boneID].size() == 1 || elapsedTime > duration)
 			return scaleKeys[boneID][0].value;
 
 		int keyIndexA = getScaleKeyIndexAtTime(boneID, elapsedTime);

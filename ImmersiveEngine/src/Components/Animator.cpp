@@ -18,7 +18,9 @@ namespace ImmersiveEngine::cbs
 		if (m_currentAnimation)
 		{
 			m_elapsedTime += m_currentAnimation->ticksPerSecond * deltaTime;
-			m_elapsedTime = fmod(m_elapsedTime, m_currentAnimation->duration);
+			
+			if (m_shouldLoop)
+				m_elapsedTime = fmod(m_elapsedTime, m_currentAnimation->duration);
 		}
 	}
 
@@ -81,9 +83,11 @@ namespace ImmersiveEngine::cbs
 		return mat4Position * mat4Orientation * mat4Scale;
 	}
 
-	void Animator::playAnimation(std::shared_ptr<Rendering::AnimationClip> anim)
+	void Animator::playAnimation(std::shared_ptr<Rendering::AnimationClip> anim, bool loop)
 	{
 		m_elapsedTime = 0;
+		m_shouldLoop = loop;
+
 		m_currentAnimation = anim;
 	}
 	void Animator::stopAnimation()

@@ -420,14 +420,10 @@ int main()
 		}
 		if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 		{
-			guy2Animator->playAnimation(character2Model->animations[0]);
+			guy2Animator->playAnimation(character2Model->animations[0], false);
 			//guy1.space->translate(guy1.space->getForward() * deltaTime * 1.5f);
 		}
-		if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-		{
-			//guy2Animator->stopAnimation();
-			//guy1Animator->playAnimation(character1Model->animations[1]);
-		}
+
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
 			clickIn = true;
@@ -500,7 +496,7 @@ int main()
 			blockRb->addForce({ 0, 100000, 0 });
 		}
 
-		blockRb->addTorque(ImmersiveEngine::Math::Vector3(1000, 15000, 1000));
+		blockRb->addTorque(ImmersiveEngine::Math::Vector3(0, 150, 100));
 		physicsManager.onUpdate(deltaTime);
 
 		if (openInVR && xrManager.sessionRunning)
