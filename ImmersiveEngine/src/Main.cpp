@@ -33,6 +33,11 @@
 
 #include"XR/OpenXRManager.h"
 
+#define FMT_UNICODE 0
+#include <spdlog/spdlog.h>
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+
 #ifdef _WIN32
 extern "C"
 {
@@ -114,7 +119,6 @@ int main()
 	skyboxShader.Activate();
 	skyboxShader.setInt("skybox", 0);
 	skyboxShader.setFloat("brightness", 0.5f);
-
 	//screenShader.Activate();
 
 	ImmersiveEngine::Rendering::FBO FBO;
@@ -388,6 +392,18 @@ int main()
 	physicsManager.onStart();
 	
 	guy1Animator->playAnimation(character1Model->animations[0]);
+
+	try
+	{
+		auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("Logs/log.txt", true);
+		auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+		spdlog::logger logger("logger", { console_sink, file_sink });
+		logger.info("Hello world!");
+	}
+	catch (const spdlog::spdlog_ex& ex)
+	{
+		std::cout << "Log init failed: " << ex.what() << std::endl;
+	}
 
 	while (!glfwWindowShouldClose(window))
 	{
